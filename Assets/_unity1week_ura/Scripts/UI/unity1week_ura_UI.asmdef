@@ -1,0 +1,24 @@
+{
+    "name": "unity1week_ura_UI",
+    "rootNamespace": "",
+    "references": [
+        "GUID:be08961a7c12b7942afdfc1a7f8dc582",
+        "GUID:d29ada6c86567b04997b8c06cd581533",
+        "GUID:89f9b1430ebf3a54eb6cfd26b79b09c5",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:77221876cc6b8244180b96e320b1bcd4",
+        "GUID:f2e6418ec9bfd3145b06df205b77499b",
+        "GUID:029c1c1b674aaae47a6841a0b89ad80e",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

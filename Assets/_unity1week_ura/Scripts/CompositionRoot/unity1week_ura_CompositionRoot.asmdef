@@ -1,0 +1,21 @@
+{
+    "name": "unity1week_ura_CompositionRoot",
+    "rootNamespace": "",
+    "references": [
+        "GUID:be08961a7c12b7942afdfc1a7f8dc582",
+        "GUID:89f9b1430ebf3a54eb6cfd26b79b09c5",
+        "GUID:d29ada6c86567b04997b8c06cd581533",
+        "GUID:5604629e5bcbcb74d993ec74fd818a27",
+        "GUID:a21dfcfa94f560542a3e0c5af89cf48f",
+        "GUID:b0214a6008ed146ff8f122a6a9c2f6cc"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
