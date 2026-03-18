@@ -1,0 +1,35 @@
+using System.Threading;
+using R3;
+
+namespace Unity1Week_Ura.Core
+{
+    public class SceneModel
+    {
+        public ReadOnlyReactiveProperty<SceneType> CurrentScene => currentScene;
+        readonly ReactiveProperty<SceneType> currentScene = new(SceneType.Title);
+
+        readonly SemaphoreSlim sceneTransitionSemaphore = new(1, 1);
+
+        public bool ChangeScene(SceneType sceneType)
+        {
+            if (currentScene.Value == sceneType)
+            {
+                return false;
+            }
+
+            if (!sceneTransitionSemaphore.Wait(0))
+            {
+                // シーン遷移中の場合は無視する
+                return false;
+            }
+
+            currentScene.Value = sceneType;
+            return true;
+        }
+
+        public void ReleaseLock()
+        {
+            sceneTransitionSemaphore.Release();
+        }
+    }
+}
