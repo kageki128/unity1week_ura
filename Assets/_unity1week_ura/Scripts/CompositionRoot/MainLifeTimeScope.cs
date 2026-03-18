@@ -13,6 +13,8 @@ namespace Unity1Week_Ura.CompositionRoot
     {
         [SerializeField] SmartPhoneView smartPhoneView;
 
+        [SerializeField] GameRuleSO defaultGameRule;
+
         protected override void Configure(IContainerBuilder builder)
         {
             RegisterCore(builder);
@@ -23,6 +25,8 @@ namespace Unity1Week_Ura.CompositionRoot
         void RegisterCore(IContainerBuilder builder)
         {
             builder.Register<SceneModel>(Lifetime.Singleton);
+            builder.Register<GameSessionModel>(Lifetime.Singleton);
+            builder.RegisterInstance(defaultGameRule);
         }
         void RegisterActor(IContainerBuilder builder)
         {

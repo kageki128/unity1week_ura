@@ -14,7 +14,7 @@ namespace Unity1Week_Ura.Director
         readonly SmartPhoneView smartPhoneView;
         readonly SceneModel sceneModel;
 
-        CompositeDisposable disposables = new();
+        readonly CompositeDisposable disposables = new();
 
         public TitleSceneDirector(SmartPhoneView smartPhoneView, SceneModel sceneModel)
         {
@@ -49,8 +49,8 @@ namespace Unity1Week_Ura.Director
 
         public async UniTask ExitAsync(CancellationToken ct)
         {
-            await smartPhoneView.HideScreenAsync(SceneType.Title, ct);
             disposables.Clear();
+            await smartPhoneView.HideScreenAsync(SceneType.Title, ct);
         }
 
         void StartButtonHandler()

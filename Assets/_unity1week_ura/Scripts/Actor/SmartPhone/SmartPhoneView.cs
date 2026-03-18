@@ -10,6 +10,7 @@ namespace Unity1Week_Ura.Actor
     public class SmartPhoneView : MonoBehaviour
     {
         public Observable<Unit> OnStartButtonClicked => titlePhoneScreenView.OnStartButtonClicked;
+        public Observable<GameRuleSO> OnDifficultyButtonClicked => selectPhoneScreenView.OnDifficultyButtonClicked;
 
         [SerializeField] TitlePhoneScreenView titlePhoneScreenView;
         [SerializeField] SelectPhoneScreenView selectPhoneScreenView;

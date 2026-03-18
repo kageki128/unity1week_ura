@@ -1,9 +1,9 @@
 ﻿<Solution>
   <Project Path="VHierarchy.csproj" />
   <Project Path="DOTween.Modules.csproj" />
+  <Project Path="unity1week_ura_Core.csproj" />
   <Project Path="unity1week_ura_Director.csproj" />
   <Project Path="unity1week_ura_Actor.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
-  <Project Path="unity1week_ura_Core.csproj" />
   <Project Path="unity1week_ura_CompositionRoot.csproj" />
 </Solution>
