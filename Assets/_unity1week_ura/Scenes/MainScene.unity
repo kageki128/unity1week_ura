@@ -2481,6 +2481,7 @@ MonoBehaviour:
   autoInjectGameObjects: []
   smartPhoneView: {fileID: 957248760}
   defaultGameRule: {fileID: 11400000, guid: cddf2435e0d034045bfd24854b18b6a7, type: 2}
+  addressableConfig: {fileID: 11400000, guid: 41c42f1f2dad5f14e827dc3a68c9e110, type: 2}
 --- !u!1 &2009210220
 GameObject:
   m_ObjectHideFlags: 0

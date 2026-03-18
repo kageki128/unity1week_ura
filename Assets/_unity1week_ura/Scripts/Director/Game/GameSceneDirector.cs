@@ -1,7 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
-using Unity1Week_Ura.Actor;
 using Unity1Week_Ura.Core;
 using UnityEngine;
 
@@ -9,25 +8,25 @@ namespace Unity1Week_Ura.Director
 {
     public class GameSceneDirector : ISceneDirector
     {
-        readonly SmartPhoneView smartPhoneView;
+        readonly UIDirector uiDirector;
         readonly GameSessionModel gameSessionModel;
         readonly SceneModel sceneModel;
 
-        public GameSceneDirector(SmartPhoneView smartPhoneView, GameSessionModel gameSessionModel, SceneModel sceneModel)
+        public GameSceneDirector(UIDirector uiDirector, GameSessionModel gameSessionModel, SceneModel sceneModel)
         {
-            this.smartPhoneView = smartPhoneView;
+            this.uiDirector = uiDirector;
             this.gameSessionModel = gameSessionModel;
             this.sceneModel = sceneModel;
         }
 
         public void Initialize()
         {
-            smartPhoneView.Initialize();
+            uiDirector.Initialize();
         }
 
         public async UniTask EnterAsync(CancellationToken ct)
         {
-            await smartPhoneView.ShowScreenAsync(SceneType.Game, ct);
+            await uiDirector.ShowScreenAsync(SceneType.Game, ct);
             gameSessionModel.Play();
         }
 
@@ -38,7 +37,7 @@ namespace Unity1Week_Ura.Director
 
         public async UniTask ExitAsync(CancellationToken ct)
         {
-            await smartPhoneView.HideScreenAsync(SceneType.Game, ct);
+            await uiDirector.HideScreenAsync(SceneType.Game, ct);
         }
     }
 }

@@ -1,0 +1,6 @@
+CorrectPlayerAccount,ID,AuthorAccountID,Text,AttachedImageFileName,ParentPostID,PostType,PublishPoint,LikePoint,RepostPoint,WrongText0,WrongText1,WrongText2,WrongText3,DefaultLikeCount,DefaultRepostCount
+Public,P0001,Public,おはようございます！今日もがんばるぞ！,,,Normal,30,5,8,自撮りした！,推しが尊い,,,12,3
+Selfie,P0002,Selfie,新しいフィルター盛れたかも,,,Normal,35,6,10,仕事つらい,バズれー,,,20,5
+Kimoota,P0003,Kimoota,推しの新曲ループ中 #神,,,Normal,40,8,12,ランチおいしかった,筋トレした,,,25,7
+Meme,P0004,Meme,このテンプレまだ生きてる？www,,,Advertisement,20,12,18,まじめに連絡です,会議資料共有,,,40,15
+Public,P0005,Public,この投稿への返信テスト,,P0001,Normal,25,4,6,いい天気,猫かわいい,,,8,2

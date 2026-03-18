@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Unity1Week_Ura.Core
@@ -8,7 +9,7 @@ namespace Unity1Week_Ura.Core
         public float TimeLimitSeconds => timeLimitSeconds;
         [SerializeField] float timeLimitSeconds = 120.0f;
 
-        public int SecretAccountCount => secretAccountCount;
-        [SerializeField] int secretAccountCount = 1;
+        public IReadOnlyList<MyAccountSO> UsedAccounts => usedAccounts;
+        [SerializeField] List<MyAccountSO> usedAccounts;
     }
 }
