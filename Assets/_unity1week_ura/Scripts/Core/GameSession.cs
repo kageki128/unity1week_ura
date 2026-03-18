@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Core
 {
-    public class GameSessionModel
+    public class GameSession
     {
         public ReadOnlyReactiveProperty<float> RemainingTimeSeconds => remainingTimeSeconds;
         readonly ReactiveProperty<float> remainingTimeSeconds = new(0);
@@ -19,14 +19,18 @@ namespace Unity1Week_Ura.Core
         public ReadOnlyReactiveProperty<GameState> CurrentGameState => currentGameState;
         readonly ReactiveProperty<GameState> currentGameState = new(GameState.Ready);
 
+        public IReadOnlyList<Account> PlayerAccounts => playerAccounts;
+        IReadOnlyList<Account> playerAccounts = new List<Account>();
+
+        public IReadOnlyList<Post> BeforeAppearingPosts => beforeAppearingPosts;
+        List<Post> beforeAppearingPosts = new();
+        
         readonly IAccountRepository accountRepository;
         readonly IPostRepository postRepository;
 
         GameRuleSO gameRule;
-        IReadOnlyList<Account> playerAccounts = new List<Account>();
-        List<Post> beforeAppearingPosts = new();
-
-        public GameSessionModel(GameRuleSO defaultGameRule, IAccountRepository accountRepository, IPostRepository postRepository)
+        
+        public GameSession(GameRuleSO defaultGameRule, IAccountRepository accountRepository, IPostRepository postRepository)
         {
             this.accountRepository = accountRepository;
             this.postRepository = postRepository;

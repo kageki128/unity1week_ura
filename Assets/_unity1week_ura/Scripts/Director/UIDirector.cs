@@ -33,5 +33,10 @@ namespace Unity1Week_Ura.Director
         {
             await smartPhoneView.HideScreenAsync(sceneType, ct);
         }
+
+        public void AddPostToTimeline(Post post)
+        {
+            smartPhoneView.AddPostToTimeline(post);
+        }
     }
 }

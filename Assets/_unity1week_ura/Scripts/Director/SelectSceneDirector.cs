@@ -10,15 +10,15 @@ namespace Unity1Week_Ura.Director
     public class SelectSceneDirector : ISceneDirector, IDisposable
     {
         readonly UIDirector uiDirector;
-        readonly GameSessionModel gameSessionModel;
+        readonly GameSession gameSession;
         readonly SceneModel sceneModel;
 
         readonly CompositeDisposable disposables = new();
 
-        public SelectSceneDirector(UIDirector uiDirector, GameSessionModel gameSessionModel, SceneModel sceneModel)
+        public SelectSceneDirector(UIDirector uiDirector, GameSession gameSession, SceneModel sceneModel)
         {
             this.uiDirector = uiDirector;
-            this.gameSessionModel = gameSessionModel;
+            this.gameSession = gameSession;
             this.sceneModel = sceneModel;
         }
 
@@ -29,8 +29,6 @@ namespace Unity1Week_Ura.Director
 
         public void Initialize()
         {
-            uiDirector.Initialize();
-
             disposables.Clear();
             uiDirector.OnDifficultyButtonClicked.Subscribe(gameRule =>
             {
@@ -55,7 +53,7 @@ namespace Unity1Week_Ura.Director
 
         public void DifficultyButtonHandlerAsync(GameRuleSO gameRule)
         {
-            gameSessionModel.SetNewGameRule(gameRule);
+            gameSession.SetNewGameRule(gameRule);
             sceneModel.ChangeScene(SceneType.Game);
         }
     }

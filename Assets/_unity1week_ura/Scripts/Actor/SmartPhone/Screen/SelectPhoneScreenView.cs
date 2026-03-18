@@ -14,14 +14,10 @@ namespace Unity1Week_Ura.Actor
         Observable<GameRuleSO> onDifficultyButtonClicked;
 
         [SerializeField] List<DifficultyButtonView> difficultyButtons;
-
-        void Awake()
-        {
-            onDifficultyButtonClicked = Observable.Merge(difficultyButtons.Select(button => button.OnClicked).ToArray());
-        }
-
+        
         public override void Initialize()
         {
+            onDifficultyButtonClicked = Observable.Merge(difficultyButtons.Select(button => button.OnClicked).ToArray());
             gameObject.SetActive(false);
         }
 

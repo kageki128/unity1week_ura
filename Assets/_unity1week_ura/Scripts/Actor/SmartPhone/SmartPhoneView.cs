@@ -45,6 +45,11 @@ namespace Unity1Week_Ura.Actor
             await screenView.HideAsync(ct);
         }
 
+        public void AddPostToTimeline(Post post)
+        {
+            gamePhoneScreenView.AddPost(post);
+        }
+
         PhoneScreenViewBase GetScreenView(SceneType sceneType)
         {
             if (screenViews.TryGetValue(sceneType, out var screenView))

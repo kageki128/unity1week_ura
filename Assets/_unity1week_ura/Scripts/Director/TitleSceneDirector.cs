@@ -27,8 +27,6 @@ namespace Unity1Week_Ura.Director
 
         public void Initialize()
         {
-            uiDirector.Initialize();
-
             disposables.Clear();
             uiDirector.OnStartButtonClicked.Subscribe(_ => 
             {

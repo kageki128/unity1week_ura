@@ -1,11 +1,14 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Unity1Week_Ura.Core;
 using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
     public class GamePhoneScreenView : PhoneScreenViewBase
     {
+        [SerializeField] TimelineView timelineView;
+
         public override void Initialize()
         {
             gameObject.SetActive(false);
@@ -21,6 +24,11 @@ namespace Unity1Week_Ura.Actor
         {
             gameObject.SetActive(false);
             return UniTask.CompletedTask;
+        }
+
+        public void AddPost(Post post)
+        {
+            timelineView.AddPost(post);
         }
     }
 }

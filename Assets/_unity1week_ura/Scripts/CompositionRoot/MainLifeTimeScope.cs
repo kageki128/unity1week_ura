@@ -12,8 +12,10 @@ namespace Unity1Week_Ura.CompositionRoot
 {
     public class MainLifeTimeScope : LifetimeScope
     {
+        [Header("View")]
         [SerializeField] SmartPhoneView smartPhoneView;
 
+        [Header("SO")]
         [SerializeField] GameRuleSO defaultGameRule;
         [SerializeField] AddressableConfigSO addressableConfig;
 
@@ -27,7 +29,7 @@ namespace Unity1Week_Ura.CompositionRoot
         void RegisterCore(IContainerBuilder builder)
         {
             builder.Register<SceneModel>(Lifetime.Singleton);
-            builder.Register<GameSessionModel>(Lifetime.Singleton);
+            builder.Register<GameSession>(Lifetime.Singleton);
             builder.Register<AddressableSpriteLabelLoader>(Lifetime.Singleton);
             builder.Register<IAccountRepository, AccountRepository>(Lifetime.Singleton);
             builder.Register<IPostRepository, PostRepository>(Lifetime.Singleton);

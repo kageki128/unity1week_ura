@@ -9,31 +9,38 @@ namespace Unity1Week_Ura.Director
     public class GameSceneDirector : ISceneDirector
     {
         readonly UIDirector uiDirector;
-        readonly GameSessionModel gameSessionModel;
+        readonly GameSession gameSession;
         readonly SceneModel sceneModel;
 
-        public GameSceneDirector(UIDirector uiDirector, GameSessionModel gameSessionModel, SceneModel sceneModel)
+        public GameSceneDirector(UIDirector uiDirector, GameSession gameSession, SceneModel sceneModel)
         {
             this.uiDirector = uiDirector;
-            this.gameSessionModel = gameSessionModel;
+            this.gameSession = gameSession;
             this.sceneModel = sceneModel;
         }
 
         public void Initialize()
         {
-            uiDirector.Initialize();
         }
 
         public async UniTask EnterAsync(CancellationToken ct)
         {
-            await gameSessionModel.LoadNewGame(ct);
+            await gameSession.LoadNewGame(ct);
+
+            // test
+            foreach (var post in gameSession.BeforeAppearingPosts)
+            {
+                uiDirector.AddPostToTimeline(post);
+            }
+
             await uiDirector.ShowScreenAsync(SceneType.Game, ct);
-            gameSessionModel.Play();
+
+            gameSession.Play();
         }
 
         public void Tick()
         {
-            gameSessionModel.Proceed(Time.deltaTime);
+            gameSession.Proceed(Time.deltaTime);
         }
 
         public async UniTask ExitAsync(CancellationToken ct)
