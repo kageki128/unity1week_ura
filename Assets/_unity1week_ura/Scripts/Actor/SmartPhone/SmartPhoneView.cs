@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using R3;
 using Unity1Week_Ura.Core;
@@ -31,16 +32,16 @@ namespace Unity1Week_Ura.Actor
             }
         }
 
-        public async UniTask ShowScreenAsync(SceneType sceneType)
+        public async UniTask ShowScreenAsync(SceneType sceneType, CancellationToken ct)
         {
             var screenView = GetScreenView(sceneType);
-            await screenView.ShowAsync();
+            await screenView.ShowAsync(ct);
         }
 
-        public async UniTask HideScreenAsync(SceneType sceneType)
+        public async UniTask HideScreenAsync(SceneType sceneType, CancellationToken ct)
         {
             var screenView = GetScreenView(sceneType);
-            await screenView.HideAsync();
+            await screenView.HideAsync(ct);
         }
 
         PhoneScreenViewBase GetScreenView(SceneType sceneType)
