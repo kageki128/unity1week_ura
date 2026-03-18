@@ -4,6 +4,7 @@
   <Project Path="DOTween.Modules.csproj" />
   <Project Path="unity1week_ura_Director.csproj" />
   <Project Path="unity1week_ura_Actor.csproj" />
+  <Project Path="unity1week_ura_Tests.csproj" />
   <Project Path="unity1week_ura_Infrastructure.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="unity1week_ura_CompositionRoot.csproj" />

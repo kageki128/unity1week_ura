@@ -1,3 +1,5 @@
+using System;
+
 namespace Unity1Week_Ura.Core
 {
     public class Post
@@ -9,6 +11,7 @@ namespace Unity1Week_Ura.Core
         public int RepostCount { get; private set; }
         public int ReplyCount { get; private set; }
         public PostState State { get; private set; }
+        public DateTimeOffset PublishDateTime { get; private set; }
 
         public Post(PostProperty property, PostScoreInfo scoreInfo, int defaultLikeCount, int defaultRepostCount, int defaultReplyCount)
         {
@@ -19,6 +22,7 @@ namespace Unity1Week_Ura.Core
             ReplyCount = defaultReplyCount;
 
             State = PostState.BeforeAppeared;
+            PublishDateTime = DateTimeOffset.UtcNow;
         }
     }
 }

@@ -46,7 +46,6 @@ namespace Unity1Week_Ura.Infrastructure
             public List<string> WrongTexts { get; }
             public int DefaultLikeCount { get; }
             public int DefaultRepostCount { get; }
-            public DateTimeOffset PublishDateTime { get; }
 
             public PostCsvRow(
                 string correctPlayerAccountId,
@@ -61,8 +60,7 @@ namespace Unity1Week_Ura.Infrastructure
                 int repostPoint,
                 List<string> wrongTexts,
                 int defaultLikeCount,
-                int defaultRepostCount,
-                DateTimeOffset publishDateTime)
+                int defaultRepostCount)
             {
                 CorrectPlayerAccountId = correctPlayerAccountId;
                 Id = id;
@@ -77,7 +75,6 @@ namespace Unity1Week_Ura.Infrastructure
                 WrongTexts = wrongTexts;
                 DefaultLikeCount = defaultLikeCount;
                 DefaultRepostCount = defaultRepostCount;
-                PublishDateTime = publishDateTime;
             }
         }
 
@@ -165,7 +162,6 @@ namespace Unity1Week_Ura.Infrastructure
                             row.Text,
                             attachedImage,
                             row.ParentPostId,
-                            row.PublishDateTime,
                             row.Type);
                         var scoreInfo = new PostScoreInfo(row.PublishPoint, row.LikePoint, row.RepostPoint, row.WrongTexts);
                         var post = new Post(property, scoreInfo, row.DefaultLikeCount, row.DefaultRepostCount, 0);
@@ -377,9 +373,6 @@ namespace Unity1Week_Ura.Infrastructure
                     wrongTexts.Add(wrongText);
                 }
 
-                // 投稿時刻カラムが未定義のため、CSV順を保持できる固定基準時刻 + 行インデックスで採番する。
-                var publishDateTime = DateTimeOffset.UnixEpoch.AddSeconds(i);
-
                 rows.Add(new PostCsvRow(
                     correctPlayerAccountId,
                     id,
@@ -393,8 +386,7 @@ namespace Unity1Week_Ura.Infrastructure
                     repostPoint,
                     wrongTexts,
                     defaultLikeCount,
-                    defaultRepostCount,
-                    publishDateTime));
+                        defaultRepostCount));
             }
 
             return rows;
