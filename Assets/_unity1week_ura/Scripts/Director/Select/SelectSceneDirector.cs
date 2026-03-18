@@ -34,7 +34,7 @@ namespace Unity1Week_Ura.Director
             disposables.Clear();
             uiDirector.OnDifficultyButtonClicked.Subscribe(gameRule =>
             {
-                DifficultyButtonHandler(gameRule);
+                DifficultyButtonHandlerAsync(gameRule);
             }).AddTo(disposables);
         }
 
@@ -53,9 +53,9 @@ namespace Unity1Week_Ura.Director
             await uiDirector.HideScreenAsync(SceneType.Select, ct);
         }
 
-        void DifficultyButtonHandler(GameRuleSO gameRule)
+        public void DifficultyButtonHandlerAsync(GameRuleSO gameRule)
         {
-            gameSessionModel.SetNewGame(gameRule);
+            gameSessionModel.SetNewGameRule(gameRule);
             sceneModel.ChangeScene(SceneType.Game);
         }
     }

@@ -1,3 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using Codice.Utils;
+using Cysharp.Threading.Tasks;
 using R3;
 using UnityEngine;
 
@@ -14,14 +19,21 @@ namespace Unity1Week_Ura.Core
         public ReadOnlyReactiveProperty<GameState> CurrentGameState => currentGameState;
         readonly ReactiveProperty<GameState> currentGameState = new(GameState.Ready);
 
-        GameRuleSO gameRule;
+        readonly IAccountRepository accountRepository;
+        readonly IPostRepository postRepository;
 
-        public GameSessionModel(GameRuleSO defaultGameRule)
+        GameRuleSO gameRule;
+        IReadOnlyList<Account> playerAccounts = new List<Account>();
+        List<Post> beforeAppearingPosts = new();
+
+        public GameSessionModel(GameRuleSO defaultGameRule, IAccountRepository accountRepository, IPostRepository postRepository)
         {
+            this.accountRepository = accountRepository;
+            this.postRepository = postRepository;
             gameRule = defaultGameRule;
         }
 
-        public void SetNewGame(GameRuleSO newGameRule)
+        public void SetNewGameRule(GameRuleSO newGameRule)
         {
             if(currentGameState.CurrentValue != GameState.Ready && currentGameState.CurrentValue != GameState.Finished)
             {
@@ -29,6 +41,29 @@ namespace Unity1Week_Ura.Core
             }
 
             gameRule = newGameRule;
+        }
+
+        public async UniTask LoadNewGame(CancellationToken ct)
+        {
+            if(currentGameState.CurrentValue != GameState.Ready && currentGameState.CurrentValue != GameState.Finished)
+            {
+                return;
+            }
+
+            // 使用するアカウントを読み込む
+            List<string> playerAccountIds = gameRule.UsedAccounts.Select(accountSO => accountSO.Id).ToList();
+            Account[] loadedAccounts = await UniTask.WhenAll(
+                playerAccountIds.Select(accountId => accountRepository.GetAccount(accountId, ct))
+            );
+            playerAccounts = loadedAccounts;
+
+            // 使用するポストを読み込む
+            List<Post>[] loadedPostsByAccount = await UniTask.WhenAll(
+                playerAccounts.Select(account => postRepository.GetPostsByCorrectPlayerAccountAsync(account, ct))
+            );
+            beforeAppearingPosts = loadedPostsByAccount.SelectMany(posts => posts).ToList();
+
+
             remainingTimeSeconds.Value = gameRule.TimeLimitSeconds;
             score.Value = 0;
             currentGameState.Value = GameState.Pause;

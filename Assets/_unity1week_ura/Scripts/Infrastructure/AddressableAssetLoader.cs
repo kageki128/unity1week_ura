@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -15,7 +16,7 @@ namespace Unity1Week_Ura.Infrastructure
         /// <see cref="AssetReference"/> から指定した型 <typeparamref name="T"/> のアセットを読み込む。
         /// 読み込み後は呼び出し側で <see cref="AssetReference.ReleaseAsset"/> を適切に呼ぶこと。
         /// </summary>
-        public static async UniTask<T> LoadAsync<T>(AssetReference assetReference) where T : UnityEngine.Object
+        public static async UniTask<T> LoadAsync<T>(AssetReference assetReference, CancellationToken ct) where T : UnityEngine.Object
         {
             if (assetReference == null)
             {
@@ -47,7 +48,7 @@ namespace Unity1Week_Ura.Infrastructure
                 throw new InvalidOperationException("Addressable load task is null.");
             }
 
-            await loadTask.AsUniTask();
+            await loadTask.AsUniTask().AttachExternalCancellation(ct);
 
             var resultProperty = loadTask.GetType().GetProperty("Result");
             if (resultProperty == null)

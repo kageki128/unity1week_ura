@@ -58,6 +58,42 @@ namespace Unity1Week_Ura.Tests
             Assert.Throws<InvalidOperationException>(() => InvokePrivate(repository, "ParsePostRows", csv));
         }
 
+        [Test]
+        public void GetPost_EmptyPostId_ThrowsArgumentException()
+        {
+            var repository = CreateUninitializedRepository();
+
+            Assert.Throws<ArgumentException>(() => repository.GetPost(string.Empty, default).GetAwaiter().GetResult());
+        }
+
+        [Test]
+        public void GetPost_WhenPostNotFound_ThrowsKeyNotFoundException()
+        {
+            var repository = CreateUninitializedRepository();
+            SetField(repository, "isLoaded", true);
+            SetField(repository, "postsById", new Dictionary<string, Post>());
+
+            Assert.Throws<KeyNotFoundException>(() => repository.GetPost("missing", default).GetAwaiter().GetResult());
+        }
+
+        [Test]
+        public void GetPost_WhenPostExists_ReturnsExpectedPost()
+        {
+            var repository = CreateUninitializedRepository();
+            var expectedPost = (Post)FormatterServices.GetUninitializedObject(typeof(Post));
+            var postsById = new Dictionary<string, Post>
+            {
+                { "p01", expectedPost }
+            };
+
+            SetField(repository, "isLoaded", true);
+            SetField(repository, "postsById", postsById);
+
+            var actual = repository.GetPost("p01", default).GetAwaiter().GetResult();
+
+            Assert.That(actual, Is.SameAs(expectedPost));
+        }
+
         static PostRepository CreateUninitializedRepository()
         {
             return (PostRepository)FormatterServices.GetUninitializedObject(typeof(PostRepository));
@@ -90,6 +126,17 @@ namespace Unity1Week_Ura.Tests
             }
 
             return (T)property.GetValue(instance);
+        }
+
+        static void SetField(object instance, string fieldName, object value)
+        {
+            var field = instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+            if (field == null)
+            {
+                throw new MissingFieldException(instance.GetType().Name, fieldName);
+            }
+
+            field.SetValue(instance, value);
         }
 
     }

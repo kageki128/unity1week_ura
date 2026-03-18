@@ -26,6 +26,7 @@ namespace Unity1Week_Ura.Director
 
         public async UniTask EnterAsync(CancellationToken ct)
         {
+            await gameSessionModel.LoadNewGame(ct);
             await uiDirector.ShowScreenAsync(SceneType.Game, ct);
             gameSessionModel.Play();
         }

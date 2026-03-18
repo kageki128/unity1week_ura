@@ -27,6 +27,7 @@ namespace Unity1Week_Ura.Infrastructure
         readonly IAccountRepository accountRepository;
         readonly AddressableSpriteLabelLoader spriteLabelLoader;
         readonly Dictionary<string, List<Post>> postsByCorrectAccountId = new(StringComparer.Ordinal);
+        readonly Dictionary<string, Post> postsById = new(StringComparer.Ordinal);
         readonly SemaphoreSlim loadGate = new(1, 1);
 
         bool isLoaded;
@@ -100,7 +101,7 @@ namespace Unity1Week_Ura.Infrastructure
             this.spriteLabelLoader = spriteLabelLoader;
         }
 
-        public async UniTask<List<Post>> GetPostsByCorrectPlayerAccountAsync(Account playerAccount)
+        public async UniTask<List<Post>> GetPostsByCorrectPlayerAccountAsync(Account playerAccount, CancellationToken ct)
         {
             if (playerAccount == null)
             {
@@ -112,7 +113,7 @@ namespace Unity1Week_Ura.Infrastructure
                 throw new ArgumentException("playerAccount.Id is null or empty.", nameof(playerAccount));
             }
 
-            await EnsurePostsLoadedAsync();
+            await EnsurePostsLoadedAsync(ct);
 
             if (!postsByCorrectAccountId.TryGetValue(playerAccount.Id, out var posts))
             {
@@ -122,14 +123,31 @@ namespace Unity1Week_Ura.Infrastructure
             return new List<Post>(posts);
         }
 
-        async UniTask EnsurePostsLoadedAsync()
+        public async UniTask<Post> GetPost(string postId, CancellationToken ct)
+        {
+            if (string.IsNullOrEmpty(postId))
+            {
+                throw new ArgumentException("postId is null or empty.", nameof(postId));
+            }
+
+            await EnsurePostsLoadedAsync(ct);
+
+            if (postsById.TryGetValue(postId, out var post))
+            {
+                return post;
+            }
+
+            throw new KeyNotFoundException($"Post not found. postId: {postId}");
+        }
+
+        async UniTask EnsurePostsLoadedAsync(CancellationToken ct)
         {
             if (isLoaded)
             {
                 return;
             }
 
-            await loadGate.WaitAsync().AsUniTask();
+            await loadGate.WaitAsync(ct).AsUniTask();
             try
             {
                 if (isLoaded)
@@ -145,14 +163,15 @@ namespace Unity1Week_Ura.Infrastructure
                 var assetReference = addressableConfig.PostDatas;
                 try
                 {
-                    TextAsset csvAsset = await AddressableAssetLoader.LoadAsync<TextAsset>(assetReference);
+                    TextAsset csvAsset = await AddressableAssetLoader.LoadAsync<TextAsset>(assetReference, ct);
                     var rows = ParsePostRows(csvAsset.text);
-                    var spritesByFileName = await spriteLabelLoader.LoadAllByLabelAsync(addressableConfig.IconLabel);
+                    var spritesByFileName = await spriteLabelLoader.LoadAllByLabelAsync(addressableConfig.IconLabel, ct);
 
                     foreach (var row in rows)
                     {
-                        var correctPlayerAccount = await accountRepository.GetAccount(row.CorrectPlayerAccountId);
-                        var author = await accountRepository.GetAccount(row.AuthorAccountId);
+                        ct.ThrowIfCancellationRequested();
+                        var correctPlayerAccount = await accountRepository.GetAccount(row.CorrectPlayerAccountId, ct);
+                        var author = await accountRepository.GetAccount(row.AuthorAccountId, ct);
                         var attachedImage = AddressableSpriteLabelLoader.ResolveSprite(row.AttachedImageFileName, spritesByFileName);
 
                         var property = new PostProperty(
@@ -173,6 +192,7 @@ namespace Unity1Week_Ura.Infrastructure
                         }
 
                         list.Add(post);
+                        postsById[row.Id] = post;
                     }
 
                     isLoaded = true;

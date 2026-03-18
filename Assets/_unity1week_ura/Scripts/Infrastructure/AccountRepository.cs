@@ -49,14 +49,14 @@ namespace Unity1Week_Ura.Infrastructure
             this.spriteLabelLoader = spriteLabelLoader;
         }
 
-        public async UniTask<Account> GetAccount(string accountId)
+        public async UniTask<Account> GetAccount(string accountId, CancellationToken ct)
         {
             if (string.IsNullOrEmpty(accountId))
             {
                 throw new ArgumentException("accountId is null or empty.", nameof(accountId));
             }
 
-            await EnsureAccountsLoadedAsync();
+            await EnsureAccountsLoadedAsync(ct);
 
             if (accountsById.TryGetValue(accountId, out var account))
             {
@@ -66,14 +66,14 @@ namespace Unity1Week_Ura.Infrastructure
             throw new KeyNotFoundException($"Account not found. accountId: {accountId}");
         }
 
-        async UniTask EnsureAccountsLoadedAsync()
+        async UniTask EnsureAccountsLoadedAsync(CancellationToken ct)
         {
             if (isLoaded)
             {
                 return;
             }
 
-            await loadGate.WaitAsync().AsUniTask();
+            await loadGate.WaitAsync(ct).AsUniTask();
             try
             {
                 if (isLoaded)
@@ -89,12 +89,13 @@ namespace Unity1Week_Ura.Infrastructure
                 var assetReference = addressableConfig.AccountDatas;
                 try
                 {
-                    TextAsset csvAsset = await AddressableAssetLoader.LoadAsync<TextAsset>(assetReference);
+                    TextAsset csvAsset = await AddressableAssetLoader.LoadAsync<TextAsset>(assetReference, ct);
                     var rows = ParseAccountRows(csvAsset.text);
-                    var iconsByFileName = await spriteLabelLoader.LoadAllByLabelAsync(addressableConfig.IconLabel);
+                    var iconsByFileName = await spriteLabelLoader.LoadAllByLabelAsync(addressableConfig.IconLabel, ct);
 
                     foreach (var row in rows)
                     {
+                        ct.ThrowIfCancellationRequested();
                         var icon = AddressableSpriteLabelLoader.ResolveSprite(row.IconFileName, iconsByFileName);
                         accountsById[row.Id] = new Account(row.Id, row.Name, icon);
                     }

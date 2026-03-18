@@ -17,7 +17,7 @@ namespace Unity1Week_Ura.Infrastructure
         readonly Dictionary<string, Dictionary<string, Sprite>> spritesByLabelKey = new(StringComparer.Ordinal);
         readonly SemaphoreSlim loadGate = new(1, 1);
 
-        public async UniTask<Dictionary<string, Sprite>> LoadAllByLabelAsync(AssetLabelReference labelReference)
+        public async UniTask<Dictionary<string, Sprite>> LoadAllByLabelAsync(AssetLabelReference labelReference, CancellationToken ct)
         {
             if (labelReference == null || !labelReference.RuntimeKeyIsValid())
             {
@@ -35,7 +35,7 @@ namespace Unity1Week_Ura.Infrastructure
                 return cached;
             }
 
-            await loadGate.WaitAsync().AsUniTask();
+            await loadGate.WaitAsync(ct).AsUniTask();
             try
             {
                 if (spritesByLabelKey.TryGetValue(labelKey, out cached))
@@ -43,7 +43,7 @@ namespace Unity1Week_Ura.Infrastructure
                     return cached;
                 }
 
-                var loaded = await LoadByReflectionAsync(labelReference);
+                var loaded = await LoadByReflectionAsync(labelReference, ct);
                 spritesByLabelKey[labelKey] = loaded;
                 return loaded;
             }
@@ -53,7 +53,7 @@ namespace Unity1Week_Ura.Infrastructure
             }
         }
 
-        async UniTask<Dictionary<string, Sprite>> LoadByReflectionAsync(AssetLabelReference labelReference)
+        async UniTask<Dictionary<string, Sprite>> LoadByReflectionAsync(AssetLabelReference labelReference, CancellationToken ct)
         {
             var loadMethod = FindLoadAssetsByLabelMethod();
             if (loadMethod == null)
@@ -82,7 +82,7 @@ namespace Unity1Week_Ura.Infrastructure
                 throw new InvalidOperationException("Addressables sprite load task is null.");
             }
 
-            await loadTask.AsUniTask();
+            await loadTask.AsUniTask().AttachExternalCancellation(ct);
 
             var resultProperty = loadTask.GetType().GetProperty("Result");
             if (resultProperty == null)
