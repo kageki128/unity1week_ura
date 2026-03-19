@@ -16,6 +16,9 @@ namespace Unity1Week_Ura.Actor
         public Observable<GameRuleSO> OnDifficultyButtonClicked => selectPhoneScreenView.OnDifficultyButtonClicked;
         public Observable<Unit> OnBackToTitleButtonClicked => selectPhoneScreenView.OnBackToTitleButtonClicked;
 
+        // Game
+        public Observable<Post> OnDraftDroppedToPublish => gamePhoneScreenView.OnDraftDroppedToPublish;
+
         // Result
         public Observable<Unit> OnRetryButtonClicked => resultPhoneScreenView.OnRetryButtonClicked;
         public Observable<Unit> OnBackToSelectButtonClicked => resultPhoneScreenView.OnBackToSelectButtonClicked;

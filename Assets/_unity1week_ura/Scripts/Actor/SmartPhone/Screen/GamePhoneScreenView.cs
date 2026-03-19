@@ -1,5 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using R3;
 using Unity1Week_Ura.Core;
 using UnityEngine;
 
@@ -7,10 +8,14 @@ namespace Unity1Week_Ura.Actor
 {
     public class GamePhoneScreenView : ViewBase
     {
+        public Observable<Post> OnDraftDroppedToPublish => publishFieldView.OnDraftDropped;
+
         [SerializeField] TimelineView timelineView;
+        [SerializeField] PublishFieldView publishFieldView;
 
         public override void Initialize()
         {
+            publishFieldView.Initialize();
             gameObject.SetActive(false);
         }
 

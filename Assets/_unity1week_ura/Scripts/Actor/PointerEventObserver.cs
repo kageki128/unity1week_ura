@@ -13,7 +13,8 @@ namespace Unity1Week_Ura.Actor
         IPointerUpHandler,
         IBeginDragHandler,
         IDragHandler,
-        IEndDragHandler
+        IEndDragHandler,
+        IDropHandler
     {
         // ポインターがクリックされたときに発行される。
         public Observable<PointerEventData> OnClicked => onClicked;
@@ -39,6 +40,9 @@ namespace Unity1Week_Ura.Actor
         // ドラッグ終了時に発行される。
         public Observable<PointerEventData> OnEndDragged => onEndDragged;
 
+        // ドロップされたときに発行される。
+        public Observable<PointerEventData> OnDropped => onDropped;
+
         readonly Subject<PointerEventData> onClicked = new();
         readonly Subject<PointerEventData> onPointerEntered = new();
         readonly Subject<PointerEventData> onPointerExited = new();
@@ -47,6 +51,7 @@ namespace Unity1Week_Ura.Actor
         readonly Subject<PointerEventData> onBeginDragged = new();
         readonly Subject<PointerEventData> onDragged = new();
         readonly Subject<PointerEventData> onEndDragged = new();
+        readonly Subject<PointerEventData> onDropped = new();
 
         public void OnPointerClick(PointerEventData eventData)
         {
@@ -88,6 +93,11 @@ namespace Unity1Week_Ura.Actor
             onEndDragged.OnNext(eventData);
         }
 
+        public void OnDrop(PointerEventData eventData)
+        {
+            onDropped.OnNext(eventData);
+        }
+
         void OnDestroy()
         {
             onClicked.OnCompleted();
@@ -113,6 +123,9 @@ namespace Unity1Week_Ura.Actor
 
             onEndDragged.OnCompleted();
             onEndDragged.Dispose();
+
+            onDropped.OnCompleted();
+            onDropped.Dispose();
         }
     }
 }

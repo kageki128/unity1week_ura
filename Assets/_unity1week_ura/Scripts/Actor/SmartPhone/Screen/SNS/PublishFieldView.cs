@@ -1,0 +1,50 @@
+using R3;
+using Unity1Week_Ura.Core;
+using UnityEngine;
+using UnityEngine.EventSystems;
+
+namespace Unity1Week_Ura.Actor
+{
+    public class PublishFieldView : MonoBehaviour
+    {
+        public Observable<Post> OnDraftDropped => onDraftDropped;
+        readonly Subject<Post> onDraftDropped = new();
+
+        [SerializeField] PointerEventObserver pointerEventObserver;
+
+        readonly CompositeDisposable disposables = new();
+
+        public void Initialize()
+        {
+            disposables.Clear();    
+            pointerEventObserver.OnDropped.Subscribe(OnDrop).AddTo(disposables);
+        }
+
+        void OnDrop(PointerEventData eventData)
+        {
+            // ドラッグ元のDraftViewを取得
+            var draggedObject = eventData.pointerDrag;
+            if (draggedObject == null)
+            {
+                // ドロップされたオブジェクトがない場合は無視
+                return;
+            }
+
+            if (!draggedObject.TryGetComponent<DraftView>(out var draftView))
+            {
+                // ドロップされたオブジェクトがDraftViewでない場合は無視
+                return;
+            }
+
+            draftView.MarkAsDroppedOnPublishField();
+            onDraftDropped.OnNext(draftView.post);
+        }
+
+        void OnDestroy()
+        {
+            onDraftDropped.OnCompleted();
+            onDraftDropped.Dispose();
+            disposables.Dispose();
+        }
+    }
+}

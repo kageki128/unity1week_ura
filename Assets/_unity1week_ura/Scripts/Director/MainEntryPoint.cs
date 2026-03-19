@@ -53,6 +53,7 @@ namespace Unity1Week_Ura.Director
                 director.Initialize();
             }
 
+            disposables.Clear();
             sceneModel.CurrentScene.Pairwise().Subscribe(pair =>
             {
                 var (from, to) = pair;

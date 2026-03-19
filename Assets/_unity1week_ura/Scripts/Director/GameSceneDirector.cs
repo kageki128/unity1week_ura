@@ -57,6 +57,7 @@ namespace Unity1Week_Ura.Director
             {
                 gameViewHub.RemoveDraft(removeEvent.Value);
             }).AddTo(disposables);
+            gameViewHub.OnDraftDroppedToPublish.Subscribe(gameSession.TryPublishDraft).AddTo(disposables);
             // UI
             gameSession.Score.Subscribe(gameViewHub.SetScore).AddTo(disposables);
             gameSession.RemainingTimeSeconds.Subscribe(gameViewHub.SetRemainingTime).AddTo(disposables);

@@ -8,6 +8,8 @@ namespace Unity1Week_Ura.Actor
 {
     public class GameViewHub : ViewBase
     {
+        public Observable<Post> OnDraftDroppedToPublish => smartPhoneView.OnDraftDroppedToPublish;
+        
         [SerializeField] SmartPhoneView smartPhoneView;
         [SerializeField] DraftListView draftListView;
         [SerializeField] ScoreView scoreView;
