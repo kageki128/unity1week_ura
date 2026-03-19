@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using ObservableCollections;
+using R3;
 using UnityEngine;
 
 namespace Unity1Week_Ura.Core
@@ -11,6 +12,9 @@ namespace Unity1Week_Ura.Core
     {
         public IReadOnlyList<Account> PlayerAccounts => playerAccounts;
         IReadOnlyList<Account> playerAccounts = new List<Account>();
+
+        public ReadOnlyReactiveProperty<Account> SelectedPlayerAccount => selectedPlayerAccount;
+        readonly ReactiveProperty<Account> selectedPlayerAccount = new();
 
         public IReadOnlyObservableList<Post> PublishedPosts => publishedPosts;
         readonly ObservableList<Post> publishedPosts = new();
@@ -31,23 +35,22 @@ namespace Unity1Week_Ura.Core
 
         public async UniTask LoadAsync(GameRuleSO gameRule, CancellationToken ct)
         {
+            publishedPosts.Clear();
+            draftPosts.Clear();
+
+            // プレイヤーのアカウントをロード
             List<string> playerAccountIds = gameRule.UsedAccounts.Select(accountSO => accountSO.Id).ToList();
             Account[] loadedAccounts = await UniTask.WhenAll(
                 playerAccountIds.Select(accountId => accountRepository.GetAccount(accountId, ct))
             );
             playerAccounts = loadedAccounts;
+            selectedPlayerAccount.Value = playerAccounts.FirstOrDefault();
 
+            // ポストをロード
             List<Post>[] loadedPostsByAccount = await UniTask.WhenAll(
                 playerAccounts.Select(account => postRepository.GetPostsByCorrectPlayerAccountAsync(account, ct))
             );
             beforeAppearingPosts = loadedPostsByAccount.SelectMany(posts => posts).ToList();
-            publishedPosts.Clear();
-            draftPosts.Clear();
-
-            foreach (Post post in beforeAppearingPosts)
-            {
-                Debug.Log($"[Timeline] ロードしたポスト: {post.Property.Id} by {post.Property.Author.Name}");
-            }
         }
 
         public void TrySupplyPost(GameRuleSO gameRule, float deltaTime)
@@ -94,13 +97,27 @@ namespace Unity1Week_Ura.Core
         {
             if (!draftPosts.Contains(post))
             {
-                return false;
+                throw new System.ArgumentException("指定されたPostはドラフトの中に存在しません。", nameof(post));   
             }
 
             draftPosts.Remove(post);
             post.ChangeState(PostState.Published);
             publishedPosts.Add(post);
-            return true;
+
+            // 正誤判定
+            Account currentAccount = selectedPlayerAccount.CurrentValue;
+            return post.Property.CorrectPlayerAccount.Id == currentAccount.Id;
+        }
+
+        public void SetCurrentPlayerAccount(Account account)
+        {
+            bool canSelect = playerAccounts.Any(playerAccount => playerAccount.Id == account.Id);
+            if (!canSelect)
+            {
+                throw new System.ArgumentException("指定されたアカウントはプレイヤーの使用可能アカウントではありません。", nameof(account));
+            }
+
+            selectedPlayerAccount.Value = account;
         }
 
         bool CanAppear(Post post)

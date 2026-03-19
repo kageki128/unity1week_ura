@@ -20,6 +20,7 @@ namespace Unity1Week_Ura.Core
         readonly ReactiveProperty<GameState> currentGameState = new(GameState.Preparing);
 
         public IReadOnlyList<Account> PlayerAccounts => timeline.PlayerAccounts;
+        public ReadOnlyReactiveProperty<Account> SelectedPlayerAccount => timeline.SelectedPlayerAccount;
         public IReadOnlyObservableList<Post> PublishedPosts => timeline.PublishedPosts;
         public IReadOnlyObservableList<Post> DraftPosts => timeline.DraftPosts;
 
@@ -103,13 +104,18 @@ namespace Unity1Week_Ura.Core
                 return;
             }
 
-            if (!timeline.TryPublishDraft(post))
+            if (timeline.TryPublishDraft(post))
             {
-                throw new InvalidOperationException("Draftの投稿に失敗しました。");
+                score.Value += post.ScoreInfo.PublishPoint;
             }
-
-            score.Value += post.ScoreInfo.PublishPoint;
+            else
+            {
+                // ゲームオーバー
+                currentGameState.Value = GameState.Finished;
+            }
         }
+
+        public void SetCurrentPlayerAccount(Account account) => timeline.SetCurrentPlayerAccount(account);
 
         public async UniTask ShareResultAsync(CancellationToken ct)
         {
