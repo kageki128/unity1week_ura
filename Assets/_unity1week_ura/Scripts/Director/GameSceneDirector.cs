@@ -47,6 +47,20 @@ namespace Unity1Week_Ura.Director
             {
                 gameViewHub.AddPostToTimeline(addEvent.Value);
             }).AddTo(disposables);
+            // UI
+            gameSession.Score.Subscribe(score =>
+            {
+                gameViewHub.SetScore(score);
+            }).AddTo(disposables);
+            gameSession.RemainingTimeSeconds.Subscribe(remainingTime =>
+            {
+                gameViewHub.SetRemainingTime(remainingTime);
+            }).AddTo(disposables);
+            // ゲーム終了を購読
+            gameSession.CurrentGameState.Where(state => state == GameState.Finished).Take(1).Subscribe(_ =>
+            {
+                sceneModel.ChangeScene(SceneType.Result);
+            }).AddTo(disposables);
 
             gameSession.Play();
         }

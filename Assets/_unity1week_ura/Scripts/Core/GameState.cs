@@ -2,7 +2,7 @@ namespace Unity1Week_Ura.Core
 {
     public enum GameState
     {
-        Ready,
+        Preparing,
         Pause,
         Playing,
         Finished,

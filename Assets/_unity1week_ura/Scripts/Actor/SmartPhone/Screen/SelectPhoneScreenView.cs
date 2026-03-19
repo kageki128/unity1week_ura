@@ -11,9 +11,11 @@ namespace Unity1Week_Ura.Actor
     public class SelectPhoneScreenView : PhoneScreenViewBase
     {
         public Observable<GameRuleSO> OnDifficultyButtonClicked => onDifficultyButtonClicked;
+        public Observable<Unit> OnBackToTitleButtonClicked =>backToTitleButton.OnClicked;
         Observable<GameRuleSO> onDifficultyButtonClicked;
 
         [SerializeField] List<DifficultyButtonView> difficultyButtons;
+        [SerializeField] ButtonView backToTitleButton;
         
         public override void Initialize()
         {

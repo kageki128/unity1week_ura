@@ -17,6 +17,7 @@ namespace Unity1Week_Ura.Director
         readonly TitleSceneDirector titleSceneDirector;
         readonly SelectSceneDirector selectSceneDirector;
         readonly GameSceneDirector gameSceneDirector;
+        readonly ResultSceneDirector resultSceneDirector;
 
         readonly Dictionary<SceneType, ISceneDirector> sceneDirectors = new();   
         SceneType currentScene;
@@ -29,17 +30,20 @@ namespace Unity1Week_Ura.Director
             SceneModel sceneModel,
             TitleSceneDirector titleSceneDirector,
             SelectSceneDirector selectSceneDirector,
-            GameSceneDirector gameSceneDirector
+            GameSceneDirector gameSceneDirector,
+            ResultSceneDirector resultSceneDirector
         )
         {
             this.sceneModel = sceneModel;
             this.titleSceneDirector = titleSceneDirector;
             this.selectSceneDirector = selectSceneDirector;
             this.gameSceneDirector = gameSceneDirector;
+            this.resultSceneDirector = resultSceneDirector;
 
             sceneDirectors[SceneType.Title] = titleSceneDirector;
             sceneDirectors[SceneType.Select] = selectSceneDirector;
             sceneDirectors[SceneType.Game] = gameSceneDirector;
+            sceneDirectors[SceneType.Result] = resultSceneDirector;
         }
 
         public async UniTask StartAsync(CancellationToken ct)

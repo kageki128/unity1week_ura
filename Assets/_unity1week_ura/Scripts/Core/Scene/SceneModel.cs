@@ -10,6 +10,14 @@ namespace Unity1Week_Ura.Core
 
         readonly SemaphoreSlim sceneTransitionSemaphore = new(1, 1);
 
+        readonly GameConfigSO gameConfig;
+
+        public SceneModel(GameConfigSO gameConfig)
+        {
+            this.gameConfig = gameConfig;
+            currentScene.Value = gameConfig.InitialSceneType;
+        }
+
         public bool ChangeScene(SceneType sceneType)
         {
             if (currentScene.Value == sceneType)

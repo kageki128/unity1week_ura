@@ -9,12 +9,23 @@ namespace Unity1Week_Ura.Actor
 {
     public class SmartPhoneView : MonoBehaviour
     {
+        // Title
         public Observable<Unit> OnStartButtonClicked => titlePhoneScreenView.OnStartButtonClicked;
+
+        // Select
         public Observable<GameRuleSO> OnDifficultyButtonClicked => selectPhoneScreenView.OnDifficultyButtonClicked;
+        public Observable<Unit> OnBackToTitleButtonClicked => selectPhoneScreenView.OnBackToTitleButtonClicked;
+
+        // Result
+        public Observable<Unit> OnRetryButtonClicked => resultPhoneScreenView.OnRetryButtonClicked;
+        public Observable<Unit> OnBackToSelectButtonClicked => resultPhoneScreenView.OnBackToSelectButtonClicked;
+        public Observable<Unit> OnShareButtonClicked => resultPhoneScreenView.OnShareButtonClicked;
+
 
         [SerializeField] TitlePhoneScreenView titlePhoneScreenView;
         [SerializeField] SelectPhoneScreenView selectPhoneScreenView;
         [SerializeField] GamePhoneScreenView gamePhoneScreenView;
+        [SerializeField] ResultPhoneScreenView resultPhoneScreenView;
 
         readonly Dictionary<SceneType, PhoneScreenViewBase> screenViews = new();
 
@@ -23,6 +34,7 @@ namespace Unity1Week_Ura.Actor
             screenViews.Add(SceneType.Title, titlePhoneScreenView);
             screenViews.Add(SceneType.Select, selectPhoneScreenView);
             screenViews.Add(SceneType.Game, gamePhoneScreenView);
+            screenViews.Add(SceneType.Result, resultPhoneScreenView);
         }
 
         public void Initialize()

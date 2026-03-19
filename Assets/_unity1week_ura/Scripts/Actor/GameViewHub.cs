@@ -38,5 +38,15 @@ namespace Unity1Week_Ura.Actor
         {
             smartPhoneView.AddPostToTimeline(post);
         }
+
+        public void SetScore(int score)
+        {
+            scoreView.SetScore(score);
+        }
+
+        public void SetRemainingTime(float remainingTime)
+        {
+            remainingTimeView.SetRemainingTime(remainingTime);
+        }
     }
 }

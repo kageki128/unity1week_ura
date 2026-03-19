@@ -43,6 +43,11 @@ namespace Unity1Week_Ura.Director
             {
                 DifficultyButtonHandlerAsync(gameRule);
             }).AddTo(disposables);
+
+            selectViewHub.OnBackToTitleButtonClicked.Subscribe(_ =>
+            {
+                sceneModel.ChangeScene(SceneType.Title);
+            }).AddTo(disposables);
         }
 
         public void Tick()

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -16,27 +17,30 @@ namespace Unity1Week_Ura.Core
         readonly ReactiveProperty<int> score = new(0);
 
         public ReadOnlyReactiveProperty<GameState> CurrentGameState => currentGameState;
-        readonly ReactiveProperty<GameState> currentGameState = new(GameState.Ready);
+        readonly ReactiveProperty<GameState> currentGameState = new(GameState.Preparing);
 
         public IReadOnlyList<Account> PlayerAccounts => timeline.PlayerAccounts;
         public IReadOnlyObservableList<Post> PublishedPosts => timeline.PublishedPosts;
         public IReadOnlyObservableList<Post> DraftPosts => timeline.DraftPosts;
 
         readonly Timeline timeline;
-
+        readonly ISocialSharePort socialSharePort;
+        readonly GameConfigSO gameConfig;
         GameRuleSO gameRule;
         
-        public GameSession(GameRuleSO defaultGameRule, IAccountRepository accountRepository, IPostRepository postRepository)
+        public GameSession(GameConfigSO gameConfig, IAccountRepository accountRepository, IPostRepository postRepository, ISocialSharePort socialSharePort)
         {
             timeline = new Timeline(accountRepository, postRepository);
-            gameRule = defaultGameRule;
+            this.socialSharePort = socialSharePort;
+            this.gameConfig = gameConfig;
+            gameRule = gameConfig.InitialGameRule;
         }
 
         public void SetNewGameRule(GameRuleSO newGameRule)
         {
-            if(currentGameState.CurrentValue != GameState.Ready && currentGameState.CurrentValue != GameState.Finished)
+            if(currentGameState.CurrentValue != GameState.Preparing && currentGameState.CurrentValue != GameState.Finished)
             {
-                return;
+                throw new InvalidOperationException("ゲーム中はルールを変更できません。");
             }
 
             gameRule = newGameRule;
@@ -44,9 +48,9 @@ namespace Unity1Week_Ura.Core
 
         public async UniTask LoadNewGame(CancellationToken ct)
         {
-            if(currentGameState.CurrentValue != GameState.Ready && currentGameState.CurrentValue != GameState.Finished)
+            if(currentGameState.CurrentValue != GameState.Preparing && currentGameState.CurrentValue != GameState.Finished)
             {
-                return;
+                throw new InvalidOperationException("ゲーム中は新しいゲームをロードできません。");
             }
 
             await timeline.LoadAsync(gameRule, ct);
@@ -90,6 +94,20 @@ namespace Unity1Week_Ura.Core
             {
                 currentGameState.Value = GameState.Finished;
             }
+        }
+
+        public async UniTask ShareResultAsync(CancellationToken ct)
+        {
+            if (currentGameState.CurrentValue != GameState.Finished)
+            {
+                throw new InvalidOperationException("ゲームが終了していないため、結果を共有できません。");
+            }
+
+            GameResult gameResult = new(
+                score: score.Value,
+                gameRule: gameRule
+            );
+            await socialSharePort.ShareResultAsync(gameResult, ct);
         }
     }
 }

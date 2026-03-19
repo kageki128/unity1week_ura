@@ -5,5 +5,6 @@ namespace Unity1Week_Ura.Core
         Title,
         Select,
         Game,
+        Result,
     }
 }

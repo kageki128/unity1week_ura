@@ -16,9 +16,10 @@ namespace Unity1Week_Ura.CompositionRoot
         [SerializeField] TitleViewHub titleViewHub;
         [SerializeField] SelectViewHub selectViewHub;
         [SerializeField] GameViewHub gameViewHub;
+        [SerializeField] ResultViewHub resultViewHub;
 
         [Header("SO")]
-        [SerializeField] GameRuleSO defaultGameRule;
+        [SerializeField] GameConfigSO gameConfig;
         [SerializeField] AddressableConfigSO addressableConfig;
 
         protected override void Configure(IContainerBuilder builder)
@@ -35,7 +36,8 @@ namespace Unity1Week_Ura.CompositionRoot
             builder.Register<AddressableSpriteLabelLoader>(Lifetime.Singleton);
             builder.Register<IAccountRepository, AccountRepository>(Lifetime.Singleton);
             builder.Register<IPostRepository, PostRepository>(Lifetime.Singleton);
-            builder.RegisterInstance(defaultGameRule);
+            builder.Register<ISocialSharePort, XSharePort>(Lifetime.Singleton);
+            builder.RegisterInstance(gameConfig);
             builder.RegisterInstance(addressableConfig);
 
         }
@@ -44,6 +46,7 @@ namespace Unity1Week_Ura.CompositionRoot
             builder.RegisterInstance(titleViewHub);
             builder.RegisterInstance(selectViewHub);
             builder.RegisterInstance(gameViewHub);
+            builder.RegisterInstance(resultViewHub);
         }
         void RegisterDirector(IContainerBuilder builder)
         {
@@ -51,6 +54,7 @@ namespace Unity1Week_Ura.CompositionRoot
             builder.Register<TitleSceneDirector>(Lifetime.Singleton);
             builder.Register<SelectSceneDirector>(Lifetime.Singleton);
             builder.Register<GameSceneDirector>(Lifetime.Singleton);
+            builder.Register<ResultSceneDirector>(Lifetime.Singleton);
         }
 
     }
