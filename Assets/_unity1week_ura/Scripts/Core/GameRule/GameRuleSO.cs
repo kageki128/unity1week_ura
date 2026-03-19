@@ -9,6 +9,9 @@ namespace Unity1Week_Ura.Core
         public float TimeLimitSeconds => timeLimitSeconds;
         [SerializeField] float timeLimitSeconds = 120.0f;
 
+        public float PostPerSecond => postPerSecond;
+        [SerializeField] float postPerSecond = 0.5f;
+
         public IReadOnlyList<MyAccountSO> UsedAccounts => usedAccounts;
         [SerializeField] List<MyAccountSO> usedAccounts;
     }

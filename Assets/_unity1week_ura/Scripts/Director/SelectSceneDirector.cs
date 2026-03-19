@@ -38,7 +38,7 @@ namespace Unity1Week_Ura.Director
 
         public async UniTask EnterAsync(CancellationToken ct)
         {
-            await uiDirector.ShowScreenAsync(SceneType.Select, ct);
+            await uiDirector.EnterAsync(SceneType.Select, ct);
         }
 
         public void Tick()
@@ -48,7 +48,7 @@ namespace Unity1Week_Ura.Director
         public async UniTask ExitAsync(CancellationToken ct)
         {
             disposables.Clear();
-            await uiDirector.HideScreenAsync(SceneType.Select, ct);
+            await uiDirector.ExitAsync(SceneType.Select, ct);
         }
 
         public void DifficultyButtonHandlerAsync(GameRuleSO gameRule)

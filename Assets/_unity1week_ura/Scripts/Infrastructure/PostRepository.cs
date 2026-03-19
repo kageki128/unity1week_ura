@@ -9,13 +9,13 @@ namespace Unity1Week_Ura.Infrastructure
 {
     public class PostRepository : IPostRepository
     {
-        const string CsvColumnCorrectPlayerAccount = "CorrectPlayerAccount";
+        const string CsvColumnCorrectPlayerAccount = "CorrectPlayerAccountID";
         const string CsvColumnId = "ID";
         const string CsvColumnAuthorAccountId = "AuthorAccountID";
         const string CsvColumnText = "Text";
         const string CsvColumnAttachedImageFileName = "AttachedImageFileName";
         const string CsvColumnParentPostId = "ParentPostID";
-        const string CsvColumnPostType = "PostType";
+        const string CsvColumnPostType = "Type";
         const string CsvColumnPublishPoint = "PublishPoint";
         const string CsvColumnLikePoint = "LikePoint";
         const string CsvColumnRepostPoint = "RepostPoint";

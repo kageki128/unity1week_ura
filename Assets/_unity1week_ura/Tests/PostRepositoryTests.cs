@@ -29,7 +29,7 @@ namespace Unity1Week_Ura.Tests
         public void ParsePostRows_ValidCsv_ReturnsExpectedRowsAndWrongTexts()
         {
             var repository = CreateUninitializedRepository();
-            const string csv = "CorrectPlayerAccount,ID,AuthorAccountID,Text,AttachedImageFileName,ParentPostID,PostType,PublishPoint,LikePoint,RepostPoint,WrongText1,WrongText2,DefaultLikeCount,DefaultRepostCount\n"
+            const string csv = "CorrectPlayerAccountID,ID,AuthorAccountID,Text,AttachedImageFileName,ParentPostID,Type,PublishPoint,LikePoint,RepostPoint,WrongText1,WrongText2,DefaultLikeCount,DefaultRepostCount\n"
                 + "acc01,p01,acc02,hello,image.png,,Normal,10,2,3,bad1,bad2,100,20\n"
                 + "acc01,p02,acc03,skip,image2.png,,Normal,abc,2,3,x,y,0,0\n";
 

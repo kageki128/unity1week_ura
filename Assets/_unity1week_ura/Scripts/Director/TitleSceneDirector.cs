@@ -36,7 +36,7 @@ namespace Unity1Week_Ura.Director
 
         public async UniTask EnterAsync(CancellationToken ct)
         {
-            await uiDirector.ShowScreenAsync(SceneType.Title, ct);
+            await uiDirector.EnterAsync(SceneType.Title, ct);
         }
 
         public void Tick()
@@ -46,7 +46,7 @@ namespace Unity1Week_Ura.Director
         public async UniTask ExitAsync(CancellationToken ct)
         {
             disposables.Clear();
-            await uiDirector.HideScreenAsync(SceneType.Title, ct);
+            await uiDirector.ExitAsync(SceneType.Title, ct);
         }
 
         void StartButtonHandler()

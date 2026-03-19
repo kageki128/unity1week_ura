@@ -2,7 +2,7 @@ namespace Unity1Week_Ura.Core
 {
     public enum PostState
     {
-        BeforeAppeared,
+        BeforeAppearing,
         Draft,
         Published,
     }
