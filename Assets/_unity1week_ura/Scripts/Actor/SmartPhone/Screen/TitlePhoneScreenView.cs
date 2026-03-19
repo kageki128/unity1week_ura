@@ -10,7 +10,7 @@ namespace Unity1Week_Ura.Actor
     public class TitlePhoneScreenView : ViewBase
     {
         public Observable<Unit> OnStartButtonClicked => startButton.OnClicked;
-        [SerializeField] ButtonCollider startButton;
+        [SerializeField] ButtonView startButton;
 
         public override void Initialize()
         {

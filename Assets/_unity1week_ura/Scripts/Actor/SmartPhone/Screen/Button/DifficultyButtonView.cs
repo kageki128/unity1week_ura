@@ -6,21 +6,9 @@ namespace Unity1Week_Ura.Actor
 {
     public class DifficultyButtonView : MonoBehaviour
     {
-        public Observable<GameRuleSO> OnClicked => onClicked;
-        readonly Subject<GameRuleSO> onClicked = new();
+        public Observable<GameRuleSO> OnClicked => buttonCollider.OnClicked.Select(_ => gameRule);
 
-        [SerializeField] ButtonCollider buttonCollider;
+        [SerializeField] PointerEventObserver buttonCollider;
         [SerializeField] GameRuleSO gameRule;
-
-        void Awake()
-        {
-            buttonCollider.OnClicked.Subscribe(_ => onClicked.OnNext(gameRule)).AddTo(this);
-        }
-
-        void OnDestroy()
-        {
-            onClicked.OnCompleted();
-            onClicked.Dispose();
-        }
     }
 }

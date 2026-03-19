@@ -3801,6 +3801,7 @@ GameObject:
   - component: {fileID: 1944940809}
   - component: {fileID: 1944940810}
   - component: {fileID: 1944940811}
+  - component: {fileID: 1944940812}
   m_Layer: 0
   m_Name: StartButton
   m_TagString: Untagged
@@ -3881,6 +3882,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55bd0f6590048cc43b9d21d1e1862e1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.ButtonCollider
+--- !u!114 &1944940812
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1944940808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b99adbff155e280408618360b5bc7d13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.ButtonView
+  buttonCollider: {fileID: 1944940811}
 --- !u!1 &1963095137
 GameObject:
   m_ObjectHideFlags: 0
@@ -4994,7 +5008,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4279e9e3ef0705241966cdd29996fb3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.TitlePhoneScreenView
-  startButton: {fileID: 1944940811}
+  startButton: {fileID: 1944940812}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
