@@ -90,6 +90,19 @@ namespace Unity1Week_Ura.Core
             publishedPosts.Add(appearedPost);
         }
 
+        public bool TryPublishDraft(Post post)
+        {
+            if (!draftPosts.Contains(post))
+            {
+                return false;
+            }
+
+            draftPosts.Remove(post);
+            post.ChangeState(PostState.Published);
+            publishedPosts.Add(post);
+            return true;
+        }
+
         bool CanAppear(Post post)
         {
             string parentPostId = post.Property.ParentPostId;

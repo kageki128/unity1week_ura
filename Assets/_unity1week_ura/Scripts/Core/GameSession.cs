@@ -96,6 +96,21 @@ namespace Unity1Week_Ura.Core
             }
         }
 
+        public void TryPublishDraft(Post post)
+        {
+            if (currentGameState.CurrentValue != GameState.Playing)
+            {
+                return;
+            }
+
+            if (!timeline.TryPublishDraft(post))
+            {
+                throw new InvalidOperationException("Draftの投稿に失敗しました。");
+            }
+
+            score.Value += post.ScoreInfo.PublishPoint;
+        }
+
         public async UniTask ShareResultAsync(CancellationToken ct)
         {
             if (currentGameState.CurrentValue != GameState.Finished)
