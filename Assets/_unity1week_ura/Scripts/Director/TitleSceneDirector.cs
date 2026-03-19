@@ -10,14 +10,14 @@ namespace Unity1Week_Ura.Director
 {
     public class TitleSceneDirector : ISceneDirector, IDisposable
     {
-        readonly ActorHub actorHub;
+        readonly TitleViewHub titleViewHub;
         readonly SceneModel sceneModel;
 
         readonly CompositeDisposable disposables = new();
 
-        public TitleSceneDirector(ActorHub actorHub, SceneModel sceneModel)
+        public TitleSceneDirector(TitleViewHub titleViewHub, SceneModel sceneModel)
         {
-            this.actorHub = actorHub;
+            this.titleViewHub = titleViewHub;
             this.sceneModel = sceneModel;
         }
 
@@ -28,16 +28,19 @@ namespace Unity1Week_Ura.Director
 
         public void Initialize()
         {
-            disposables.Clear();
-            actorHub.OnStartButtonClicked.Subscribe(_ => 
-            {
-                StartButtonHandler();
-            }).AddTo(disposables);
+            titleViewHub.Initialize();
         }
 
         public async UniTask EnterAsync(CancellationToken ct)
         {
-            await actorHub.EnterAsync(SceneType.Title, ct);
+            disposables.Clear();
+
+            await titleViewHub.ShowAsync(ct);
+
+            titleViewHub.OnStartButtonClicked.Subscribe(_ =>
+            {
+                StartButtonHandler();
+            }).AddTo(disposables);
         }
 
         public void Tick()
@@ -47,7 +50,7 @@ namespace Unity1Week_Ura.Director
         public async UniTask ExitAsync(CancellationToken ct)
         {
             disposables.Clear();
-            await actorHub.ExitAsync(SceneType.Title, ct);
+            await titleViewHub.HideAsync(ct);
         }
 
         void StartButtonHandler()

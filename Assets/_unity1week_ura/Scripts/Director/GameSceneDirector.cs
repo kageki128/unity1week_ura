@@ -12,15 +12,15 @@ namespace Unity1Week_Ura.Director
 {
     public class GameSceneDirector : ISceneDirector, IDisposable
     {
-        readonly ActorHub actorHub;
+        readonly GameViewHub gameViewHub;
         readonly GameSession gameSession;
         readonly SceneModel sceneModel;
 
         readonly CompositeDisposable disposables = new();
 
-        public GameSceneDirector(ActorHub actorHub, GameSession gameSession, SceneModel sceneModel)
+        public GameSceneDirector(GameViewHub gameViewHub, GameSession gameSession, SceneModel sceneModel)
         {
-            this.actorHub = actorHub;
+            this.gameViewHub = gameViewHub;
             this.gameSession = gameSession;
             this.sceneModel = sceneModel;
         }
@@ -32,19 +32,21 @@ namespace Unity1Week_Ura.Director
 
         public void Initialize()
         {
+            gameViewHub.Initialize();
         }
 
         public async UniTask EnterAsync(CancellationToken ct)
         {
+            disposables.Clear();
+
             await gameSession.LoadNewGame(ct);
+            await gameViewHub.ShowAsync(ct);
 
             // 投稿されたポストを購読
             gameSession.PublishedPosts.ObserveAdd().Subscribe(addEvent =>
             {
-                actorHub.AddPostToTimeline(addEvent.Value);
+                gameViewHub.AddPostToTimeline(addEvent.Value);
             }).AddTo(disposables);
-
-            await actorHub.EnterAsync(SceneType.Game, ct);
 
             gameSession.Play();
         }
@@ -57,7 +59,7 @@ namespace Unity1Week_Ura.Director
         public async UniTask ExitAsync(CancellationToken ct)
         {
             disposables.Clear();
-            await actorHub.ExitAsync(SceneType.Game, ct);
+            await gameViewHub.HideAsync(ct);
         }
     }
 }
