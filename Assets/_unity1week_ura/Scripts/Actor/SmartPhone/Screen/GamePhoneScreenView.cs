@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class GamePhoneScreenView : PhoneScreenViewBase
+    public class GamePhoneScreenView : ViewBase
     {
         [SerializeField] TimelineView timelineView;
 
@@ -26,9 +26,7 @@ namespace Unity1Week_Ura.Actor
             return UniTask.CompletedTask;
         }
 
-        public void AddPost(Post post)
-        {
-            timelineView.AddPost(post);
-        }
+        public void AddPost(Post post) => timelineView.AddPost(post);
+        public void ClearPosts() => timelineView.ClearPosts();
     }
 }

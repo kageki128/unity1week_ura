@@ -39,11 +39,7 @@ namespace Unity1Week_Ura.Director
             
             await selectViewHub.ShowAsync(ct);
 
-            selectViewHub.OnDifficultyButtonClicked.Subscribe(gameRule =>
-            {
-                DifficultyButtonHandlerAsync(gameRule);
-            }).AddTo(disposables);
-
+            selectViewHub.OnDifficultyButtonClicked.Subscribe(DifficultyButtonHandler).AddTo(disposables);
             selectViewHub.OnBackToTitleButtonClicked.Subscribe(_ =>
             {
                 sceneModel.ChangeScene(SceneType.Title);
@@ -60,7 +56,7 @@ namespace Unity1Week_Ura.Director
             await selectViewHub.HideAsync(ct);
         }
 
-        public void DifficultyButtonHandlerAsync(GameRuleSO gameRule)
+        public void DifficultyButtonHandler(GameRuleSO gameRule)
         {
             gameSession.SetNewGameRule(gameRule);
             sceneModel.ChangeScene(SceneType.Game);

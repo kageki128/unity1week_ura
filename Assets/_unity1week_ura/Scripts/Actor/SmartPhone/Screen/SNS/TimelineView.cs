@@ -6,22 +6,24 @@ namespace Unity1Week_Ura.Actor
 {
     public class TimelineView : MonoBehaviour
     {
-        [SerializeField] Transform postParent;
         [SerializeField] PostViewFactory postViewFactory;
 
         readonly List<PostView> postViews = new();
 
-        public void Initialize(PostViewFactory postViewFactory)
-        {
-            this.postViewFactory = postViewFactory;
-            ClearPosts();
-        }
-
         public void AddPost(Post post)
         {
-            var postView = postViewFactory.Create(post, postParent);
+            var postView = postViewFactory.Create(post);
             postViews.Add(postView);
             ArrangePosts();
+        }
+
+        public void ClearPosts()
+        {
+            foreach (var postView in postViews)
+            {
+                Destroy(postView.gameObject);
+            }
+            postViews.Clear();
         }
 
         void ArrangePosts()
@@ -34,13 +36,6 @@ namespace Unity1Week_Ura.Actor
             }
         }
 
-        void ClearPosts()
-        {
-            foreach (var postView in postViews)
-            {
-                Destroy(postView.gameObject);
-            }
-            postViews.Clear();
-        }
+        
     }
 }

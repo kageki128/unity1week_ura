@@ -7,6 +7,7 @@ namespace Unity1Week_Ura.Actor
 {
     public class PostView : MonoBehaviour
     {
+        public Post post { get; private set; }
         public float Width => frameImage.bounds.size.x;
         public float Height => frameImage.bounds.size.y;
 
@@ -48,6 +49,8 @@ namespace Unity1Week_Ura.Actor
             replyCountText.text = post.ReplyCount.ToString();
             repostCountText.text = post.RepostCount.ToString();
             likeCountText.text = post.LikeCount.ToString();
+
+            this.post = post;
         }
 
         public void SetPosition(float x, float y)

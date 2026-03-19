@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class ResultPhoneScreenView : PhoneScreenViewBase
+    public class ResultPhoneScreenView : ViewBase
     {
         public Observable<Unit> OnRetryButtonClicked => RetryButtonView.OnClicked;
         public Observable<Unit> OnBackToSelectButtonClicked => BackToSelectButtonView.OnClicked;

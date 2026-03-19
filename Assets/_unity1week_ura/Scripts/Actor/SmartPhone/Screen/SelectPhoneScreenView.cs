@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class SelectPhoneScreenView : PhoneScreenViewBase
+    public class SelectPhoneScreenView : ViewBase
     {
         public Observable<GameRuleSO> OnDifficultyButtonClicked => onDifficultyButtonClicked;
         public Observable<Unit> OnBackToTitleButtonClicked =>backToTitleButton.OnClicked;

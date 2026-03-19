@@ -38,6 +38,8 @@ namespace Unity1Week_Ura.Director
         public async UniTask EnterAsync(CancellationToken ct)
         {
             disposables.Clear();
+            gameViewHub.ClearTimeline();
+            gameViewHub.ClearDrafts();
 
             await gameSession.LoadNewGame(ct);
             await gameViewHub.ShowAsync(ct);
@@ -47,15 +49,17 @@ namespace Unity1Week_Ura.Director
             {
                 gameViewHub.AddPostToTimeline(addEvent.Value);
             }).AddTo(disposables);
+            gameSession.DraftPosts.ObserveAdd().Subscribe(addEvent =>
+            {
+                gameViewHub.AddDraft(addEvent.Value);
+            }).AddTo(disposables);
+            gameSession.DraftPosts.ObserveRemove().Subscribe(removeEvent =>
+            {
+                gameViewHub.RemoveDraft(removeEvent.Value);
+            }).AddTo(disposables);
             // UI
-            gameSession.Score.Subscribe(score =>
-            {
-                gameViewHub.SetScore(score);
-            }).AddTo(disposables);
-            gameSession.RemainingTimeSeconds.Subscribe(remainingTime =>
-            {
-                gameViewHub.SetRemainingTime(remainingTime);
-            }).AddTo(disposables);
+            gameSession.Score.Subscribe(gameViewHub.SetScore).AddTo(disposables);
+            gameSession.RemainingTimeSeconds.Subscribe(gameViewHub.SetRemainingTime).AddTo(disposables);
             // ゲーム終了を購読
             gameSession.CurrentGameState.Where(state => state == GameState.Finished).Take(1).Subscribe(_ =>
             {

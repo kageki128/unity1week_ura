@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class TitlePhoneScreenView : PhoneScreenViewBase
+    public class TitlePhoneScreenView : ViewBase
     {
         public Observable<Unit> OnStartButtonClicked => startButton.OnClicked;
         [SerializeField] ButtonCollider startButton;

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class SmartPhoneView : MonoBehaviour
+    public class SmartPhoneView : ViewBase
     {
         // Title
         public Observable<Unit> OnStartButtonClicked => titlePhoneScreenView.OnStartButtonClicked;
@@ -27,22 +27,31 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] GamePhoneScreenView gamePhoneScreenView;
         [SerializeField] ResultPhoneScreenView resultPhoneScreenView;
 
-        readonly Dictionary<SceneType, PhoneScreenViewBase> screenViews = new();
+        readonly Dictionary<SceneType, ViewBase> screenViews = new();
 
-        void Awake()
+        public override void Initialize()
         {
+            screenViews.Clear();
             screenViews.Add(SceneType.Title, titlePhoneScreenView);
             screenViews.Add(SceneType.Select, selectPhoneScreenView);
             screenViews.Add(SceneType.Game, gamePhoneScreenView);
             screenViews.Add(SceneType.Result, resultPhoneScreenView);
-        }
 
-        public void Initialize()
-        {
             foreach (var screenView in screenViews.Values)
             {
                 screenView.Initialize();
             }
+        }
+
+        public override async UniTask ShowAsync(CancellationToken ct)
+        {
+            gameObject.SetActive(true);
+            await UniTask.CompletedTask;
+        }
+        public override async UniTask HideAsync(CancellationToken ct)
+        {
+            gameObject.SetActive(false);
+            await UniTask.CompletedTask;
         }
 
         public async UniTask ShowScreenAsync(SceneType sceneType, CancellationToken ct)
@@ -57,12 +66,10 @@ namespace Unity1Week_Ura.Actor
             await screenView.HideAsync(ct);
         }
 
-        public void AddPostToTimeline(Post post)
-        {
-            gamePhoneScreenView.AddPost(post);
-        }
+        public void AddPostToTimeline(Post post) => gamePhoneScreenView.AddPost(post);
+        public void ClearTimeline() => gamePhoneScreenView.ClearPosts();
 
-        PhoneScreenViewBase GetScreenView(SceneType sceneType)
+        ViewBase GetScreenView(SceneType sceneType)
         {
             if (screenViews.TryGetValue(sceneType, out var screenView))
             {
