@@ -4,19 +4,20 @@ using R3;
 
 using Unity1Week_Ura.Core;
 using System;
+using Unity1Week_Ura.Actor;
 
 namespace Unity1Week_Ura.Director
 {
     public class TitleSceneDirector : ISceneDirector, IDisposable
     {
-        readonly UIDirector uiDirector;
+        readonly ActorHub actorHub;
         readonly SceneModel sceneModel;
 
         readonly CompositeDisposable disposables = new();
 
-        public TitleSceneDirector(UIDirector uiDirector, SceneModel sceneModel)
+        public TitleSceneDirector(ActorHub actorHub, SceneModel sceneModel)
         {
-            this.uiDirector = uiDirector;
+            this.actorHub = actorHub;
             this.sceneModel = sceneModel;
         }
 
@@ -28,7 +29,7 @@ namespace Unity1Week_Ura.Director
         public void Initialize()
         {
             disposables.Clear();
-            uiDirector.OnStartButtonClicked.Subscribe(_ => 
+            actorHub.OnStartButtonClicked.Subscribe(_ => 
             {
                 StartButtonHandler();
             }).AddTo(disposables);
@@ -36,7 +37,7 @@ namespace Unity1Week_Ura.Director
 
         public async UniTask EnterAsync(CancellationToken ct)
         {
-            await uiDirector.EnterAsync(SceneType.Title, ct);
+            await actorHub.EnterAsync(SceneType.Title, ct);
         }
 
         public void Tick()
@@ -46,7 +47,7 @@ namespace Unity1Week_Ura.Director
         public async UniTask ExitAsync(CancellationToken ct)
         {
             disposables.Clear();
-            await uiDirector.ExitAsync(SceneType.Title, ct);
+            await actorHub.ExitAsync(SceneType.Title, ct);
         }
 
         void StartButtonHandler()

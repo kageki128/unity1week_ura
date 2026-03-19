@@ -3,22 +3,17 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using R3;
 
-using Unity1Week_Ura.Actor;
 using Unity1Week_Ura.Core;
+using UnityEngine;
 
-namespace Unity1Week_Ura.Director
+namespace Unity1Week_Ura.Actor
 {
-    public class UIDirector
+    public class ActorHub : MonoBehaviour
     {
-        readonly SmartPhoneView smartPhoneView;
+        [SerializeField] SmartPhoneView smartPhoneView;
 
         public Observable<Unit> OnStartButtonClicked => smartPhoneView.OnStartButtonClicked;
         public Observable<GameRuleSO> OnDifficultyButtonClicked => smartPhoneView.OnDifficultyButtonClicked;
-
-        public UIDirector(SmartPhoneView smartPhoneView)
-        {
-            this.smartPhoneView = smartPhoneView;
-        }
 
         public void Initialize()
         {

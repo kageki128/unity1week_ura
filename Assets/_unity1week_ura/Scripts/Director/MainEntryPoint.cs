@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 
 using Unity1Week_Ura.Core;
+using Unity1Week_Ura.Actor;
 
 
 namespace Unity1Week_Ura.Director
@@ -16,7 +17,7 @@ namespace Unity1Week_Ura.Director
         readonly TitleSceneDirector titleSceneDirector;
         readonly SelectSceneDirector selectSceneDirector;
         readonly GameSceneDirector gameSceneDirector;
-        readonly UIDirector uiDirector;
+        readonly ActorHub actorHub;
 
         readonly Dictionary<SceneType, ISceneDirector> sceneDirectors = new();   
         SceneType currentScene;
@@ -30,14 +31,14 @@ namespace Unity1Week_Ura.Director
             TitleSceneDirector titleSceneDirector,
             SelectSceneDirector selectSceneDirector,
             GameSceneDirector gameSceneDirector,
-            UIDirector uiDirector
+            ActorHub actorHub
         )
         {
             this.sceneModel = sceneModel;
             this.titleSceneDirector = titleSceneDirector;
             this.selectSceneDirector = selectSceneDirector;
             this.gameSceneDirector = gameSceneDirector;
-            this.uiDirector = uiDirector;
+            this.actorHub = actorHub;
 
             sceneDirectors[SceneType.Title] = titleSceneDirector;
             sceneDirectors[SceneType.Select] = selectSceneDirector;
@@ -46,7 +47,7 @@ namespace Unity1Week_Ura.Director
 
         public async UniTask StartAsync(CancellationToken ct)
         {
-            uiDirector.Initialize();
+            actorHub.Initialize();
             foreach (var director in sceneDirectors.Values)
             {
                 director.Initialize();

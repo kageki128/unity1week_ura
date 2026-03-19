@@ -4,20 +4,21 @@ using R3;
 using System;
 
 using Unity1Week_Ura.Core;
+using Unity1Week_Ura.Actor;
 
 namespace Unity1Week_Ura.Director
 {
     public class SelectSceneDirector : ISceneDirector, IDisposable
     {
-        readonly UIDirector uiDirector;
+        readonly ActorHub actorHub;
         readonly GameSession gameSession;
         readonly SceneModel sceneModel;
 
         readonly CompositeDisposable disposables = new();
 
-        public SelectSceneDirector(UIDirector uiDirector, GameSession gameSession, SceneModel sceneModel)
+        public SelectSceneDirector(ActorHub actorHub, GameSession gameSession, SceneModel sceneModel)
         {
-            this.uiDirector = uiDirector;
+            this.actorHub = actorHub;
             this.gameSession = gameSession;
             this.sceneModel = sceneModel;
         }
@@ -30,7 +31,7 @@ namespace Unity1Week_Ura.Director
         public void Initialize()
         {
             disposables.Clear();
-            uiDirector.OnDifficultyButtonClicked.Subscribe(gameRule =>
+            actorHub.OnDifficultyButtonClicked.Subscribe(gameRule =>
             {
                 DifficultyButtonHandlerAsync(gameRule);
             }).AddTo(disposables);
@@ -38,7 +39,7 @@ namespace Unity1Week_Ura.Director
 
         public async UniTask EnterAsync(CancellationToken ct)
         {
-            await uiDirector.EnterAsync(SceneType.Select, ct);
+            await actorHub.EnterAsync(SceneType.Select, ct);
         }
 
         public void Tick()
@@ -48,7 +49,7 @@ namespace Unity1Week_Ura.Director
         public async UniTask ExitAsync(CancellationToken ct)
         {
             disposables.Clear();
-            await uiDirector.ExitAsync(SceneType.Select, ct);
+            await actorHub.ExitAsync(SceneType.Select, ct);
         }
 
         public void DifficultyButtonHandlerAsync(GameRuleSO gameRule)

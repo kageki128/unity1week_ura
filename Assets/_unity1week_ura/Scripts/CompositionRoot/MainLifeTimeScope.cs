@@ -12,8 +12,8 @@ namespace Unity1Week_Ura.CompositionRoot
 {
     public class MainLifeTimeScope : LifetimeScope
     {
-        [Header("View")]
-        [SerializeField] SmartPhoneView smartPhoneView;
+        [Header("Actor")]
+        [SerializeField] ActorHub actorHub;
 
         [Header("SO")]
         [SerializeField] GameRuleSO defaultGameRule;
@@ -39,12 +39,11 @@ namespace Unity1Week_Ura.CompositionRoot
         }
         void RegisterActor(IContainerBuilder builder)
         {
-            builder.RegisterInstance(smartPhoneView);
+            builder.RegisterInstance(actorHub);
         }
         void RegisterDirector(IContainerBuilder builder)
         {
             builder.RegisterEntryPoint<MainEntryPoint>();
-            builder.Register<UIDirector>(Lifetime.Singleton);
             builder.Register<TitleSceneDirector>(Lifetime.Singleton);
             builder.Register<SelectSceneDirector>(Lifetime.Singleton);
             builder.Register<GameSceneDirector>(Lifetime.Singleton);

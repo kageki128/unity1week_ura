@@ -3,6 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using ObservableCollections;
 using R3;
+using Unity1Week_Ura.Actor;
 
 using Unity1Week_Ura.Core;
 using UnityEngine;
@@ -11,15 +12,15 @@ namespace Unity1Week_Ura.Director
 {
     public class GameSceneDirector : ISceneDirector, IDisposable
     {
-        readonly UIDirector uiDirector;
+        readonly ActorHub actorHub;
         readonly GameSession gameSession;
         readonly SceneModel sceneModel;
 
         readonly CompositeDisposable disposables = new();
 
-        public GameSceneDirector(UIDirector uiDirector, GameSession gameSession, SceneModel sceneModel)
+        public GameSceneDirector(ActorHub actorHub, GameSession gameSession, SceneModel sceneModel)
         {
-            this.uiDirector = uiDirector;
+            this.actorHub = actorHub;
             this.gameSession = gameSession;
             this.sceneModel = sceneModel;
         }
@@ -40,10 +41,10 @@ namespace Unity1Week_Ura.Director
             // 投稿されたポストを購読
             gameSession.PublishedPosts.ObserveAdd().Subscribe(addEvent =>
             {
-                uiDirector.AddPostToTimeline(addEvent.Value);
+                actorHub.AddPostToTimeline(addEvent.Value);
             }).AddTo(disposables);
 
-            await uiDirector.EnterAsync(SceneType.Game, ct);
+            await actorHub.EnterAsync(SceneType.Game, ct);
 
             gameSession.Play();
         }
@@ -56,7 +57,7 @@ namespace Unity1Week_Ura.Director
         public async UniTask ExitAsync(CancellationToken ct)
         {
             disposables.Clear();
-            await uiDirector.ExitAsync(SceneType.Game, ct);
+            await actorHub.ExitAsync(SceneType.Game, ct);
         }
     }
 }
