@@ -20,13 +20,13 @@ namespace Unity1Week_Ura.Actor
         public override async UniTask ShowAsync(CancellationToken ct)
         {
             
-            await smartPhoneView.ShowScreenAsync(SceneType.Title, ct);
+            await smartPhoneView.ShowSceneAsync(SceneType.Title, ct);
         }
 
         public override async UniTask HideAsync(CancellationToken ct)
         {
             
-            await smartPhoneView.HideScreenAsync(SceneType.Title, ct);
+            await smartPhoneView.HideSceneAsync(SceneType.Title, ct);
         }
     }
 }

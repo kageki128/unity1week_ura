@@ -81,8 +81,8 @@ MeshRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1275034735
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
@@ -280,6 +280,7 @@ MonoBehaviour:
   pointerEventObserver: {fileID: 8526031257112229609}
   iconImage: {fileID: 4973134194501840263}
   nameText: {fileID: 6664584535016494174}
+  selectedColor: {r: 1, g: 0.85, b: 0.35, a: 1}
 --- !u!1 &2121088564041370101
 GameObject:
   m_ObjectHideFlags: 0
@@ -357,8 +358,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1275034735
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
