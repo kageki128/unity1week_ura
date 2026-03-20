@@ -17,12 +17,12 @@ namespace Unity1Week_Ura.Core
         readonly ReactiveProperty<Account> selectedPlayerAccount = new();
 
         public IReadOnlyObservableList<Post> PublishedPosts => publishedPosts;
-        readonly ObservableList<Post> publishedPosts = new();
+        readonly ObservableList<Post> publishedPosts = new(new List<Post>());
 
         public IReadOnlyObservableList<Post> DraftPosts => draftPosts;
-        readonly ObservableList<Post> draftPosts = new();
+        readonly ObservableList<Post> draftPosts = new(new List<Post>());
 
-        List<Post> beforeAppearingPosts = new();
+        List<Post> beforeAppearingPosts = new(new List<Post>());
 
         readonly IAccountRepository accountRepository;
         readonly IPostRepository postRepository;

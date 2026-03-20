@@ -18,6 +18,7 @@ namespace Unity1Week_Ura.Actor
 
         // Game
         public Observable<Post> OnDraftDroppedToPublish => gamePhoneScreenView.OnDraftDroppedToPublish;
+        public Observable<Account> OnPlayerAccountClicked => gamePhoneScreenView.OnPlayerAccountClicked;
 
         // Result
         public Observable<Unit> OnRetryButtonClicked => resultPhoneScreenView.OnRetryButtonClicked;
@@ -71,6 +72,8 @@ namespace Unity1Week_Ura.Actor
 
         public void AddPostToTimeline(Post post) => gamePhoneScreenView.AddPost(post);
         public void ClearTimeline() => gamePhoneScreenView.ClearPosts();
+        public void SetPlayerAccounts(IReadOnlyList<Account> accounts) => gamePhoneScreenView.SetPlayerAccounts(accounts);
+        public void SetSelectedPlayerAccount(Account account) => gamePhoneScreenView.SetSelectedPlayerAccount(account);
 
         ViewBase GetScreenView(SceneType sceneType)
         {

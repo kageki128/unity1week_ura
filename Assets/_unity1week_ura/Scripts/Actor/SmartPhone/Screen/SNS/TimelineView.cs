@@ -6,13 +6,14 @@ namespace Unity1Week_Ura.Actor
 {
     public class TimelineView : MonoBehaviour
     {
-        [SerializeField] PostViewFactory postViewFactory;
+        [SerializeField] PostView postViewPrefab;
+        [SerializeField] Transform timelinePostParent;
 
         readonly List<PostView> postViews = new();
 
         public void AddPost(Post post)
         {
-            var postView = postViewFactory.Create(post);
+            var postView = CreatePostView(post);
             postViews.Add(postView);
             ArrangePosts();
         }
@@ -36,6 +37,11 @@ namespace Unity1Week_Ura.Actor
             }
         }
 
-        
+        PostView CreatePostView(Post post)
+        {
+            PostView postView = Instantiate(postViewPrefab, timelinePostParent);
+            postView.Initialize(post);
+            return postView;
+        }
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using R3;
@@ -9,6 +10,7 @@ namespace Unity1Week_Ura.Actor
     public class GameViewHub : ViewBase
     {
         public Observable<Post> OnDraftDroppedToPublish => smartPhoneView.OnDraftDroppedToPublish;
+        public Observable<Account> OnPlayerAccountClicked => smartPhoneView.OnPlayerAccountClicked;
         
         [SerializeField] SmartPhoneView smartPhoneView;
         [SerializeField] DraftListView draftListView;
@@ -39,6 +41,8 @@ namespace Unity1Week_Ura.Actor
 
         public void AddPostToTimeline(Post post) => smartPhoneView.AddPostToTimeline(post);
         public void ClearTimeline() => smartPhoneView.ClearTimeline();
+        public void SetPlayerAccounts(IReadOnlyList<Account> accounts) => smartPhoneView.SetPlayerAccounts(accounts);
+        public void SetSelectedPlayerAccount(Account account) => smartPhoneView.SetSelectedPlayerAccount(account);
 
         public void AddDraft(Post post) => draftListView.AddDraft(post);
         public void RemoveDraft(Post post) => draftListView.RemoveDraft(post);

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using ObservableCollections;
@@ -42,6 +43,8 @@ namespace Unity1Week_Ura.Director
             gameViewHub.ClearDrafts();
 
             await gameSession.LoadNewGame(ct);
+            
+            gameViewHub.SetPlayerAccounts(gameSession.PlayerAccounts);
             await gameViewHub.ShowAsync(ct);
 
             // 投稿されたポストを購読
@@ -58,7 +61,9 @@ namespace Unity1Week_Ura.Director
                 gameViewHub.RemoveDraft(removeEvent.Value);
             }).AddTo(disposables);
             gameViewHub.OnDraftDroppedToPublish.Subscribe(gameSession.TryPublishDraft).AddTo(disposables);
+            gameViewHub.OnPlayerAccountClicked.Subscribe(gameSession.SetCurrentPlayerAccount).AddTo(disposables);
             // UI
+            gameSession.SelectedPlayerAccount.Subscribe(gameViewHub.SetSelectedPlayerAccount).AddTo(disposables);
             gameSession.Score.Subscribe(gameViewHub.SetScore).AddTo(disposables);
             gameSession.RemainingTimeSeconds.Subscribe(gameViewHub.SetRemainingTime).AddTo(disposables);
             // ゲーム終了を購読

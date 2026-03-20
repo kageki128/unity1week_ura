@@ -946,52 +946,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 1
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1 &131836001
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 131836002}
-  - component: {fileID: 131836003}
-  m_Layer: 0
-  m_Name: PostViewFactory
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &131836002
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 131836001}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1530234972}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &131836003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 131836001}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f367874f96c67d4ca8e834cb32da017, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.PostViewFactory
-  postViewPrefab: {fileID: 3561548177664948245, guid: 6a62b201524becf44bdba0c482406bac, type: 3}
-  timelinePostParent: {fileID: 372057065}
 --- !u!1 &154394837
 GameObject:
   m_ObjectHideFlags: 0
@@ -1449,7 +1403,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3e77e16bbd2c4743b7bf17598977117, type: 3}
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.TimelineView
-  postViewFactory: {fileID: 131836003}
+  postViewPrefab: {fileID: 8307183115214323051, guid: 6a62b201524becf44bdba0c482406bac, type: 3}
+  timelinePostParent: {fileID: 372057065}
 --- !u!1 &476038670
 GameObject:
   m_ObjectHideFlags: 0
@@ -1657,6 +1612,38 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   m_MaxRayIntersections: 0
+--- !u!1 &525735650
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 525735651}
+  m_Layer: 0
+  m_Name: Header
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &525735651
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 525735650}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1605746565}
+  m_Father: {fileID: 1242472293}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &558580210
 GameObject:
   m_ObjectHideFlags: 0
@@ -1685,7 +1672,7 @@ Transform:
   m_GameObject: {fileID: 558580210}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3.41, z: 0}
+  m_LocalPosition: {x: 0, y: 2.57, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2582,6 +2569,7 @@ Transform:
   m_Children:
   - {fileID: 558580211}
   - {fileID: 433196082}
+  - {fileID: 525735651}
   m_Father: {fileID: 2132196074}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1242472294
@@ -2598,6 +2586,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.GamePhoneScreenView
   timelineView: {fileID: 433196083}
   publishFieldView: {fileID: 558580215}
+  playerAccountListView: {fileID: 1605746566}
 --- !u!1 &1407322846
 GameObject:
   m_ObjectHideFlags: 0
@@ -3365,8 +3354,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1992473636}
-  - {fileID: 131836002}
-  - {fileID: 2012958149}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1544126124
@@ -3543,6 +3530,52 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &1605746564
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1605746565}
+  - component: {fileID: 1605746566}
+  m_Layer: 0
+  m_Name: PlayerAccounts
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1605746565
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1605746564}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.4, y: 4.29, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 525735651}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1605746566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1605746564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d14ce405b7677224bbd1dc9594153b7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.PlayerAccountListView
+  playerAccountViewPrefab: {fileID: 4732709196720317949, guid: 8bb963a12d9dd3f49a482d56b7d7967e, type: 3}
+  playerAccountViewParent: {fileID: 1605746565}
 --- !u!1 &1611530301
 GameObject:
   m_ObjectHideFlags: 0
@@ -3680,7 +3713,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 160c7b13953c32a4faee8a51174f4740, type: 3}
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.DraftListView
-  draftViewFactory: {fileID: 2012958150}
+  draftViewPrefab: {fileID: 399324211268208196, guid: ddd15fd9067da444caa668fb2ca0a4e8, type: 3}
+  draftParent: {fileID: 1820942809}
 --- !u!1 &1777593413
 GameObject:
   m_ObjectHideFlags: 0
@@ -4686,52 +4720,6 @@ Transform:
   - {fileID: 1193366466}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2012958148
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2012958149}
-  - component: {fileID: 2012958150}
-  m_Layer: 0
-  m_Name: DraftViewFactory
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2012958149
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2012958148}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1530234972}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2012958150
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2012958148}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be0ad373a64ae5c498b18afb6b589970, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.DraftViewFactory
-  draftViewPrefab: {fileID: 864614251040759354, guid: ddd15fd9067da444caa668fb2ca0a4e8, type: 3}
-  draftParent: {fileID: 1820942809}
 --- !u!1 &2035369622
 GameObject:
   m_ObjectHideFlags: 0

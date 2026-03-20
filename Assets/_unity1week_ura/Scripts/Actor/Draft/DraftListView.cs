@@ -6,13 +6,14 @@ namespace Unity1Week_Ura.Actor
 {
     public class DraftListView : MonoBehaviour
     {
-        [SerializeField] DraftViewFactory draftViewFactory;
+        [SerializeField] DraftView draftViewPrefab;
+        [SerializeField] Transform draftParent;
 
         readonly List<DraftView> draftViews = new();
 
         public void AddDraft(Post post)
         {
-            var draftView = draftViewFactory.Create(post);
+            var draftView = CreateDraftView(post);
             draftViews.Add(draftView);
             ArrangeDrafts();
         }
@@ -45,6 +46,13 @@ namespace Unity1Week_Ura.Actor
                 float y = -i * draftViews[i].Height;
                 draftViews[i].SetPosition(0, y);
             }
+        }
+
+        DraftView CreateDraftView(Post post)
+        {
+            DraftView draftView = Instantiate(draftViewPrefab, draftParent);
+            draftView.Initialize(post);
+            return draftView;
         }
     }
 }
