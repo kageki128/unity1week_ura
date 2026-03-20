@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class SmartPhoneView : ViewBase
+    public class SmartPhoneView : AnimationViewBase
     {
         // Title
         public Observable<Unit> OnStartButtonClicked => titlePhoneScreenView.OnStartButtonClicked;
@@ -33,6 +33,8 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] GamePhoneScreenView gamePhoneScreenView;
         [SerializeField] ResultPhoneScreenView resultPhoneScreenView;
 
+        [SerializeField] ScreenTransitionViewHub screenTransitionViewHub;
+
         [SerializeField] Transform titleTransform;
         [SerializeField] Transform selectTransform;
         [SerializeField] Transform gameTransform;
@@ -41,7 +43,7 @@ namespace Unity1Week_Ura.Actor
         [SerializeField, Min(0f)] float AnimationDuration = 0.5f;
         [SerializeField] Ease AnimationEase = Ease.OutExpo;
 
-        readonly Dictionary<SceneType, ViewBase> screenViews = new();
+        readonly Dictionary<SceneType, PhoneScreenViewBase> screenViews = new();
         readonly Dictionary<SceneType, Transform> sceneTargets = new();
 
         Tween currentTween;
@@ -62,8 +64,10 @@ namespace Unity1Week_Ura.Actor
 
             foreach (var screenView in screenViews.Values)
             {
-                screenView.Initialize();
+                screenView.Initialize(screenTransitionViewHub);
             }
+
+            screenTransitionViewHub.Initialize();
         }
 
         public override async UniTask ShowAsync(CancellationToken ct)
@@ -97,7 +101,7 @@ namespace Unity1Week_Ura.Actor
         public void SetPlayerAccounts(IReadOnlyList<Account> accounts) => gamePhoneScreenView.SetPlayerAccounts(accounts);
         public void SetSelectedPlayerAccount(Account account) => gamePhoneScreenView.SetSelectedPlayerAccount(account);
 
-        ViewBase GetScreenView(SceneType sceneType)
+        PhoneScreenViewBase GetScreenView(SceneType sceneType)
         {
             if (screenViews.TryGetValue(sceneType, out var screenView))
             {

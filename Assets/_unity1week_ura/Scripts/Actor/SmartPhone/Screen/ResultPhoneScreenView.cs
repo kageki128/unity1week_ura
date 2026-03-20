@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class ResultPhoneScreenView : ViewBase
+    public class ResultPhoneScreenView : PhoneScreenViewBase
     {
         public Observable<Unit> OnRetryButtonClicked => RetryButtonView.OnClicked;
         public Observable<Unit> OnBackToSelectButtonClicked => BackToSelectButtonView.OnClicked;
@@ -16,15 +16,17 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] ButtonView BackToSelectButtonView;
         [SerializeField] ButtonView ShareButtonView;
 
-        public override void Initialize()
+        public override void Initialize(ScreenTransitionViewHub screenTransitionViewHub)
         {
+            base.Initialize(screenTransitionViewHub);
+
             gameObject.SetActive(false);
         }
 
-        public override UniTask ShowAsync(CancellationToken ct)
+        public override async UniTask ShowAsync(CancellationToken ct)
         {
             gameObject.SetActive(true);
-            return UniTask.CompletedTask;
+            await screenTransitionViewHub.HideAsync(ct);
         }
 
         public override UniTask HideAsync(CancellationToken ct)

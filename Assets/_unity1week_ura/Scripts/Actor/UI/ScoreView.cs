@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class ScoreView : ViewBase
+    public class ScoreView : AnimationViewBase
     {
         [SerializeField] TMP_Text scoreText;
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using R3;
 using Unity1Week_Ura.Core;
@@ -8,7 +9,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class SelectPhoneScreenView : ViewBase
+    public class SelectPhoneScreenView : PhoneScreenViewBase
     {
         public Observable<GameRuleSO> OnDifficultyButtonClicked => onDifficultyButtonClicked;
         public Observable<Unit> OnBackToTitleButtonClicked =>backToTitleButton.OnClicked;
@@ -17,16 +18,18 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] List<DifficultyButtonView> difficultyButtons;
         [SerializeField] ButtonView backToTitleButton;
         
-        public override void Initialize()
+        public override void Initialize(ScreenTransitionViewHub screenTransitionViewHub)
         {
+            base.Initialize(screenTransitionViewHub);
+
             onDifficultyButtonClicked = Observable.Merge(difficultyButtons.Select(button => button.OnClicked).ToArray());
             gameObject.SetActive(false);
         }
 
-        public override UniTask ShowAsync(CancellationToken ct)
+        public override async UniTask ShowAsync(CancellationToken ct)
         {
             gameObject.SetActive(true);
-            return UniTask.CompletedTask;
+            await screenTransitionViewHub.HideAsync(ct);
         }
 
         public override UniTask HideAsync(CancellationToken ct)

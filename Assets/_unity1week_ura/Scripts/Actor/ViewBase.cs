@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public abstract class ViewBase : MonoBehaviour
+    public abstract class AnimationViewBase : MonoBehaviour
     {
         public abstract void Initialize();
         public abstract UniTask ShowAsync(CancellationToken ct);

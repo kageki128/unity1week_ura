@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class RemainingTimeView : ViewBase
+    public class RemainingTimeView : AnimationViewBase
     {
         [SerializeField] TMP_Text remainingTimeText;
 

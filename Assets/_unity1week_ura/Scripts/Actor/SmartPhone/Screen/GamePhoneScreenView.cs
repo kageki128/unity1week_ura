@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class GamePhoneScreenView : ViewBase
+    public class GamePhoneScreenView : PhoneScreenViewBase
     {
         public Observable<Post> OnDraftDroppedToPublish => publishFieldView.OnDraftDropped;
         public Observable<Account> OnPlayerAccountClicked => playerAccountListView.OnClicked;
@@ -16,22 +16,24 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] PublishFieldView publishFieldView;
         [SerializeField] PlayerAccountListView playerAccountListView;
 
-        public override void Initialize()
+        public override void Initialize(ScreenTransitionViewHub screenTransitionViewHub)
         {
+            base.Initialize(screenTransitionViewHub);
+
             publishFieldView.Initialize();
             gameObject.SetActive(false);
         }
 
-        public override UniTask ShowAsync(CancellationToken ct)
+        public override async UniTask ShowAsync(CancellationToken ct)
         {
             gameObject.SetActive(true);
-            return UniTask.CompletedTask;
+            await screenTransitionViewHub.HideAsync(ct);
         }
 
-        public override UniTask HideAsync(CancellationToken ct)
+        public override async UniTask HideAsync(CancellationToken ct)
         {
             gameObject.SetActive(false);
-            return UniTask.CompletedTask;
+            await UniTask.CompletedTask;
         }
 
         public void AddPost(Post post) => timelineView.AddPost(post);

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class SelectViewHub : ViewBase
+    public class SelectViewHub : AnimationViewBase
     {
         [SerializeField] SmartPhoneView smartPhoneView;
 

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class GameViewHub : ViewBase
+    public class GameViewHub : AnimationViewBase
     {
         public Observable<Post> OnDraftDroppedToPublish => smartPhoneView.OnDraftDroppedToPublish;
         public Observable<Account> OnPlayerAccountClicked => smartPhoneView.OnPlayerAccountClicked;

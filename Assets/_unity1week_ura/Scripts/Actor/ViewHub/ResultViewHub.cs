@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class ResultViewHub : ViewBase
+    public class ResultViewHub : AnimationViewBase
     {
         public Observable<Unit> OnRetryButtonClicked => smartPhoneView.OnRetryButtonClicked;
         public Observable<Unit> OnBackToSelectButtonClicked => smartPhoneView.OnBackToSelectButtonClicked;
