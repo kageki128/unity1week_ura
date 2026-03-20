@@ -22,11 +22,12 @@ namespace Unity1Week_Ura.Actor
             smartPhoneView.Initialize();
             remainingTimeView.Initialize();
             scoreView.Initialize();
+            gameObject.SetActive(false);
         }
 
         public override async UniTask ShowAsync(CancellationToken ct)
         {
-
+            gameObject.SetActive(true);
             await smartPhoneView.ShowSceneAsync(SceneType.Game, ct);
             await scoreView.ShowAsync(ct);
             await remainingTimeView.ShowAsync(ct);
@@ -37,6 +38,7 @@ namespace Unity1Week_Ura.Actor
             await smartPhoneView.HideSceneAsync(SceneType.Game, ct);
             await scoreView.HideAsync(ct);
             await remainingTimeView.HideAsync(ct);
+            gameObject.SetActive(false);
         }
 
         public void AddPostToTimeline(Post post) => smartPhoneView.AddPostToTimeline(post);

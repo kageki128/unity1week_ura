@@ -17,16 +17,19 @@ namespace Unity1Week_Ura.Actor
         public override void Initialize()
         {
             smartPhoneView.Initialize();
+            gameObject.SetActive(false);
         }
 
         public override async UniTask ShowAsync(CancellationToken ct)
         {
+            gameObject.SetActive(true);
             await smartPhoneView.ShowSceneAsync(SceneType.Result, ct);
         }
 
         public override async UniTask HideAsync(CancellationToken ct)
         {
             await smartPhoneView.HideSceneAsync(SceneType.Result, ct);
+            gameObject.SetActive(false);
         }
     }
 }

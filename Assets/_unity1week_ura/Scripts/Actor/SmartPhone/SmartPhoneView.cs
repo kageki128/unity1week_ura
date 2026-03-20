@@ -35,16 +35,21 @@ namespace Unity1Week_Ura.Actor
 
         [SerializeField] ScreenTransitionViewHub screenTransitionViewHub;
 
-        [SerializeField] Transform titleTransform;
-        [SerializeField] Transform selectTransform;
-        [SerializeField] Transform gameTransform;
-        [SerializeField] Transform resultTransform;
+        [SerializeField] Transform titleShowTransform;
+        [SerializeField] Transform titleHideTransform;
+        [SerializeField] Transform selectShowTransform;
+        [SerializeField] Transform selectHideTransform;
+        [SerializeField] Transform gameShowTransform;
+        [SerializeField] Transform gameHideTransform;
+        [SerializeField] Transform resultShowTransform;
+        [SerializeField] Transform resultHideTransform;
 
         [SerializeField, Min(0f)] float AnimationDuration = 0.5f;
         [SerializeField] Ease AnimationEase = Ease.OutExpo;
 
         readonly Dictionary<SceneType, PhoneScreenViewBase> screenViews = new();
-        readonly Dictionary<SceneType, Transform> sceneTargets = new();
+        readonly Dictionary<SceneType, Transform> showSceneTargets = new();
+        readonly Dictionary<SceneType, Transform> hideSceneTargets = new();
 
         Tween currentTween;
 
@@ -56,11 +61,17 @@ namespace Unity1Week_Ura.Actor
             screenViews.Add(SceneType.Game, gamePhoneScreenView);
             screenViews.Add(SceneType.Result, resultPhoneScreenView);
 
-            sceneTargets.Clear();
-            sceneTargets.Add(SceneType.Title, titleTransform);
-            sceneTargets.Add(SceneType.Select, selectTransform);
-            sceneTargets.Add(SceneType.Game, gameTransform);
-            sceneTargets.Add(SceneType.Result, resultTransform);
+            showSceneTargets.Clear();
+            showSceneTargets.Add(SceneType.Title, titleShowTransform);
+            showSceneTargets.Add(SceneType.Select, selectShowTransform);
+            showSceneTargets.Add(SceneType.Game, gameShowTransform);
+            showSceneTargets.Add(SceneType.Result, resultShowTransform);
+
+            hideSceneTargets.Clear();
+            hideSceneTargets.Add(SceneType.Title, titleHideTransform);
+            hideSceneTargets.Add(SceneType.Select, selectHideTransform);
+            hideSceneTargets.Add(SceneType.Game, gameHideTransform);
+            hideSceneTargets.Add(SceneType.Result, resultHideTransform);
 
             foreach (var screenView in screenViews.Values)
             {
@@ -84,16 +95,29 @@ namespace Unity1Week_Ura.Actor
         public async UniTask ShowSceneAsync(SceneType sceneType, CancellationToken ct)
         {
             var screenView = GetScreenView(sceneType);
-            await screenView.ShowAsync(ct);
-            var targetTransform = GetTargetTransform(sceneType);
-            await AnimateToTargetAsync(targetTransform, AnimationDuration, AnimationEase, ct);
+            var targetTransform = GetShowTargetTransform(sceneType);
+
+            var animationTask = targetTransform != null
+                ? AnimateToTargetAsync(targetTransform, AnimationDuration, AnimationEase, ct)
+                : UniTask.CompletedTask;
+
+            await UniTask.WhenAll(
+                screenView.ShowAsync(ct),
+                animationTask);
         }
 
         public async UniTask HideSceneAsync(SceneType sceneType, CancellationToken ct)
         {
             var screenView = GetScreenView(sceneType);
-            KillCurrentTween();
-            await screenView.HideAsync(ct);
+            var targetTransform = GetHideTargetTransform(sceneType);
+
+            var animationTask = targetTransform != null
+                ? AnimateToTargetAsync(targetTransform, AnimationDuration, AnimationEase, ct)
+                : UniTask.CompletedTask;
+
+            await UniTask.WhenAll(
+                screenView.HideAsync(ct),
+                animationTask);
         }
 
         public void AddPostToTimeline(Post post) => gamePhoneScreenView.AddPost(post);
@@ -111,14 +135,24 @@ namespace Unity1Week_Ura.Actor
             throw new KeyNotFoundException($"Screen view for scene type {sceneType} not found.");
         }
 
-        Transform GetTargetTransform(SceneType sceneType)
+        Transform GetShowTargetTransform(SceneType sceneType)
         {
-            if (sceneTargets.TryGetValue(sceneType, out var targetTransform) && targetTransform != null)
+            if (showSceneTargets.TryGetValue(sceneType, out var targetTransform))
             {
                 return targetTransform;
             }
 
-            throw new KeyNotFoundException($"Target transform for scene type {sceneType} not found.");
+            throw new KeyNotFoundException($"Show target transform for scene type {sceneType} not found.");
+        }
+
+        Transform GetHideTargetTransform(SceneType sceneType)
+        {
+            if (hideSceneTargets.TryGetValue(sceneType, out var targetTransform))
+            {
+                return targetTransform;
+            }
+
+            throw new KeyNotFoundException($"Hide target transform for scene type {sceneType} not found.");
         }
 
         async UniTask AnimateToTargetAsync(Transform targetTransform, float duration, Ease ease, CancellationToken ct)

@@ -9,7 +9,7 @@ namespace Unity1Week_Ura.Actor
     public class CircleWipeTransitionView : AnimationViewBase
     {
         [Header("Dependencies")]
-        [SerializeField] Transform circleTransform;
+        [SerializeField] GameObject circleObject;
 
         [Header("Show (Circle Expands)")]
         [SerializeField] Vector3 hiddenScale = new(0f, 0f, 1f);
@@ -23,10 +23,14 @@ namespace Unity1Week_Ura.Actor
 
         Tween currentTween;
 
+        Transform circleTransform;
+        SpriteRenderer circleRenderer;
+
         public override void Initialize()
         {
             ValidateDependencies();
             KillCurrentTween();
+            SetCircleAlpha(1f);
             circleTransform.localScale = hiddenScale;
             gameObject.SetActive(false);
         }
@@ -34,6 +38,7 @@ namespace Unity1Week_Ura.Actor
         public override async UniTask ShowAsync(CancellationToken ct)
         {
             ValidateDependencies();
+            SetCircleAlpha(1f);
             circleTransform.localScale = hiddenScale;
             gameObject.SetActive(true);
             await PlayScaleAsync(coveredScale, showDuration, showEase, ct);
@@ -48,8 +53,40 @@ namespace Unity1Week_Ura.Actor
                 return;
             }
 
-            await PlayScaleAsync(hiddenScale, hideDuration, hideEase, ct);
+            await PlayFadeAsync(0f, hideDuration, hideEase, ct);
             gameObject.SetActive(false);
+        }
+
+        async UniTask PlayFadeAsync(float targetAlpha, float duration, Ease ease, CancellationToken ct)
+        {
+            KillCurrentTween();
+
+            if (duration <= 0f)
+            {
+                SetCircleAlpha(targetAlpha);
+                return;
+            }
+
+            var tween = circleRenderer.DOFade(targetAlpha, duration).SetEase(ease);
+            currentTween = tween;
+
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, destroyCancellationToken);
+            try
+            {
+                await tween.AsyncWaitForCompletion().AsUniTask().AttachExternalCancellation(linkedCts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                KillCurrentTween();
+                throw;
+            }
+            finally
+            {
+                if (currentTween == tween)
+                {
+                    currentTween = null;
+                }
+            }
         }
 
         async UniTask PlayScaleAsync(Vector3 targetScale, float duration, Ease ease, CancellationToken ct)
@@ -86,10 +123,32 @@ namespace Unity1Week_Ura.Actor
 
         void ValidateDependencies()
         {
+            if (circleObject == null)
+            {
+                throw new System.InvalidOperationException("CircleWipeTransitionView: circleObject is not assigned.");
+            }
+
+            if (circleRenderer == null)
+            {
+                circleRenderer = circleObject.GetComponent<SpriteRenderer>();
+            }
+
+            if (circleRenderer == null)
+            {
+                throw new System.InvalidOperationException("CircleWipeTransitionView: SpriteRenderer on circleObject is not assigned.");
+            }
+
             if (circleTransform == null)
             {
-                throw new System.InvalidOperationException("CircleWipeTransitionView: circleTransform is not assigned.");
+                circleTransform = circleObject.transform;
             }
+        }
+
+        void SetCircleAlpha(float alpha)
+        {
+            var color = circleRenderer.color;
+            color.a = alpha;
+            circleRenderer.color = color;
         }
 
         void KillCurrentTween()

@@ -1,13 +1,22 @@
 using DG.Tweening;
 using R3;
+using TMPro;
 using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
     public class ButtonAnimator : MonoBehaviour
     {
+        enum HoverColorMode
+        {
+            CustomColor,
+            Darken,
+            Brighten,
+        }
+
         [SerializeField] PointerEventObserver pointerEventObserver;
-        [SerializeField] SpriteRenderer spriteRenderer;
+        [SerializeField] SpriteRenderer[] spriteRenderers;
+        [SerializeField] TMP_Text[] texts;
 
         [Header("Idle")]
         [SerializeField] bool playIdleAnimation = true;
@@ -27,26 +36,37 @@ namespace Unity1Week_Ura.Actor
         [Header("Hover")]
         [SerializeField, Min(1f)] float hoverScaleMultiplier = 1.04f;
         [SerializeField, Min(0.01f)] float hoverScaleDuration = 0.08f;
-        [SerializeField, Min(0f)] float hoverDarkenAmount = 0.08f;
+        [Header("Hover Sprite Color")]
+        [SerializeField] HoverColorMode spriteHoverColorMode = HoverColorMode.Darken;
+        [SerializeField] Color spriteHoverColor = new(0.92f, 0.92f, 0.92f, 1f);
+        [SerializeField, Min(0f)] float spriteHoverDarkenAmount = 0.08f;
+        [SerializeField, Min(0f)] float spriteHoverBrightenAmount = 0.08f;
+        [Header("Hover Text Color")]
+        [SerializeField] HoverColorMode textHoverColorMode = HoverColorMode.Darken;
+        [SerializeField] Color textHoverColor = new(0.92f, 0.92f, 0.92f, 1f);
+        [SerializeField, Min(0f)] float textHoverDarkenAmount = 0.08f;
+        [SerializeField, Min(0f)] float textHoverBrightenAmount = 0.08f;
         [SerializeField, Min(0.01f)] float colorDuration = 0.08f;
 
         readonly CompositeDisposable disposables = new();
 
         Vector3 baseLocalScale;
         Vector3 baseLocalPosition;
-        Color baseColor;
+        Color[] baseSpriteColors;
+        Color[] baseTextColors;
         bool isHovered;
         bool isPressed;
         Tween idleTween;
         Tween scaleTween;
         Tween moveTween;
-        Tween colorTween;
+        Tween[] spriteColorTweens;
+        Tween[] textColorTweens;
 
         void Awake()
         {
             baseLocalScale = transform.localScale;
             baseLocalPosition = transform.localPosition;
-            baseColor = spriteRenderer.color;
+            CacheBaseColors();
 
             pointerEventObserver.OnPointerEntered.Subscribe(_ => OnPointerEnter()).AddTo(disposables);
             pointerEventObserver.OnPointerExited.Subscribe(_ => OnPointerExit()).AddTo(disposables);
@@ -70,7 +90,7 @@ namespace Unity1Week_Ura.Actor
             scaleTween?.Kill();
             scaleTween = transform.DOScale(GetHoverScale(), hoverScaleDuration).SetEase(Ease.OutQuad);
 
-            TweenColor(GetHoverColor());
+            TweenToHoverColors();
         }
 
         void OnPointerExit()
@@ -87,7 +107,7 @@ namespace Unity1Week_Ura.Actor
                 .SetEase(Ease.OutQuad)
                 .OnComplete(PlayIdleAnimationIfNeeded);
 
-            TweenColor(baseColor);
+            TweenToBaseColors();
         }
 
         void OnPointerDown()
@@ -102,7 +122,7 @@ namespace Unity1Week_Ura.Actor
             moveTween?.Kill();
             moveTween = transform.DOLocalMove(GetPressedPosition(), pressDuration).SetEase(Ease.OutQuad);
 
-            TweenColor(GetPressedColor());
+            TweenToPressedColors();
         }
 
         void OnPointerUp()
@@ -119,8 +139,14 @@ namespace Unity1Week_Ura.Actor
             moveTween?.Kill();
             moveTween = transform.DOLocalMove(baseLocalPosition, releaseDuration).SetEase(Ease.OutBack);
 
-            var targetColor = isHovered ? GetHoverColor() : baseColor;
-            TweenColor(targetColor);
+            if (isHovered)
+            {
+                TweenToHoverColors();
+            }
+            else
+            {
+                TweenToBaseColors();
+            }
 
             if (!isHovered)
             {
@@ -148,10 +174,110 @@ namespace Unity1Week_Ura.Actor
             idleTween = null;
         }
 
-        void TweenColor(Color targetColor)
+        void CacheBaseColors()
         {
-            colorTween?.Kill();
-            colorTween = spriteRenderer.DOColor(targetColor, colorDuration).SetEase(Ease.OutQuad);
+            baseSpriteColors = new Color[spriteRenderers.Length];
+            spriteColorTweens = new Tween[spriteRenderers.Length];
+
+            for (var i = 0; i < spriteRenderers.Length; i++)
+            {
+                var sprite = spriteRenderers[i];
+                baseSpriteColors[i] = sprite == null ? Color.white : sprite.color;
+            }
+
+            baseTextColors = new Color[texts.Length];
+            textColorTweens = new Tween[texts.Length];
+
+            for (var i = 0; i < texts.Length; i++)
+            {
+                var text = texts[i];
+                baseTextColors[i] = text == null ? Color.white : text.color;
+            }
+        }
+
+        void TweenToHoverColors()
+        {
+            for (var i = 0; i < spriteRenderers.Length; i++)
+            {
+                var sprite = spriteRenderers[i];
+                if (sprite == null)
+                {
+                    continue;
+                }
+
+                var targetColor = GetHoverColor(baseSpriteColors[i], spriteHoverColorMode, spriteHoverColor, spriteHoverDarkenAmount, spriteHoverBrightenAmount);
+                spriteColorTweens[i]?.Kill();
+                spriteColorTweens[i] = sprite.DOColor(targetColor, colorDuration).SetEase(Ease.OutQuad);
+            }
+
+            for (var i = 0; i < texts.Length; i++)
+            {
+                var text = texts[i];
+                if (text == null)
+                {
+                    continue;
+                }
+
+                var targetColor = GetHoverColor(baseTextColors[i], textHoverColorMode, textHoverColor, textHoverDarkenAmount, textHoverBrightenAmount);
+                textColorTweens[i]?.Kill();
+                textColorTweens[i] = text.DOColor(targetColor, colorDuration).SetEase(Ease.OutQuad);
+            }
+        }
+
+        void TweenToBaseColors()
+        {
+            for (var i = 0; i < spriteRenderers.Length; i++)
+            {
+                var sprite = spriteRenderers[i];
+                if (sprite == null)
+                {
+                    continue;
+                }
+
+                spriteColorTweens[i]?.Kill();
+                spriteColorTweens[i] = sprite.DOColor(baseSpriteColors[i], colorDuration).SetEase(Ease.OutQuad);
+            }
+
+            for (var i = 0; i < texts.Length; i++)
+            {
+                var text = texts[i];
+                if (text == null)
+                {
+                    continue;
+                }
+
+                textColorTweens[i]?.Kill();
+                textColorTweens[i] = text.DOColor(baseTextColors[i], colorDuration).SetEase(Ease.OutQuad);
+            }
+        }
+
+        void TweenToPressedColors()
+        {
+            for (var i = 0; i < spriteRenderers.Length; i++)
+            {
+                var sprite = spriteRenderers[i];
+                if (sprite == null)
+                {
+                    continue;
+                }
+
+                var targetColor = GetDarkenedColor(baseSpriteColors[i], pressedDarkenAmount);
+                spriteColorTweens[i]?.Kill();
+                spriteColorTweens[i] = sprite.DOColor(targetColor, colorDuration).SetEase(Ease.OutQuad);
+            }
+
+            for (var i = 0; i < texts.Length; i++)
+            {
+                var text = texts[i];
+                if (text == null)
+                {
+                    continue;
+                }
+
+                var targetColor = GetDarkenedColor(baseTextColors[i], pressedDarkenAmount);
+                textColorTweens[i]?.Kill();
+                textColorTweens[i] = text.DOColor(targetColor, colorDuration).SetEase(Ease.OutQuad);
+            }
         }
 
         Vector3 GetPressedScale()
@@ -174,20 +300,27 @@ namespace Unity1Week_Ura.Actor
             return baseLocalPosition + Vector3.up * pressedOffsetY;
         }
 
-        Color GetHoverColor()
+        Color GetHoverColor(Color baseColor, HoverColorMode mode, Color customColor, float darkenAmount, float brightenAmount)
         {
-            return GetDarkenedColor(hoverDarkenAmount);
+            return mode switch
+            {
+                HoverColorMode.CustomColor => customColor,
+                HoverColorMode.Darken => GetDarkenedColor(baseColor, darkenAmount),
+                HoverColorMode.Brighten => GetBrightenedColor(baseColor, brightenAmount),
+                _ => customColor,
+            };
         }
 
-        Color GetPressedColor()
-        {
-            return GetDarkenedColor(Mathf.Max(hoverDarkenAmount, pressedDarkenAmount));
-        }
-
-        Color GetDarkenedColor(float darkenAmount)
+        Color GetDarkenedColor(Color baseColor, float darkenAmount)
         {
             var brightness = Mathf.Clamp01(1f - darkenAmount);
             return new Color(baseColor.r * brightness, baseColor.g * brightness, baseColor.b * brightness, baseColor.a);
+        }
+
+        Color GetBrightenedColor(Color baseColor, float brightenAmount)
+        {
+            var amount = Mathf.Clamp01(brightenAmount);
+            return Color.Lerp(baseColor, Color.white, amount);
         }
 
         void OnDestroy()
@@ -195,7 +328,17 @@ namespace Unity1Week_Ura.Actor
             idleTween?.Kill();
             scaleTween?.Kill();
             moveTween?.Kill();
-            colorTween?.Kill();
+
+            for (var i = 0; i < spriteColorTweens.Length; i++)
+            {
+                spriteColorTweens[i]?.Kill();
+            }
+
+            for (var i = 0; i < textColorTweens.Length; i++)
+            {
+                textColorTweens[i]?.Kill();
+            }
+
             disposables.Dispose();
         }
     }
