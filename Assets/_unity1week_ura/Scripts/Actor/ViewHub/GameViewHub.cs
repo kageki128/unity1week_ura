@@ -11,6 +11,8 @@ namespace Unity1Week_Ura.Actor
     {
         public Observable<Post> OnDraftDroppedToPublish => smartPhoneView.OnDraftDroppedToPublish;
         public Observable<Account> OnPlayerAccountClicked => smartPhoneView.OnPlayerAccountClicked;
+        public Observable<Post> OnLikedByPlayer => smartPhoneView.OnLikedByPlayer;
+        public Observable<Post> OnRepostedByPlayer => smartPhoneView.OnRepostedByPlayer;
         
         [SerializeField] SmartPhoneView smartPhoneView;
         [SerializeField] DraftListView draftListView;

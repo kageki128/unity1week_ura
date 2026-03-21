@@ -51,6 +51,11 @@ namespace Unity1Week_Ura.Core
                 playerAccounts.Select(account => postRepository.GetPostsByCorrectPlayerAccountAsync(account, ct))
             );
             beforeAppearingPosts = loadedPostsByAccount.SelectMany(posts => posts).ToList();
+
+            foreach (var post in beforeAppearingPosts)
+            {
+                post.ResetPlayerAction();
+            }
         }
 
         public void TrySupplyPost(GameRuleSO gameRule, float deltaTime)

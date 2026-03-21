@@ -195,6 +195,37 @@ namespace Unity1Week_Ura.Actor
             }
         }
 
+        public void RefreshBaseColorsFromCurrent()
+        {
+            if (baseSpriteColors == null || baseSpriteColors.Length != spriteRenderers.Length)
+            {
+                baseSpriteColors = new Color[spriteRenderers.Length];
+            }
+
+            if (baseTextColors == null || baseTextColors.Length != texts.Length)
+            {
+                baseTextColors = new Color[texts.Length];
+            }
+
+            for (var i = 0; i < spriteRenderers.Length; i++)
+            {
+                var sprite = spriteRenderers[i];
+                if (sprite != null)
+                {
+                    baseSpriteColors[i] = sprite.color;
+                }
+            }
+
+            for (var i = 0; i < texts.Length; i++)
+            {
+                var text = texts[i];
+                if (text != null)
+                {
+                    baseTextColors[i] = text.color;
+                }
+            }
+        }
+
         void TweenToHoverColors()
         {
             for (var i = 0; i < spriteRenderers.Length; i++)

@@ -282,6 +282,10 @@ GameObject:
   m_Component:
   - component: {fileID: 7949185996265600724}
   - component: {fileID: 2955658971774359099}
+  - component: {fileID: 6467760702822942101}
+  - component: {fileID: 6521324175058938580}
+  - component: {fileID: 7950435060402420834}
+  - component: {fileID: 783893869278343329}
   m_Layer: 0
   m_Name: LikeIcon
   m_TagString: Untagged
@@ -363,6 +367,113 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!61 &6467760702822942101
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1650258102367972618}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 0.8984375}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1, y: 0.8984375}
+  m_EdgeRadius: 0
+--- !u!114 &6521324175058938580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1650258102367972618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55bd0f6590048cc43b9d21d1e1862e1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.PointerEventObserver
+--- !u!114 &7950435060402420834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1650258102367972618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3915fc8320bfb9747b75f215a76edfbe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.ButtonAnimator
+  pointerEventObserver: {fileID: 6521324175058938580}
+  spriteRenderers:
+  - {fileID: 2955658971774359099}
+  texts: []
+  playIdleAnimation: 1
+  idleScaleAmplitude: 0.05
+  idleDuration: 1.1
+  pressedScale: {x: 1.06, y: 0.92}
+  pressedOffsetY: -0.03
+  pressDuration: 0.06
+  pressedDarkenAmount: 0.12
+  releaseOvershootScale: {x: 0.96, y: 1.04}
+  releaseDuration: 0.12
+  hoverScaleMultiplier: 1.08
+  hoverScaleDuration: 0.08
+  spriteHoverColorMode: 0
+  spriteHoverColor: {r: 0.9764706, g: 0.09411765, b: 0.5019608, a: 1}
+  spriteHoverDarkenAmount: 0.08
+  spriteHoverBrightenAmount: 0.08
+  textHoverColorMode: 1
+  textHoverColor: {r: 0.92, g: 0.92, b: 0.92, a: 1}
+  textHoverDarkenAmount: 0.08
+  textHoverBrightenAmount: 0.08
+  colorDuration: 0.08
+--- !u!114 &783893869278343329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1650258102367972618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b99adbff155e280408618360b5bc7d13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.ButtonView
+  buttonCollider: {fileID: 6521324175058938580}
 --- !u!1 &2106437735986692502
 GameObject:
   m_ObjectHideFlags: 0
@@ -726,25 +837,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.PostView
   viewArranger: {fileID: 7526355226939488215}
+  defaultContentHeight: 0.6
   frameImage: {fileID: 5757900338739623444}
   iconImage: {fileID: 5876192042165862970}
   headerText: {fileID: 8027656501372123539}
-  subTextColor: {r: 0.3254902, g: 0.39215687, b: 0.44313726, a: 1}
-  subTextFontSizeOffset: 3
-  repltTextColor: {r: 0.93333334, g: 0.3529412, b: 0.49803922, a: 1}
   advertisementText: {fileID: 7899312863887814057}
   contentText: {fileID: 8660646327706385723}
   repostCountText: {fileID: 7106431898219274556}
   likeCountText: {fileID: 1100940223902819031}
-  defaultContentHeight: 0.6
-  belowContentObjects:
-  - {fileID: 577913231056294737}
-  - {fileID: 5712080192233530333}
-  - {fileID: 9012971238330895077}
-  - {fileID: 7949185996265600724}
-  - {fileID: 1734832614590012933}
-  - {fileID: 7992973942727279579}
-  - {fileID: 8323113516637514250}
+  subTextColor: {r: 0.3254902, g: 0.39215687, b: 0.44313726, a: 1}
+  subTextFontSizeOffset: 3
+  repltTextColor: {r: 0.93333334, g: 0.3529412, b: 0.49803922, a: 1}
+  repostButtonView: {fileID: 1074354715031050222}
+  likeButtonView: {fileID: 783893869278343329}
+  repostIconImage: {fileID: 885274973740110299}
+  likeIconImage: {fileID: 2955658971774359099}
+  actionIconDefaultColor: {r: 0.3254902, g: 0.39215687, b: 0.44313726, a: 1}
+  repostActiveColor: {r: 0, g: 0.7294118, b: 0.4862745, a: 1}
+  likeActiveColor: {r: 0.9764706, g: 0.09411765, b: 0.5019608, a: 1}
+  countPunchScale: 0.22
+  countPunchDuration: 0.24
 --- !u!114 &7526355226939488215
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1679,6 +1791,10 @@ GameObject:
   m_Component:
   - component: {fileID: 5712080192233530333}
   - component: {fileID: 885274973740110299}
+  - component: {fileID: 6271062962260288901}
+  - component: {fileID: 9192338083927957905}
+  - component: {fileID: 3381192183294393909}
+  - component: {fileID: 1074354715031050222}
   m_Layer: 0
   m_Name: RepostIcon
   m_TagString: Untagged
@@ -1760,3 +1876,110 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!61 &6271062962260288901
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7063196351077172706}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
+--- !u!114 &9192338083927957905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7063196351077172706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55bd0f6590048cc43b9d21d1e1862e1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.PointerEventObserver
+--- !u!114 &3381192183294393909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7063196351077172706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3915fc8320bfb9747b75f215a76edfbe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.ButtonAnimator
+  pointerEventObserver: {fileID: 9192338083927957905}
+  spriteRenderers:
+  - {fileID: 885274973740110299}
+  texts: []
+  playIdleAnimation: 1
+  idleScaleAmplitude: 0.05
+  idleDuration: 1.1
+  pressedScale: {x: 1.06, y: 0.92}
+  pressedOffsetY: -0.03
+  pressDuration: 0.06
+  pressedDarkenAmount: 0.12
+  releaseOvershootScale: {x: 0.96, y: 1.04}
+  releaseDuration: 0.12
+  hoverScaleMultiplier: 1.08
+  hoverScaleDuration: 0.08
+  spriteHoverColorMode: 0
+  spriteHoverColor: {r: 0, g: 0.7294118, b: 0.4862745, a: 1}
+  spriteHoverDarkenAmount: 0.08
+  spriteHoverBrightenAmount: 0.08
+  textHoverColorMode: 1
+  textHoverColor: {r: 0.92, g: 0.92, b: 0.92, a: 1}
+  textHoverDarkenAmount: 0.08
+  textHoverBrightenAmount: 0.08
+  colorDuration: 0.08
+--- !u!114 &1074354715031050222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7063196351077172706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b99adbff155e280408618360b5bc7d13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.ButtonView
+  buttonCollider: {fileID: 9192338083927957905}

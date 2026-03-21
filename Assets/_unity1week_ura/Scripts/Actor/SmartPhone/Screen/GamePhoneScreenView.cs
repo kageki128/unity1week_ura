@@ -11,6 +11,8 @@ namespace Unity1Week_Ura.Actor
     {
         public Observable<Post> OnDraftDroppedToPublish => publishFieldView.OnDraftDropped;
         public Observable<Account> OnPlayerAccountClicked => playerAccountListView.OnClicked;
+        public Observable<Post> OnLikedByPlayer => timelineView.OnLikedByPlayer;
+        public Observable<Post> OnRepostedByPlayer => timelineView.OnRepostedByPlayer;
 
         [SerializeField] TimelineView timelineView;
         [SerializeField] PublishFieldView publishFieldView;
@@ -20,6 +22,7 @@ namespace Unity1Week_Ura.Actor
         {
             base.Initialize(screenTransitionViewHub);
 
+            timelineView.Initialize();
             publishFieldView.Initialize();
             gameObject.SetActive(false);
         }

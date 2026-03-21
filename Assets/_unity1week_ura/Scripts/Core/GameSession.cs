@@ -27,6 +27,8 @@ namespace Unity1Week_Ura.Core
         readonly Timeline timeline;
         readonly ISocialSharePort socialSharePort;
         readonly GameConfigSO gameConfig;
+        readonly HashSet<string> likeScoredPostIds = new(StringComparer.Ordinal);
+        readonly HashSet<string> repostScoredPostIds = new(StringComparer.Ordinal);
         GameRuleSO gameRule;
         
         public GameSession(GameConfigSO gameConfig, IAccountRepository accountRepository, IPostRepository postRepository, ISocialSharePort socialSharePort)
@@ -56,6 +58,8 @@ namespace Unity1Week_Ura.Core
 
             await timeline.LoadAsync(gameRule, ct);
 
+            likeScoredPostIds.Clear();
+            repostScoredPostIds.Clear();
             remainingTimeSeconds.Value = gameRule.TimeLimitSeconds;
             score.Value = 0;
             currentGameState.Value = GameState.Pause;
@@ -116,6 +120,42 @@ namespace Unity1Week_Ura.Core
         }
 
         public void SetCurrentPlayerAccount(Account account) => timeline.SetCurrentPlayerAccount(account);
+
+        public void LikePostByPlayer(Post post)
+        {
+            if (currentGameState.CurrentValue != GameState.Playing)
+            {
+                return;
+            }
+
+            if (post == null)
+            {
+                return;
+            }
+
+            if (likeScoredPostIds.Add(post.Property.Id))
+            {
+                score.Value += post.ScoreInfo.LikePoint;
+            }
+        }
+
+        public void RepostByPlayer(Post post)
+        {
+            if (currentGameState.CurrentValue != GameState.Playing)
+            {
+                return;
+            }
+
+            if (post == null)
+            {
+                return;
+            }
+
+            if (repostScoredPostIds.Add(post.Property.Id))
+            {
+                score.Value += post.ScoreInfo.RepostPoint;
+            }
+        }
 
         public async UniTask ShareResultAsync(CancellationToken ct)
         {

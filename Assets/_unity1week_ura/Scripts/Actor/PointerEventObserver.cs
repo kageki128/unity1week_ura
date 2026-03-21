@@ -7,6 +7,7 @@ namespace Unity1Week_Ura.Actor
     [RequireComponent(typeof(Collider2D))]
     public class PointerEventObserver : MonoBehaviour,
         IPointerClickHandler,
+        IScrollHandler,
         IPointerEnterHandler,
         IPointerExitHandler,
         IPointerDownHandler,
@@ -18,6 +19,9 @@ namespace Unity1Week_Ura.Actor
     {
         // ポインターがクリックされたときに発行される。
         public Observable<PointerEventData> OnClicked => onClicked;
+
+        // マウスホイールでスクロールされたときに発行される。
+        public Observable<PointerEventData> OnScrolled => onScrolled;
 
         // ポインターがこのオブジェクトの領域に入ったときに発行される。
         public Observable<PointerEventData> OnPointerEntered => onPointerEntered;
@@ -44,6 +48,7 @@ namespace Unity1Week_Ura.Actor
         public Observable<PointerEventData> OnDropped => onDropped;
 
         readonly Subject<PointerEventData> onClicked = new();
+        readonly Subject<PointerEventData> onScrolled = new();
         readonly Subject<PointerEventData> onPointerEntered = new();
         readonly Subject<PointerEventData> onPointerExited = new();
         readonly Subject<PointerEventData> onPointerDowned = new();
@@ -56,6 +61,11 @@ namespace Unity1Week_Ura.Actor
         public void OnPointerClick(PointerEventData eventData)
         {
             onClicked.OnNext(eventData);
+        }
+
+        public void OnScroll(PointerEventData eventData)
+        {
+            onScrolled.OnNext(eventData);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -102,6 +112,9 @@ namespace Unity1Week_Ura.Actor
         {
             onClicked.OnCompleted();
             onClicked.Dispose();
+
+            onScrolled.OnCompleted();
+            onScrolled.Dispose();
 
             onPointerEntered.OnCompleted();
             onPointerEntered.Dispose();
