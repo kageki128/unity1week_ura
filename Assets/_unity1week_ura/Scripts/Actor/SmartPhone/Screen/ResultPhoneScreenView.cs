@@ -29,10 +29,10 @@ namespace Unity1Week_Ura.Actor
             await screenTransitionViewHub.HideAsync(ct);
         }
 
-        public override UniTask HideAsync(CancellationToken ct)
+        public override async UniTask HideAsync(CancellationToken ct)
         {
+            await screenTransitionViewHub.ShowAsync(ScreenTransitionType.CircleWipe, ct);
             gameObject.SetActive(false);
-            return UniTask.CompletedTask;
         }
     }
 }

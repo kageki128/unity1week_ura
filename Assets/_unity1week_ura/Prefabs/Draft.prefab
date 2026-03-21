@@ -95,7 +95,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eead87538b80eee4dae9994ee3eea6d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.DraftView
-  sizeCalculator: {fileID: 4849826937344228739}
+  viewArranger: {fileID: 4849826937344228739}
   frameImage: {fileID: 3768583149925801045}
   contentText: {fileID: 7383151019445674983}
   pointerEventObserver: {fileID: 8926765043758424748}
@@ -127,6 +127,8 @@ MonoBehaviour:
   positionTarget: {fileID: 2573626181875373093}
   sizeReferenceRenderer: {fileID: 3768583149925801045}
   convertSizeToParentLocal: 1
+  moveAnimationDuration: 0.16
+  moveAnimationEase: 9
 --- !u!1 &4264896908523384024
 GameObject:
   m_ObjectHideFlags: 0
@@ -204,8 +206,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -869229617
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
@@ -299,8 +301,8 @@ MeshRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -869229617
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}

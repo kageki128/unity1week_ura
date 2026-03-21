@@ -11,6 +11,7 @@ namespace Unity1Week_Ura.Actor
         readonly Subject<Post> onDraftDropped = new();
 
         [SerializeField] PointerEventObserver pointerEventObserver;
+        [SerializeField] SpriteRenderer accountIcon;
 
         readonly CompositeDisposable disposables = new();
 
@@ -38,6 +39,16 @@ namespace Unity1Week_Ura.Actor
 
             draftView.MarkAsDroppedOnPublishField();
             onDraftDropped.OnNext(draftView.post);
+        }
+
+        public void SetCurrentPlayerAccount(Account account)
+        {
+            if (accountIcon == null)
+            {
+                return;
+            }
+
+            accountIcon.sprite = account?.Icon;
         }
 
         void OnDestroy()

@@ -30,10 +30,13 @@ namespace Unity1Week_Ura.Actor
         void ArrangePosts()
         {
             // リストの新しい順に上から隙間無く配置する
+            float topY = 0f;
             for (int i = 0; i < postViews.Count; i++)
             {
-                float y = -i * postViews[i].Height;
-                postViews[i].SetPosition(0, y);
+                var postView = postViews[i];
+                float y = topY - postView.Height * 0.5f;
+                postView.SetPosition(0, y);
+                topY -= postView.Height;
             }
         }
 
