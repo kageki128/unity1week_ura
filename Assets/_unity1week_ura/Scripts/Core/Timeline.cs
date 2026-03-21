@@ -125,6 +125,39 @@ namespace Unity1Week_Ura.Core
             selectedPlayerAccount.Value = account;
         }
 
+        public bool IsCurrentPlayerAccountCorrectForAction(Post post)
+        {
+            if (post == null)
+            {
+                return false;
+            }
+
+            Account currentAccount = selectedPlayerAccount.CurrentValue;
+            if (currentAccount == null)
+            {
+                return false;
+            }
+
+            return post.Property.CorrectPlayerAccount.Id == currentAccount.Id;
+        }
+
+        public void AddRepostToTimeline(Post originalPost)
+        {
+            if (originalPost == null)
+            {
+                throw new System.ArgumentNullException(nameof(originalPost));
+            }
+
+            Account currentAccount = selectedPlayerAccount.CurrentValue;
+            if (currentAccount == null)
+            {
+                throw new System.InvalidOperationException("現在のプレイヤーアカウントが選択されていません。");
+            }
+
+            originalPost.MarkAsRepost(currentAccount);
+            publishedPosts.Add(originalPost);
+        }
+
         bool CanAppear(Post post)
         {
             string parentPostId = post.Property.ParentPostId;

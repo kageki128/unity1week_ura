@@ -2,7 +2,6 @@ using R3;
 using TMPro;
 using Unity1Week_Ura.Core;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Unity1Week_Ura.Actor
 {
@@ -22,8 +21,15 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] SpriteRenderer frameImage;
         [SerializeField] SpriteRenderer iconImage;
 
+        [Header("Top Edge Object")]
+        [SerializeField] Transform topEdgeObject;
+
+        [Header("Repost Header")]
+        [SerializeField] GameObject repostedHeaderIcon;
+
         [Header("Text")]
         [SerializeField] TMP_Text headerText;
+        [SerializeField] TMP_Text repostedByText;
         [SerializeField] TMP_Text advertisementText;
         [SerializeField] TMP_Text contentText;
         [SerializeField] TMP_Text repostCountText;
@@ -52,6 +58,7 @@ namespace Unity1Week_Ura.Actor
         public void Initialize(Post post)
         {
             disposables.Clear();
+            this.post = post;
 
             var property = post.Property;
             var subTextColorHex = $"#{ColorUtility.ToHtmlStringRGBA(subTextColor)}";
@@ -68,11 +75,17 @@ namespace Unity1Week_Ura.Actor
             }
             else
             {
-                var replyText = $"返信先: @{property.ParentPostId} さん";
+                var parentAccountId = property.ParentPostAuthor?.Id;
+                if (string.IsNullOrEmpty(parentAccountId))
+                {
+                    parentAccountId = property.ParentPostId;
+                }
+
+                var replyText = $"返信先: @{parentAccountId} さん";
                 contentText.text = $"<color={repltTextColorHex}>{replyText}</color>\n{property.Text}";
             }
-            this.post = post;
-            RefreshActionViews();
+            RefreshRepostedByText();
+            SubscribePostState();
             SubscribeActions();
 
             AdjustLayout();
@@ -83,6 +96,12 @@ namespace Unity1Week_Ura.Actor
             viewArranger.SetPosition(x, y);
         }
 
+        void SubscribePostState()
+        {
+            post.IsRepostedByPlayer.Subscribe(_ => RefreshActionViews()).AddTo(disposables);
+            post.IsLikedByPlayer.Subscribe(_ => RefreshActionViews()).AddTo(disposables);
+        }
+
         void AdjustLayout()
         {
             // テキストメッシュを強制更新して実際の描画サイズを取得
@@ -91,9 +110,21 @@ namespace Unity1Week_Ura.Actor
 
             // 1行時のデフォルト高さとの差分を計算
             float extraHeight = Mathf.Max(0f, renderedHeight - defaultContentHeight);
-            if (extraHeight <= 0f) return;
+            
+            float topExtraHeight = 0f;
+            if (repostedByText.gameObject.activeSelf)
+            {
+                repostedByText.ForceMeshUpdate();
+                float frameTop = frameImage.transform.localPosition.y + frameImage.transform.localScale.y * 0.5f;
+                float textTop = repostedByText.transform.localPosition.y + repostedByText.rectTransform.rect.yMax;
+                topExtraHeight = textTop - frameTop;
+                if (topExtraHeight < 0f) topExtraHeight = 0f;
+            }
+
+            if (extraHeight <= 0f && topExtraHeight <= 0f) return;
 
             float halfExtra = extraHeight * 0.5f;
+            float halfTopExtra = topExtraHeight * 0.5f;
 
             // 全ての子オブジェクトを自動的に判別してオフセット
             foreach (Transform child in transform)
@@ -103,16 +134,31 @@ namespace Unity1Week_Ura.Actor
                     continue; // Frameはスケール変更で対応するため除外
                 }
 
+                bool isTopEdge = (topEdgeObject != null && topEdgeObject == child);
+
                 var pos = child.localPosition;
-                // 中心(Y=0)以上のオブジェクトは上へ、未満のオブジェクトは下へ広げる
-                if (pos.y >= 0f)
+
+                if (isTopEdge)
                 {
+                    // 上端追従オブジェクトは、伸びたフレームの上端に合わせて上へ移動する
                     pos.y += halfExtra;
+                    pos.y += halfTopExtra;
                 }
                 else
                 {
-                    pos.y -= halfExtra;
+                    // 中心(Y=0)以上のオブジェクトは上へ、未満のオブジェクトは下へ広げる
+                    if (pos.y >= 0f)
+                    {
+                        pos.y += halfExtra;
+                    }
+                    else
+                    {
+                        pos.y -= halfExtra;
+                    }
+                    
+                    pos.y -= halfTopExtra;
                 }
+                
                 child.localPosition = pos;
 
                 if (child.TryGetComponent<ButtonAnimator>(out var buttonAnimator))
@@ -124,7 +170,7 @@ namespace Unity1Week_Ura.Actor
             // Frameは原点に固定したまま、スケールYのみ拡大（上下対称に広がる）
             var frameTransform = frameImage.transform;
             var frameScale = frameTransform.localScale;
-            frameScale.y += extraHeight;
+            frameScale.y += (extraHeight + topExtraHeight);
             frameTransform.localScale = frameScale;
         }
 
@@ -143,30 +189,42 @@ namespace Unity1Week_Ura.Actor
 
         void OnRepostClicked()
         {
-            bool isActive = post.ToggleRepostByPlayer();
-            if (isActive)
-            {
-                onRepostedByPlayer.OnNext(post);
-            }
-            RefreshActionViews();
+            onRepostedByPlayer.OnNext(post);
         }
 
         void OnLikeClicked()
         {
-            bool isActive = post.ToggleLikeByPlayer();
-            if (isActive)
-            {
-                onLikedByPlayer.OnNext(post);
-            }
-            RefreshActionViews();
+            onLikedByPlayer.OnNext(post);
         }
 
         void RefreshActionViews()
         {
-            UpdateCountText(repostCountText, post.RepostCount, post.IsRepostedByPlayer, repostActiveColor);
-            UpdateCountText(likeCountText, post.LikeCount, post.IsLikedByPlayer, likeActiveColor);
-            ApplyIconColor(repostIconImage, post.IsRepostedByPlayer, repostActiveColor);
-            ApplyIconColor(likeIconImage, post.IsLikedByPlayer, likeActiveColor);
+            bool isRepostedByPlayer = post.IsRepostedByPlayer.CurrentValue;
+            bool isLikedByPlayer = post.IsLikedByPlayer.CurrentValue;
+
+            RefreshRepostedByText();
+            UpdateCountText(repostCountText, post.RepostCount, isRepostedByPlayer, repostActiveColor);
+            UpdateCountText(likeCountText, post.LikeCount, isLikedByPlayer, likeActiveColor);
+            ApplyIconColor(repostIconImage, isRepostedByPlayer, repostActiveColor);
+            ApplyIconColor(likeIconImage, isLikedByPlayer, likeActiveColor);
+        }
+
+        void RefreshRepostedByText()
+        {
+            var repostedByAccount = post.RepostedByAccount;
+            bool hasRepostedByAccount = repostedByAccount != null && !string.IsNullOrEmpty(repostedByAccount.Name);
+
+            repostedByText.gameObject.SetActive(hasRepostedByAccount);
+            if (repostedHeaderIcon != null)
+            {
+                repostedHeaderIcon.SetActive(hasRepostedByAccount);
+            }
+            if (!hasRepostedByAccount)
+            {
+                return;
+            }
+
+            repostedByText.text = $"{repostedByAccount.Name} さんがリポストしました";
         }
 
         void UpdateCountText(TMP_Text countText, int count, bool isActive, Color activeColor)

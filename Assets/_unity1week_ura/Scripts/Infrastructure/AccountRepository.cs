@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Unity1Week_Ura.Core;
@@ -90,7 +91,9 @@ namespace Unity1Week_Ura.Infrastructure
                 try
                 {
                     TextAsset csvAsset = await AddressableAssetLoader.LoadAsync<TextAsset>(assetReference, ct);
-                    var rows = ParseAccountRows(csvAsset.text);
+                    var csvText = csvAsset.text;
+                    ct.ThrowIfCancellationRequested();
+                    var rows = await Task.Run(() => ParseAccountRows(csvText), ct);
                     var iconsByFileName = await spriteLabelLoader.LoadAllByLabelAsync(addressableConfig.IconLabel, ct);
 
                     foreach (var row in rows)

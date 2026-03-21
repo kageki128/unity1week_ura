@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Unity1Week_Ura.Core;
@@ -17,8 +18,6 @@ namespace Unity1Week_Ura.Infrastructure
         const string CsvColumnParentPostId = "ParentPostID";
         const string CsvColumnPostType = "Type";
         const string CsvColumnPublishPoint = "PublishPoint";
-        const string CsvColumnLikePoint = "LikePoint";
-        const string CsvColumnRepostPoint = "RepostPoint";
         const string CsvColumnDefaultLikeCount = "DefaultLikeCount";
         const string CsvColumnDefaultRepostCount = "DefaultRepostCount";
         const string CsvColumnWrongTextPrefix = "WrongText";
@@ -42,8 +41,6 @@ namespace Unity1Week_Ura.Infrastructure
             public string ParentPostId { get; }
             public PostType Type { get; }
             public int PublishPoint { get; }
-            public int LikePoint { get; }
-            public int RepostPoint { get; }
             public List<string> WrongTexts { get; }
             public int DefaultLikeCount { get; }
             public int DefaultRepostCount { get; }
@@ -57,8 +54,6 @@ namespace Unity1Week_Ura.Infrastructure
                 string parentPostId,
                 PostType type,
                 int publishPoint,
-                int likePoint,
-                int repostPoint,
                 List<string> wrongTexts,
                 int defaultLikeCount,
                 int defaultRepostCount)
@@ -71,11 +66,23 @@ namespace Unity1Week_Ura.Infrastructure
                 ParentPostId = parentPostId;
                 Type = type;
                 PublishPoint = publishPoint;
-                LikePoint = likePoint;
-                RepostPoint = repostPoint;
                 WrongTexts = wrongTexts;
                 DefaultLikeCount = defaultLikeCount;
                 DefaultRepostCount = defaultRepostCount;
+            }
+        }
+
+        sealed class ResolvedPostRow
+        {
+            public PostCsvRow Row { get; }
+            public Account CorrectPlayerAccount { get; }
+            public Account Author { get; }
+
+            public ResolvedPostRow(PostCsvRow row, Account correctPlayerAccount, Account author)
+            {
+                Row = row;
+                CorrectPlayerAccount = correctPlayerAccount;
+                Author = author;
             }
         }
 
@@ -164,25 +171,56 @@ namespace Unity1Week_Ura.Infrastructure
                 try
                 {
                     TextAsset csvAsset = await AddressableAssetLoader.LoadAsync<TextAsset>(assetReference, ct);
-                    var rows = ParsePostRows(csvAsset.text);
+                    var csvText = csvAsset.text;
+                    ct.ThrowIfCancellationRequested();
+                    var rows = await Task.Run(() => ParsePostRows(csvText), ct);
                     var spritesByFileName = await spriteLabelLoader.LoadAllByLabelAsync(addressableConfig.IconLabel, ct);
+                    var accountCache = new Dictionary<string, Account>(StringComparer.Ordinal);
+                    var resolvedRows = new List<ResolvedPostRow>(rows.Count);
+
+                    async UniTask<Account> GetAccountCachedAsync(string accountId)
+                    {
+                        if (accountCache.TryGetValue(accountId, out var cachedAccount))
+                        {
+                            return cachedAccount;
+                        }
+
+                        var loadedAccount = await accountRepository.GetAccount(accountId, ct);
+                        accountCache[accountId] = loadedAccount;
+                        return loadedAccount;
+                    }
 
                     foreach (var row in rows)
                     {
                         ct.ThrowIfCancellationRequested();
-                        var correctPlayerAccount = await accountRepository.GetAccount(row.CorrectPlayerAccountId, ct);
-                        var author = await accountRepository.GetAccount(row.AuthorAccountId, ct);
+                        var correctPlayerAccount = await GetAccountCachedAsync(row.CorrectPlayerAccountId);
+                        var author = await GetAccountCachedAsync(row.AuthorAccountId);
+                        resolvedRows.Add(new ResolvedPostRow(row, correctPlayerAccount, author));
+                    }
+
+                    var authorByPostId = new Dictionary<string, Account>(StringComparer.Ordinal);
+                    foreach (var resolvedRow in resolvedRows)
+                    {
+                        authorByPostId[resolvedRow.Row.Id] = resolvedRow.Author;
+                    }
+
+                    foreach (var resolvedRow in resolvedRows)
+                    {
+                        ct.ThrowIfCancellationRequested();
+                        var row = resolvedRow.Row;
                         var attachedImage = AddressableSpriteLabelLoader.ResolveSprite(row.AttachedImageFileName, spritesByFileName);
+                        authorByPostId.TryGetValue(row.ParentPostId, out var parentPostAuthor);
 
                         var property = new PostProperty(
-                            correctPlayerAccount,
+                            resolvedRow.CorrectPlayerAccount,
                             row.Id,
-                            author,
+                            resolvedRow.Author,
                             row.Text,
                             attachedImage,
                             row.ParentPostId,
+                            parentPostAuthor,
                             row.Type);
-                        var scoreInfo = new PostScoreInfo(row.PublishPoint, row.LikePoint, row.RepostPoint, row.WrongTexts);
+                        var scoreInfo = new PostScoreInfo(row.PublishPoint, row.WrongTexts);
                         var post = new Post(property, scoreInfo, row.DefaultLikeCount, row.DefaultRepostCount, 0);
 
                         if (!postsByCorrectAccountId.TryGetValue(row.CorrectPlayerAccountId, out var list))
@@ -229,8 +267,6 @@ namespace Unity1Week_Ura.Infrastructure
             int parentPostIdColumn = -1;
             int postTypeColumn = -1;
             int publishPointColumn = -1;
-            int likePointColumn = -1;
-            int repostPointColumn = -1;
             int defaultLikeCountColumn = -1;
             int defaultRepostCountColumn = -1;
             var wrongTextColumns = new List<int>();
@@ -271,14 +307,6 @@ namespace Unity1Week_Ura.Infrastructure
                 {
                     publishPointColumn = i;
                 }
-                else if (column.Equals(CsvColumnLikePoint, StringComparison.OrdinalIgnoreCase))
-                {
-                    likePointColumn = i;
-                }
-                else if (column.Equals(CsvColumnRepostPoint, StringComparison.OrdinalIgnoreCase))
-                {
-                    repostPointColumn = i;
-                }
                 else if (column.Equals(CsvColumnDefaultLikeCount, StringComparison.OrdinalIgnoreCase))
                 {
                     defaultLikeCountColumn = i;
@@ -301,8 +329,6 @@ namespace Unity1Week_Ura.Infrastructure
                 || parentPostIdColumn < 0
                 || postTypeColumn < 0
                 || publishPointColumn < 0
-                || likePointColumn < 0
-                || repostPointColumn < 0
                 || defaultLikeCountColumn < 0
                 || defaultRepostCountColumn < 0)
             {
@@ -322,9 +348,7 @@ namespace Unity1Week_Ura.Infrastructure
                             Math.Max(attachedImageFileNameColumn, parentPostIdColumn),
                             Math.Max(
                                 Math.Max(postTypeColumn, publishPointColumn),
-                                Math.Max(
-                                    Math.Max(likePointColumn, repostPointColumn),
-                                    Math.Max(defaultLikeCountColumn, defaultRepostCountColumn))))));
+                                Math.Max(defaultLikeCountColumn, defaultRepostCountColumn)))));
                 if (columns.Length <= maxRequiredColumn)
                 {
                     continue;
@@ -347,16 +371,6 @@ namespace Unity1Week_Ura.Infrastructure
                 }
 
                 if (!int.TryParse(columns[publishPointColumn].Trim(), out int publishPoint))
-                {
-                    continue;
-                }
-
-                if (!int.TryParse(columns[likePointColumn].Trim(), out int likePoint))
-                {
-                    continue;
-                }
-
-                if (!int.TryParse(columns[repostPointColumn].Trim(), out int repostPoint))
                 {
                     continue;
                 }
@@ -402,8 +416,6 @@ namespace Unity1Week_Ura.Infrastructure
                     parentPostId,
                     type,
                     publishPoint,
-                    likePoint,
-                    repostPoint,
                     wrongTexts,
                     defaultLikeCount,
                         defaultRepostCount));

@@ -133,9 +133,21 @@ namespace Unity1Week_Ura.Core
                 return;
             }
 
+            if (!timeline.IsCurrentPlayerAccountCorrectForAction(post))
+            {
+                currentGameState.Value = GameState.Finished;
+                return;
+            }
+
+            bool isActive = post.ToggleLikeByPlayer();
+            if (!isActive)
+            {
+                return;
+            }
+
             if (likeScoredPostIds.Add(post.Property.Id))
             {
-                score.Value += post.ScoreInfo.LikePoint;
+                score.Value += gameConfig.LikePoint;
             }
         }
 
@@ -151,9 +163,22 @@ namespace Unity1Week_Ura.Core
                 return;
             }
 
+            if (!timeline.IsCurrentPlayerAccountCorrectForAction(post))
+            {
+                currentGameState.Value = GameState.Finished;
+                return;
+            }
+
+            bool isActive = post.ToggleRepostByPlayer();
+            if (!isActive)
+            {
+                return;
+            }
+
             if (repostScoredPostIds.Add(post.Property.Id))
             {
-                score.Value += post.ScoreInfo.RepostPoint;
+                score.Value += gameConfig.RepostPoint;
+                timeline.AddRepostToTimeline(post);
             }
         }
 

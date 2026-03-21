@@ -14,7 +14,7 @@ namespace Unity1Week_Ura.Actor
         public void AddDraft(Post post)
         {
             var draftView = CreateDraftView(post);
-            draftViews.Add(draftView);
+            draftViews.Insert(0, draftView);
             ArrangeDrafts();
         }
 
@@ -40,11 +40,23 @@ namespace Unity1Week_Ura.Actor
 
         void ArrangeDrafts()
         {
-            // リストの新しい順に上から隙間無く配置する
+            // 先頭要素の上端が原点になるように上から隙間無く配置する
+            float topY = 0f;
             for (int i = 0; i < draftViews.Count; i++)
             {
-                float y = -i * draftViews[i].Height;
-                draftViews[i].SetPosition(0, y);
+                var draftView = draftViews[i];
+                if (draftView == null)
+                {
+                    continue;
+                }
+
+                float y = topY - draftView.Height * 0.5f;
+                draftView.SetReturnPosition(0, y);
+                if (!draftView.IsDragging)
+                {
+                    draftView.SetPosition(0, y);
+                }
+                topY -= draftView.Height;
             }
         }
 

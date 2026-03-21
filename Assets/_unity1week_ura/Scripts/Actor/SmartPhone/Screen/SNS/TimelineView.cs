@@ -44,7 +44,7 @@ namespace Unity1Week_Ura.Actor
         public void AddPost(Post post)
         {
             var postView = CreatePostView(post);
-            postViews.Add(postView);
+            postViews.Insert(0, postView);
             ArrangePosts();
         }
 

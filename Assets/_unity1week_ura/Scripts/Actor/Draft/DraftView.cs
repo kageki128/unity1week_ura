@@ -12,23 +12,36 @@ namespace Unity1Week_Ura.Actor
         public Post post { get; private set; }
         public float Width => viewArranger.Width;
         public float Height => viewArranger.Height;
+        public bool IsDragging { get; private set; }
 
         [FormerlySerializedAs("sizeCalculator")]
         [SerializeField] ViewArranger viewArranger;
         [SerializeField] SpriteRenderer frameImage;
+        [SerializeField] SpriteRenderer subFrameImage;
         [SerializeField] TMP_Text contentText;
+        [SerializeField] Color replyTextColor = new Color32(0xEE, 0x5A, 0x7F, 0xFF);
         [SerializeField] PointerEventObserver pointerEventObserver;
         [SerializeField] Collider2D dragCollider;
 
         Vector3 originalLocalPosition;
         bool droppedOnPublishField = false;
+        Vector2 frameImageBaseSize;
+        Vector2 subFrameImageBaseSize;
+        Vector3 frameImageBaseScale;
+        Vector3 subFrameImageBaseScale;
+        Vector2 dragColliderBaseSize;
+        float baseContentRenderedHeight;
+        bool hasCachedFrameBaseValues;
 
         readonly CompositeDisposable disposables = new();
 
         public void Initialize(Post post)
         {
-            contentText.text = post.Property.Text;
+            CacheFrameBaseValuesIfNeeded();
+
+            contentText.text = BuildContentText(post.Property);
             this.post = post;
+            AdjustLayout();
 
             disposables.Clear();
             pointerEventObserver.OnBeginDragged.Subscribe(OnBeginDrag).AddTo(disposables);
@@ -36,9 +49,32 @@ namespace Unity1Week_Ura.Actor
             pointerEventObserver.OnEndDragged.Subscribe(OnEndDrag).AddTo(disposables);
         }
 
+        string BuildContentText(PostProperty property)
+        {
+            if (string.IsNullOrEmpty(property.ParentPostId))
+            {
+                return property.Text;
+            }
+
+            var parentAccountId = property.ParentPostAuthor?.Id;
+            if (string.IsNullOrEmpty(parentAccountId))
+            {
+                parentAccountId = property.ParentPostId;
+            }
+
+            var replyTextColorHex = $"#{ColorUtility.ToHtmlStringRGBA(replyTextColor)}";
+            var replyText = $"返信先: @{parentAccountId} さん";
+            return $"<color={replyTextColorHex}>{replyText}</color>\n{property.Text}";
+        }
+
         public void SetPosition(float x, float y)
         {
             viewArranger.SetPosition(x, y);
+        }
+
+        public void SetReturnPosition(float x, float y)
+        {
+            originalLocalPosition = new Vector3(x, y, transform.localPosition.z);
         }
 
         public void MarkAsDroppedOnPublishField()
@@ -46,8 +82,84 @@ namespace Unity1Week_Ura.Actor
             droppedOnPublishField = true;
         }
 
+        void CacheFrameBaseValuesIfNeeded()
+        {
+            if (hasCachedFrameBaseValues)
+            {
+                return;
+            }
+
+            if (contentText != null)
+            {
+                contentText.ForceMeshUpdate();
+                baseContentRenderedHeight = contentText.renderedHeight;
+            }
+
+            if (frameImage != null)
+            {
+                frameImageBaseSize = frameImage.size;
+                frameImageBaseScale = frameImage.transform.localScale;
+            }
+
+            if (subFrameImage != null)
+            {
+                subFrameImageBaseSize = subFrameImage.size;
+                subFrameImageBaseScale = subFrameImage.transform.localScale;
+            }
+
+            if (dragCollider is BoxCollider2D boxCollider)
+            {
+                dragColliderBaseSize = boxCollider.size;
+            }
+
+            hasCachedFrameBaseValues = true;
+        }
+
+        void AdjustLayout()
+        {
+            contentText.ForceMeshUpdate();
+            float renderedHeight = contentText.renderedHeight;
+            
+            // TextはY=0の中央配置となっているため、テキスト行数増減分をそのままフレーム枠の増減へ送る。
+            // Draftの初期フレームサイズより文字数が少ない場合も枠を縮めるため、Mathf.Max(0, ...)の制限を外すことで上下の余白を一定に保ちます。
+            float extraHeight = renderedHeight - baseContentRenderedHeight;
+
+            ApplyHeightExtension(frameImage, frameImageBaseSize, frameImageBaseScale, extraHeight);
+            ApplyHeightExtension(subFrameImage, subFrameImageBaseSize, subFrameImageBaseScale, extraHeight);
+
+            if (dragCollider is BoxCollider2D boxCollider)
+            {
+                var size = dragColliderBaseSize;
+                float scaleY = Mathf.Abs(boxCollider.transform.localScale.y) > Mathf.Epsilon ? Mathf.Abs(boxCollider.transform.localScale.y) : 1f;
+                size.y += extraHeight / scaleY;
+                boxCollider.size = size;
+            }
+        }
+
+        void ApplyHeightExtension(SpriteRenderer frame, Vector2 baseSize, Vector3 baseScale, float extraHeight)
+        {
+            if (frame == null)
+            {
+                return;
+            }
+
+            if (frame.drawMode == SpriteDrawMode.Sliced || frame.drawMode == SpriteDrawMode.Tiled)
+            {
+                var targetSize = baseSize;
+                float scaleY = Mathf.Abs(baseScale.y) > Mathf.Epsilon ? Mathf.Abs(baseScale.y) : 1f;
+                targetSize.y = baseSize.y + extraHeight / scaleY;
+                frame.size = targetSize;
+                return;
+            }
+
+            var targetScale = baseScale;
+            targetScale.y = baseScale.y + extraHeight;
+            frame.transform.localScale = targetScale;
+        }
+
         void OnBeginDrag(PointerEventData eventData)
         {
+            IsDragging = true;
             originalLocalPosition = transform.localPosition;
             droppedOnPublishField = false;
             // ドラッグ中はColliderを無効化して、PublishFieldViewへのレイキャストを遮蔽しない
@@ -62,6 +174,7 @@ namespace Unity1Week_Ura.Actor
 
         void OnEndDrag(PointerEventData eventData)
         {
+            IsDragging = false;
             dragCollider.enabled = true;
 
             if (!droppedOnPublishField)

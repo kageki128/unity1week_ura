@@ -1,4 +1,5 @@
 using System;
+using R3;
 
 namespace Unity1Week_Ura.Core
 {
@@ -13,8 +14,11 @@ namespace Unity1Week_Ura.Core
         public int LikeCount { get; private set; }
         public int RepostCount { get; private set; }
         public int ReplyCount { get; private set; }
-        public bool IsLikedByPlayer { get; private set; }
-        public bool IsRepostedByPlayer { get; private set; }
+        public ReadOnlyReactiveProperty<bool> IsLikedByPlayer => isLikedByPlayer;
+        readonly ReactiveProperty<bool> isLikedByPlayer = new(false);
+        public ReadOnlyReactiveProperty<bool> IsRepostedByPlayer => isRepostedByPlayer;
+        readonly ReactiveProperty<bool> isRepostedByPlayer = new(false);
+        public Account RepostedByAccount { get; private set; }
 
         public PostState State { get; private set; }
         public DateTimeOffset PublishDateTime { get; private set; }
@@ -28,8 +32,9 @@ namespace Unity1Week_Ura.Core
             LikeCount = defaultLikeCount;
             RepostCount = defaultRepostCount;
             ReplyCount = defaultReplyCount;
-            IsLikedByPlayer = false;
-            IsRepostedByPlayer = false;
+            isLikedByPlayer.Value = false;
+            isRepostedByPlayer.Value = false;
+            RepostedByAccount = null;
 
             State = PostState.BeforeAppearing;
             PublishDateTime = DateTimeOffset.UtcNow;
@@ -42,24 +47,32 @@ namespace Unity1Week_Ura.Core
 
         public bool ToggleLikeByPlayer()
         {
-            IsLikedByPlayer = !IsLikedByPlayer;
-            LikeCount += IsLikedByPlayer ? 1 : -1;
-            return IsLikedByPlayer;
+            bool isActive = !isLikedByPlayer.CurrentValue;
+            LikeCount += isActive ? 1 : -1;
+            isLikedByPlayer.Value = isActive;
+            return isActive;
         }
 
         public bool ToggleRepostByPlayer()
         {
-            IsRepostedByPlayer = !IsRepostedByPlayer;
-            RepostCount += IsRepostedByPlayer ? 1 : -1;
-            return IsRepostedByPlayer;
+            bool isActive = !isRepostedByPlayer.CurrentValue;
+            RepostCount += isActive ? 1 : -1;
+            isRepostedByPlayer.Value = isActive;
+            return isActive;
         }
 
         public void ResetPlayerAction()
         {
-            IsLikedByPlayer = false;
-            IsRepostedByPlayer = false;
+            isLikedByPlayer.Value = false;
+            isRepostedByPlayer.Value = false;
             LikeCount = defaultLikeCount;
             RepostCount = defaultRepostCount;
+            RepostedByAccount = null;
+        }
+
+        public void MarkAsRepost(Account repostedByAccount)
+        {
+            RepostedByAccount = repostedByAccount;
         }
     }
 }
