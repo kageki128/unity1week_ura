@@ -20,8 +20,8 @@ namespace Unity1Week_Ura.Actor
 
         [Header("Idle")]
         [SerializeField] bool playIdleAnimation = true;
-        [SerializeField, Min(0f)] float idleScaleAmplitude = 0.02f;
-        [SerializeField, Min(0.01f)] float idleDuration = 0.9f;
+        [SerializeField, Min(0f)] float idleScaleAmplitude = 0.05f;
+        [SerializeField, Min(0.01f)] float idleDuration = 1.1f;
 
         [Header("Press")]
         [SerializeField] Vector2 pressedScale = new(1.06f, 0.92f);
@@ -34,7 +34,7 @@ namespace Unity1Week_Ura.Actor
         [SerializeField, Min(0.01f)] float releaseDuration = 0.12f;
 
         [Header("Hover")]
-        [SerializeField, Min(1f)] float hoverScaleMultiplier = 1.04f;
+        [SerializeField, Min(1f)] float hoverScaleMultiplier = 1.08f;
         [SerializeField, Min(0.01f)] float hoverScaleDuration = 0.08f;
         [Header("Hover Sprite Color")]
         [SerializeField] HoverColorMode spriteHoverColorMode = HoverColorMode.Darken;
