@@ -226,6 +226,12 @@ namespace Unity1Week_Ura.Actor
             }
         }
 
+        public void RefreshBaseTransformFromCurrent()
+        {
+            baseLocalScale = transform.localScale;
+            baseLocalPosition = transform.localPosition;
+        }
+
         void TweenToHoverColors()
         {
             for (var i = 0; i < spriteRenderers.Length; i++)

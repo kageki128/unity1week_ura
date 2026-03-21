@@ -114,6 +114,11 @@ namespace Unity1Week_Ura.Actor
                     pos.y -= halfExtra;
                 }
                 child.localPosition = pos;
+
+                if (child.TryGetComponent<ButtonAnimator>(out var buttonAnimator))
+                {
+                    buttonAnimator.RefreshBaseTransformFromCurrent();
+                }
             }
 
             // Frameは原点に固定したまま、スケールYのみ拡大（上下対称に広がる）
