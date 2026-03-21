@@ -12,6 +12,7 @@ namespace Unity1Week_Ura.Actor
 
         [SerializeField] PlayerAccountView playerAccountViewPrefab;
         [SerializeField] Transform playerAccountViewParent;
+        [SerializeField] float accountSpacing = 0.2f;
 
         readonly List<PlayerAccountView> playerAccountViews = new();
 
@@ -23,7 +24,7 @@ namespace Unity1Week_Ura.Actor
                 var playerAccountView = CreatePlayerAccountView(account);
                 playerAccountViews.Add(playerAccountView);
             }
-            ArrangePlayerAccounts();
+            ArrangePlayerAccounts(null);
 
             OnClicked = Observable.Merge(playerAccountViews.Select(view => view.OnClicked).ToArray());
         }
@@ -35,6 +36,8 @@ namespace Unity1Week_Ura.Actor
                 bool isSelected = playerAccountView.Account == selectedAccount;
                 playerAccountView.SetSelected(isSelected);
             }
+
+            ArrangePlayerAccounts(selectedAccount);
         }
         
         void ClearPlayerAccounts()
@@ -46,14 +49,20 @@ namespace Unity1Week_Ura.Actor
             playerAccountViews.Clear();
         }
         
-        void ArrangePlayerAccounts()
+        void ArrangePlayerAccounts(Account selectedAccount)
         {
-            // リストを左から隙間無く配置する
+            float left = 0f;
             for (int i = 0; i < playerAccountViews.Count; i++)
             {
                 var playerAccountView = playerAccountViews[i];
-                float x = i * playerAccountView.Width;
-                playerAccountView.SetPosition(x, 0f);
+                bool isSelected = selectedAccount != null && playerAccountView.Account == selectedAccount;
+                float width = playerAccountView.GetPredictedWidth(isSelected);
+
+                // positionTarget は中心座標として扱うため、左端から半幅ぶん進めた地点に配置する
+                float centerX = left + (width * 0.5f);
+                playerAccountView.SetPosition(centerX, 0f);
+
+                left += width + accountSpacing;
             }
         }
         PlayerAccountView CreatePlayerAccountView(Account account)

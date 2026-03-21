@@ -27,15 +27,15 @@ RectTransform:
   m_GameObject: {fileID: 595891754773388581}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8375300230466063767}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -0.65}
+  m_SizeDelta: {x: 2, y: 0.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &8816296425516552120
 MeshRenderer:
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -4025094489301157427, guid: 17913da7bb7391b4f81eda08099754c2, type: 2}
+  - {fileID: 3828834242860937529, guid: 71d6fd871d58c8443ab99c4e7a842777, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -106,17 +106,17 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Sample text
+  m_text: "\u8868\u57A2"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 17913da7bb7391b4f81eda08099754c2, type: 2}
-  m_sharedMaterial: {fileID: -4025094489301157427, guid: 17913da7bb7391b4f81eda08099754c2, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 71d6fd871d58c8443ab99c4e7a842777, type: 2}
+  m_sharedMaterial: {fileID: 3828834242860937529, guid: 71d6fd871d58c8443ab99c4e7a842777, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4279833615
+  m_fontColor: {r: 0.05882353, g: 0.078431375, b: 0.09803922, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -133,8 +133,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 2
-  m_fontSizeBase: 2
+  m_fontSize: 4
+  m_fontSizeBase: 4
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -146,7 +146,7 @@ MonoBehaviour:
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
-  m_lineSpacing: 0
+  m_lineSpacing: -50
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -193,6 +193,7 @@ GameObject:
   - component: {fileID: 1222516052376458846}
   - component: {fileID: 8526031257112229609}
   - component: {fileID: 4732709196720317949}
+  - component: {fileID: 1403525881647658885}
   m_Layer: 0
   m_Name: PlayerAccount
   m_TagString: Untagged
@@ -209,7 +210,7 @@ Transform:
   m_GameObject: {fileID: 1256145923557663381}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.16, y: 1.51, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -277,10 +278,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59de8716427a436468e800e209fc049c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.PlayerAccountView
+  viewArranger: {fileID: 1403525881647658885}
   pointerEventObserver: {fileID: 8526031257112229609}
   iconImage: {fileID: 4973134194501840263}
   nameText: {fileID: 6664584535016494174}
-  selectedColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+  unselectedBrightness: 0.45
+  selectedIconScale: 1.5
+  scaleAnimationDuration: 0.16
+  scaleAnimationEase: 9
+  hoverScaleMultiplier: 1.08
+  hoverScaleDuration: 0.08
+  spriteHoverBrightenAmount: 0.08
+  colorDuration: 0.08
+--- !u!114 &1403525881647658885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1256145923557663381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e5a0b175f478741a97d6d35723149d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.SizeCalculator
+  positionTarget: {fileID: 8375300230466063767}
+  sizeReferenceRenderer: {fileID: 4973134194501840263}
+  convertSizeToParentLocal: 1
+  moveAnimationDuration: 0.16
+  moveAnimationEase: 9
 --- !u!1 &2121088564041370101
 GameObject:
   m_ObjectHideFlags: 0
@@ -362,8 +388,8 @@ SpriteRenderer:
   m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0.504717, g: 1, b: 0.7968306, a: 1}
+  m_Sprite: {fileID: 7434533705796983228, guid: 15cf30da5222d1a44a683ceff06bfe30, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

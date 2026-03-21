@@ -1187,6 +1187,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1350787528373142522}
   - component: {fileID: 8307183115214323051}
+  - component: {fileID: 7526355226939488215}
   m_Layer: 0
   m_Name: Post
   m_TagString: Untagged
@@ -1232,6 +1233,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73fed41937cabcd4ea61a331a5acf12d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.PostView
+  sizeCalculator: {fileID: 7526355226939488215}
   frameImage: {fileID: 5757900338739623444}
   iconImage: {fileID: 5876192042165862970}
   authorNameText: {fileID: 8027656501372123539}
@@ -1243,6 +1245,21 @@ MonoBehaviour:
   replyCountText: {fileID: 3529649938795901965}
   repostCountText: {fileID: 7106431898219274556}
   likeCountText: {fileID: 9222386126920072210}
+--- !u!114 &7526355226939488215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3561548177664948245}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e5a0b175f478741a97d6d35723149d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.SizeCalculator
+  positionTarget: {fileID: 1350787528373142522}
+  sizeReferenceRenderer: {fileID: 5757900338739623444}
+  convertSizeToParentLocal: 1
 --- !u!1 &4464625493644287657
 GameObject:
   m_ObjectHideFlags: 0

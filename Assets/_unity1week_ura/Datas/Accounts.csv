@@ -1,9 +1,9 @@
 ID,Name,IconFileName
-Public,表垢,public.png
-Selfie,自撮り垢,selfie.png
-Kimoota,キモオタ垢,kimoota.png
-Meme,ネットミーム垢,meme.png
-test0,test0,test.png
-test1,test1,test.png
-test2,test2,test.png
-test3,test3,test.png
+Public,表垢,Public
+Selfie,自撮り垢,Selfie
+Kimoota,キモオタ垢,Kimoota
+Meme,ミーム垢,Meme
+test0,test0,Test
+test1,test1,Test
+test2,test2,Test
+test3,test3,Test

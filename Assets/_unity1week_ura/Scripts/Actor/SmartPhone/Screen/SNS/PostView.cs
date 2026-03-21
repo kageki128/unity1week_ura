@@ -1,6 +1,7 @@
 using TMPro;
 using Unity1Week_Ura.Core;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Unity1Week_Ura.Actor
@@ -8,9 +9,11 @@ namespace Unity1Week_Ura.Actor
     public class PostView : MonoBehaviour
     {
         public Post post { get; private set; }
-        public float Width => frameImage.bounds.size.x;
-        public float Height => frameImage.bounds.size.y;
+        public float Width => viewArranger.Width;
+        public float Height => viewArranger.Height;
 
+        [FormerlySerializedAs("sizeCalculator")]
+        [SerializeField] ViewArranger viewArranger;
         [SerializeField] SpriteRenderer frameImage;
         [SerializeField] SpriteRenderer iconImage;
         [SerializeField] TMP_Text authorNameText;
@@ -55,7 +58,7 @@ namespace Unity1Week_Ura.Actor
 
         public void SetPosition(float x, float y)
         {
-            transform.localPosition = new Vector3(x, y, 0f);
+            viewArranger.SetPosition(x, y);
         }
     }
 }

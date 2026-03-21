@@ -3,15 +3,18 @@ using TMPro;
 using Unity1Week_Ura.Core;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 namespace Unity1Week_Ura.Actor
 {
     public class DraftView : MonoBehaviour
     {
         public Post post { get; private set; }
-        public float Width => frameImage.bounds.size.x;
-        public float Height => frameImage.bounds.size.y;
+        public float Width => viewArranger.Width;
+        public float Height => viewArranger.Height;
 
+        [FormerlySerializedAs("sizeCalculator")]
+        [SerializeField] ViewArranger viewArranger;
         [SerializeField] SpriteRenderer frameImage;
         [SerializeField] TMP_Text contentText;
         [SerializeField] PointerEventObserver pointerEventObserver;
@@ -35,7 +38,7 @@ namespace Unity1Week_Ura.Actor
 
         public void SetPosition(float x, float y)
         {
-            transform.localPosition = new Vector3(x, y, 0f);
+            viewArranger.SetPosition(x, y);
         }
 
         public void MarkAsDroppedOnPublishField()

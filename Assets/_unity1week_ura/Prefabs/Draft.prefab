@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4385779005364719118}
   - component: {fileID: 399324211268208196}
   - component: {fileID: 8926765043758424748}
+  - component: {fileID: 4849826937344228739}
   m_Layer: 0
   m_Name: Draft
   m_TagString: Untagged
@@ -94,6 +95,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eead87538b80eee4dae9994ee3eea6d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.DraftView
+  sizeCalculator: {fileID: 4849826937344228739}
   frameImage: {fileID: 3768583149925801045}
   contentText: {fileID: 7383151019445674983}
   pointerEventObserver: {fileID: 8926765043758424748}
@@ -110,6 +112,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55bd0f6590048cc43b9d21d1e1862e1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.PointerEventObserver
+--- !u!114 &4849826937344228739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 864614251040759354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e5a0b175f478741a97d6d35723149d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.SizeCalculator
+  positionTarget: {fileID: 2573626181875373093}
+  sizeReferenceRenderer: {fileID: 3768583149925801045}
+  convertSizeToParentLocal: 1
 --- !u!1 &4264896908523384024
 GameObject:
   m_ObjectHideFlags: 0

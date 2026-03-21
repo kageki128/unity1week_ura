@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 5c04fd25bc50d8a429a26bb32faf6aad
+guid: 85d81d6bbf5f63f4d9206839fee05252
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6934086728263231946
-    second: icon_0
+      213: -5427257888154454513
+    second: "\u88CF\uFF12_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 1280
+  spritePixelsToUnits: 500
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Test
+      name: Kimoota
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1280
-        height: 1280
+        width: 500
+        height: 500
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ac961e71423da3060800000000000000
-      internalID: 6934086728263231946
+      spriteID: f06fd10a4b18ea4b0800000000000000
+      internalID: -5427257888154454513
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: b29bfc1344707734fad707afebcf63d8
+    spriteID: e415f153b37d4fb4fa81ab085ffd2171
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Test: 6934086728263231946
+      Kimoota: -5427257888154454513
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
