@@ -36,12 +36,16 @@ namespace Unity1Week_Ura.Core
             RepostedByAccount = null;
 
             State = PostState.BeforeAppearing;
-            PublishDateTime = DateTimeOffset.UtcNow;
+            PublishDateTime = DateTimeOffset.Now;
         }
 
         public void ChangeState(PostState newState)
         {
             State = newState;
+            if (newState == PostState.Published)
+            {
+                PublishDateTime = DateTimeOffset.Now;
+            }
         }
 
         public bool ToggleLikeByPlayer()
@@ -72,6 +76,7 @@ namespace Unity1Week_Ura.Core
         public void MarkAsRepost(Account repostedByAccount)
         {
             RepostedByAccount = repostedByAccount;
+            PublishDateTime = DateTimeOffset.Now;
         }
     }
 }
