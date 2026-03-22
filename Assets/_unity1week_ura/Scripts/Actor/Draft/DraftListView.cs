@@ -13,6 +13,7 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] Transform draftParent;
         [SerializeField] PointerEventObserver pointerEventObserver;
         [SerializeField] Collider2D viewportCollider;
+        [SerializeField] ScrollBarView scrollBarView;
         [SerializeField] float wheelScrollStep = 0.2f;
         [SerializeField] float bottomSpacingAtMaxScroll = 1f;
 
@@ -37,6 +38,7 @@ namespace Unity1Week_Ura.Actor
             }
 
             pointerEventObserver.OnScrolled.Subscribe(OnScrolled).AddTo(disposables);
+            UpdateScrollBar(0f, GetViewportHeight(), 0f);
         }
 
         public void AddDraft(Post post)
@@ -69,12 +71,15 @@ namespace Unity1Week_Ura.Actor
             }
             draftViews.Clear();
             scrollOffsetY = 0f;
+            UpdateScrollBar(0f, GetViewportHeight(), 0f);
         }
 
         void ArrangeDrafts()
         {
             // 先頭要素の上端が原点になるように上から隙間無く配置する
             float topY = 0f;
+            float contentHeight = GetContentHeight();
+            float viewportHeight = GetViewportHeight();
             float clampedOffsetY = GetClampedScrollOffsetY();
             for (int i = 0; i < draftViews.Count; i++)
             {
@@ -94,6 +99,7 @@ namespace Unity1Week_Ura.Actor
             }
 
             scrollOffsetY = clampedOffsetY;
+            UpdateScrollBar(contentHeight, viewportHeight, clampedOffsetY);
         }
 
         void OnScrolled(PointerEventData eventData)
@@ -106,8 +112,13 @@ namespace Unity1Week_Ura.Actor
         {
             float contentHeight = GetContentHeight();
             float viewportHeight = GetViewportHeight();
-            float maxOffset = Mathf.Max(0f, contentHeight + bottomSpacingAtMaxScroll - viewportHeight);
+            float maxOffset = GetMaxScrollOffset(contentHeight, viewportHeight);
             return Mathf.Clamp(scrollOffsetY, 0f, maxOffset);
+        }
+
+        float GetMaxScrollOffset(float contentHeight, float viewportHeight)
+        {
+            return Mathf.Max(0f, contentHeight + bottomSpacingAtMaxScroll - viewportHeight);
         }
 
         float GetViewportHeight()
@@ -147,6 +158,17 @@ namespace Unity1Week_Ura.Actor
             }
 
             return total;
+        }
+
+        void UpdateScrollBar(float contentHeight, float viewportHeight, float clampedOffsetY)
+        {
+            if (scrollBarView == null)
+            {
+                return;
+            }
+
+            float visualContentHeight = contentHeight + bottomSpacingAtMaxScroll;
+            scrollBarView.UpdateVisual(visualContentHeight, viewportHeight, clampedOffsetY);
         }
 
         DraftView CreateDraftView(Post post)
