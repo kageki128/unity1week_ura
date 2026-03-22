@@ -26,6 +26,7 @@ namespace Unity1Week_Ura.Actor
         {
             disposables.Clear();
             ClearDraftViewScrollSubscriptions();
+            scrollBarView?.Initialize();
 
             if (pointerEventObserver == null)
             {

@@ -8,6 +8,7 @@ namespace Unity1Week_Ura.Actor
     public class ScreenTransitionViewHub : MonoBehaviour
     {
         [SerializeField] CircleWipeTransitionView circleWipeTransitionView;
+        [SerializeField] WhiteFadeTransitionView whiteFadeTransitionView;
 
         Dictionary<ScreenTransitionType, AnimationViewBase> transitionViews = new();
         readonly SemaphoreSlim transitionSemaphore = new(1, 1);
@@ -20,6 +21,7 @@ namespace Unity1Week_Ura.Actor
             transitionViews = new Dictionary<ScreenTransitionType, AnimationViewBase>
             {
                 { ScreenTransitionType.CircleWipe, circleWipeTransitionView },
+                { ScreenTransitionType.WhiteFade, whiteFadeTransitionView },
             };
 
             foreach (var view in transitionViews)

@@ -29,6 +29,7 @@ namespace Unity1Week_Ura.Actor
         public void Initialize()
         {
             disposables.Clear();
+            scrollBarView?.Initialize();
 
             if (pointerEventObserver == null)
             {

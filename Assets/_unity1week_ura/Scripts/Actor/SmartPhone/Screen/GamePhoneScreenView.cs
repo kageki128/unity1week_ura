@@ -9,27 +9,39 @@ namespace Unity1Week_Ura.Actor
 {
     public class GamePhoneScreenView : PhoneScreenViewBase
     {
-        public Observable<Post> OnDraftDroppedToPublish => publishFieldView.OnDraftDropped;
-        public Observable<Account> OnPlayerAccountClicked => playerAccountListView.OnClicked;
-        public Observable<Post> OnLikedByPlayer => timelineView.OnLikedByPlayer;
-        public Observable<Post> OnRepostedByPlayer => timelineView.OnRepostedByPlayer;
+        public Observable<Post> OnDraftDroppedToPublish => timelineGameSubScreenView.OnDraftDroppedToPublish;
+        public Observable<Account> OnPlayerAccountClicked => timelineGameSubScreenView.OnPlayerAccountClicked;
+        public Observable<Post> OnLikedByPlayer => timelineGameSubScreenView.OnLikedByPlayer;
+        public Observable<Post> OnRepostedByPlayer => timelineGameSubScreenView.OnRepostedByPlayer;
 
-        [SerializeField] TimelineView timelineView;
-        [SerializeField] PublishFieldView publishFieldView;
-        [SerializeField] PlayerAccountListView playerAccountListView;
+        [SerializeField] TimelineGameSubScreenView timelineGameSubScreenView;
+
+        readonly Dictionary<GameScreenType, PhoneScreenViewBase> subScreens = new();
+        readonly SemaphoreSlim screenSemaphore = new(1, 1);
+
+        PhoneScreenViewBase currentScreen;
 
         public override void Initialize(ScreenTransitionViewHub screenTransitionViewHub)
         {
             base.Initialize(screenTransitionViewHub);
 
-            timelineView.Initialize();
-            publishFieldView.Initialize();
+            subScreens.Clear();
+            subScreens.Add(GameScreenType.Timeline, timelineGameSubScreenView);
+
+            foreach (var screen in subScreens.Values)
+            {
+                screen.Initialize(screenTransitionViewHub);
+            }
+
+            currentScreen = GetScreenView(GameScreenType.Timeline);
+
             gameObject.SetActive(false);
         }
 
         public override async UniTask ShowAsync(CancellationToken ct)
         {
             gameObject.SetActive(true);
+            await currentScreen.ShowAsync(ct);
             await screenTransitionViewHub.HideAsync(ct);
         }
 
@@ -39,18 +51,50 @@ namespace Unity1Week_Ura.Actor
             gameObject.SetActive(false);
         }
 
-        public void AddPost(Post post) => timelineView.AddPost(post);
-        public void ClearPosts() => timelineView.ClearPosts();
-        public void SetPlayerAccounts(IReadOnlyList<Account> accounts)
+        async UniTask ChangeScreenAsync(GameScreenType targetType, CancellationToken ct)
         {
-            playerAccountListView.SetPlayerAccounts(accounts);
-            Account initialAccount = accounts != null && accounts.Count > 0 ? accounts[0] : null;
-            publishFieldView.SetCurrentPlayerAccount(initialAccount);
+            await screenSemaphore.WaitAsync(ct);
+            try
+            {
+                var nextScreen = GetScreenView(targetType);
+
+                if (currentScreen == nextScreen)
+                {
+                    return;
+                }
+
+                if (currentScreen != null)
+                {
+                    await currentScreen.HideAsync(ct);
+                }
+
+                currentScreen = nextScreen;
+                await currentScreen.ShowAsync(ct);
+            }
+            finally
+            {
+                screenSemaphore.Release();
+            }
         }
-        public void SetSelectedPlayerAccount(Account account)
+
+        public void AddPost(Post post) => timelineGameSubScreenView.AddPost(post);
+        public void ClearPosts() => timelineGameSubScreenView.ClearPosts();
+        public void SetPlayerAccounts(IReadOnlyList<Account> accounts) => timelineGameSubScreenView.SetPlayerAccounts(accounts);
+        public void SetSelectedPlayerAccount(Account account) => timelineGameSubScreenView.SetSelectedPlayerAccount(account);
+
+        PhoneScreenViewBase GetScreenView(GameScreenType screenType)
         {
-            playerAccountListView.SetSelectedPlayerAccount(account);
-            publishFieldView.SetCurrentPlayerAccount(account);
+            if (subScreens.TryGetValue(screenType, out var screenView))
+            {
+                return screenView;
+            }
+
+            throw new KeyNotFoundException($"Screen view for game screen type {screenType} not found.");
+        }
+
+        void OnDestroy()
+        {
+            screenSemaphore.Dispose();
         }
     }
 }

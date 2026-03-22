@@ -11,9 +11,8 @@ namespace Unity1Week_Ura.Actor
         Vector3 thumbBaseLocalScale;
         float thumbBaseCenterY;
         float thumbMovableAreaLength;
-        bool hasCachedBaseState;
 
-        void Awake()
+        public void Initialize()
         {
             CacheBaseStateIfNeeded();
         }
@@ -69,15 +68,9 @@ namespace Unity1Week_Ura.Actor
 
         void CacheBaseStateIfNeeded()
         {
-            if (hasCachedBaseState || thumb == null)
-            {
-                return;
-            }
-
             thumbBaseLocalScale = thumb.localScale;
             thumbBaseCenterY = thumb.localPosition.y;
             thumbMovableAreaLength = Mathf.Abs(thumbBaseLocalScale.y);
-            hasCachedBaseState = true;
         }
     }
 }
