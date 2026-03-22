@@ -19,7 +19,8 @@ namespace Unity1Week_Ura.Actor
         public Observable<Unit> OnBackToTitleButtonClicked => selectPhoneScreenView.OnBackToTitleButtonClicked;
 
         // Game
-        public Observable<Post> OnDraftDroppedToPublish => gamePhoneScreenView.OnDraftDroppedToPublish;
+        public Observable<Post> OnNormalDraftDroppedToPublish => gamePhoneScreenView.OnNormalDraftDroppedToPublish;
+        public Observable<ReplyDraftPublishRequest> OnReplyDraftDroppedToPublish => gamePhoneScreenView.OnReplyDraftDroppedToPublish;
         public Observable<Account> OnPlayerAccountClicked => gamePhoneScreenView.OnPlayerAccountClicked;
         public Observable<Post> OnLikedByPlayer => gamePhoneScreenView.OnLikedByPlayer;
         public Observable<Post> OnRepostedByPlayer => gamePhoneScreenView.OnRepostedByPlayer;

@@ -15,6 +15,9 @@ namespace Unity1Week_Ura.Core
         public float PostPerSecond => postPerSecond;
         [SerializeField] float postPerSecond = 0.5f;
 
+        public float AdvertisePostProbability => advertisePostProbability;
+        [SerializeField, Range(0f, 1f)] float advertisePostProbability = 0f;
+
         public IReadOnlyList<MyAccountSO> UsedAccounts => usedAccounts;
         [SerializeField] List<MyAccountSO> usedAccounts;
     }

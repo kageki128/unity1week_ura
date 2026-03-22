@@ -9,7 +9,7 @@ namespace Unity1Week_Ura.Actor
 {
     public class TimelineGameSubScreenView : PhoneScreenViewBase
     {
-        public Observable<Post> OnDraftDroppedToPublish => publishFieldView.OnDraftDropped;
+        public Observable<Post> OnNormalDraftDroppedToPublish => publishFieldView.OnNormalDraftDropped;
         public Observable<Account> OnPlayerAccountClicked => playerAccountListView.OnClicked;
         public Observable<Post> OnPostClicked => timelineView.OnPostClicked;
         public Observable<Post> OnLikedByPlayer => timelineView.OnLikedByPlayer;

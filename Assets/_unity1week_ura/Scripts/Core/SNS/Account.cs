@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Unity1Week_Ura.Core
 {
@@ -9,13 +8,15 @@ namespace Unity1Week_Ura.Core
         public string Name { get; }
         public Sprite Icon { get; }
         public AccountType Type { get; }
+        public string RelatedPlayerAccountId { get; }
 
-        public Account(string id, string name, Sprite icon, AccountType type)
+        public Account(string id, string name, Sprite icon, AccountType type, string relatedPlayerAccountId)
         {
             Id = id;
             Name = name;
             Icon = icon;
             Type = type;
+            RelatedPlayerAccountId = relatedPlayerAccountId;
         }
     }
 }

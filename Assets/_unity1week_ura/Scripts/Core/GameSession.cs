@@ -143,16 +143,58 @@ namespace Unity1Week_Ura.Core
             }
         }
 
-        public void TryPublishDraft(Post post)
+        public void TryPublishNormalDraft(Post post)
         {
             if (currentGameState.CurrentValue != GameState.Playing)
             {
                 return;
             }
 
+            if (post == null || post.Type != PostType.Normal)
+            {
+                FinishGame();
+                return;
+            }
+
             if (timeline.TryPublishDraft(post))
             {
-                score.Value += post.IsReply ? gameConfig.ReplyPoint : gameConfig.PostPoint;
+                score.Value += gameConfig.PostPoint;
+            }
+            else
+            {
+                FinishGame();
+            }
+        }
+
+        public void TryPublishReplyDraft(ReplyDraftPublishRequest request)
+        {
+            if (currentGameState.CurrentValue != GameState.Playing)
+            {
+                return;
+            }
+
+            if (request == null)
+            {
+                FinishGame();
+                return;
+            }
+
+            var replyDraft = request.ReplyDraft;
+            if (replyDraft == null || replyDraft.Type != PostType.Reply)
+            {
+                FinishGame();
+                return;
+            }
+
+            if (!IsFocusedPostMatchedReplyTarget(replyDraft, request.FocusedPost))
+            {
+                FinishGame();
+                return;
+            }
+
+            if (timeline.TryPublishDraft(replyDraft))
+            {
+                score.Value += GetActionScoreDelta(request.FocusedPost, gameConfig.ReplyPoint);
             }
             else
             {
@@ -188,7 +230,7 @@ namespace Unity1Week_Ura.Core
 
             if (likeScoredPostIds.Add(post.Property.Id))
             {
-                score.Value += gameConfig.LikePoint;
+                score.Value += GetActionScoreDelta(post, gameConfig.LikePoint);
             }
         }
 
@@ -218,7 +260,7 @@ namespace Unity1Week_Ura.Core
 
             if (repostScoredPostIds.Add(post.Property.Id))
             {
-                score.Value += gameConfig.RepostPoint;
+                score.Value += GetActionScoreDelta(post, gameConfig.RepostPoint);
                 timeline.AddRepostToTimeline(post);
             }
         }
@@ -227,6 +269,33 @@ namespace Unity1Week_Ura.Core
         {
             var shareText = GetResultShareText();
             await socialSharePort.ShareResultTextAsync(shareText, ct);
+        }
+
+        bool IsFocusedPostMatchedReplyTarget(Post replyDraft, Post focusedPost)
+        {
+            if (replyDraft == null || focusedPost == null)
+            {
+                return false;
+            }
+
+            var replyTargetPostId = replyDraft.Property.ParentPostId;
+            var focusedPostId = focusedPost.Property.Id;
+            if (string.IsNullOrEmpty(replyTargetPostId) || string.IsNullOrEmpty(focusedPostId))
+            {
+                return false;
+            }
+
+            return string.Equals(replyTargetPostId, focusedPostId, StringComparison.Ordinal);
+        }
+
+        static int GetActionScoreDelta(Post targetPost, int score)
+        {
+            if (targetPost?.Property?.Author?.Type == AccountType.Advertise)
+            {
+                return -score;
+            }
+
+            return score;
         }
 
         public string GetResultShareText()

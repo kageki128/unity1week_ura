@@ -13,7 +13,7 @@ namespace Unity1Week_Ura.Actor
         public Observable<Post> OnPostClicked => onPostClicked;
         public Observable<Post> OnLikedByPlayer => onLikedByPlayer;
         public Observable<Post> OnRepostedByPlayer => onRepostedByPlayer;
-        public Observable<Post> OnDraftDropped => onDraftDropped;
+        public Observable<ReplyDraftPublishRequest> OnReplyDraftDropped => onReplyDraftDropped;
 
         [Header("Components")]
         [SerializeField] Transform mainPostParent;
@@ -38,8 +38,9 @@ namespace Unity1Week_Ura.Actor
         readonly Subject<Post> onPostClicked = new();
         readonly Subject<Post> onLikedByPlayer = new();
         readonly Subject<Post> onRepostedByPlayer = new();
-        readonly Subject<Post> onDraftDropped = new();
+        readonly Subject<ReplyDraftPublishRequest> onReplyDraftDropped = new();
         PostView mainPostView;
+        Post currentFocusedPost;
         float scrollOffsetY;
         float mainPostTopAlignOffsetY;
         CancellationTokenSource cts;
@@ -53,7 +54,10 @@ namespace Unity1Week_Ura.Actor
             if (publishFieldView != null)
             {
                 publishFieldView.OnScrolled.Subscribe(OnScrolled).AddTo(disposables);
-                publishFieldView.OnDraftDropped.Subscribe(onDraftDropped.OnNext).AddTo(disposables);
+                publishFieldView.OnReplyDraftDropped
+                    .Select(replyDraft => new ReplyDraftPublishRequest(replyDraft, currentFocusedPost))
+                    .Subscribe(onReplyDraftDropped.OnNext)
+                    .AddTo(disposables);
             }
 
             if (pointerEventObserver == null)
@@ -79,6 +83,7 @@ namespace Unity1Week_Ura.Actor
             var linkedCt = cts.Token;
 
             ClearPosts();
+            currentFocusedPost = mainPost;
 
             var mainPostViewParent = mainPostParent != null ? mainPostParent : timelinePostParent;
             mainPostView = postViewFactory.Create(mainPost, mainPostViewParent);
@@ -140,6 +145,7 @@ namespace Unity1Week_Ura.Actor
 
             scrollOffsetY = 0f;
             mainPostTopAlignOffsetY = 0f;
+            currentFocusedPost = null;
             UpdateScrollBar(0f, GetViewportHeight(), 0f);
         }
 
@@ -331,8 +337,8 @@ namespace Unity1Week_Ura.Actor
             onLikedByPlayer.Dispose();
             onRepostedByPlayer.OnCompleted();
             onRepostedByPlayer.Dispose();
-            onDraftDropped.OnCompleted();
-            onDraftDropped.Dispose();
+            onReplyDraftDropped.OnCompleted();
+            onReplyDraftDropped.Dispose();
         }
     }
 }

@@ -10,7 +10,6 @@ namespace Unity1Week_Ura.Infrastructure
 {
     public class PostRepository : IPostRepository
     {
-        const string CsvColumnCorrectPlayerAccount = "CorrectPlayerAccountID";
         const string CsvColumnId = "ID";
         const string CsvColumnAuthorAccountId = "AuthorAccountID";
         const string CsvColumnText = "Text";
@@ -23,6 +22,7 @@ namespace Unity1Week_Ura.Infrastructure
         readonly IAccountRepository accountRepository;
         readonly AddressableSpriteLabelLoader spriteLabelLoader;
         readonly Dictionary<string, List<Post>> postsByCorrectAccountId = new(StringComparer.Ordinal);
+        readonly List<Post> postsForAnyPlayer = new();
         readonly Dictionary<string, Post> postsById = new(StringComparer.Ordinal);
         readonly SemaphoreSlim loadGate = new(1, 1);
 
@@ -30,7 +30,6 @@ namespace Unity1Week_Ura.Infrastructure
 
         sealed class PostCsvRow
         {
-            public string CorrectPlayerAccountId { get; }
             public string Id { get; }
             public string AuthorAccountId { get; }
             public string Text { get; }
@@ -40,7 +39,6 @@ namespace Unity1Week_Ura.Infrastructure
             public int DefaultRepostCount { get; }
 
             public PostCsvRow(
-                string correctPlayerAccountId,
                 string id,
                 string authorAccountId,
                 string text,
@@ -49,7 +47,6 @@ namespace Unity1Week_Ura.Infrastructure
                 int defaultLikeCount,
                 int defaultRepostCount)
             {
-                CorrectPlayerAccountId = correctPlayerAccountId;
                 Id = id;
                 AuthorAccountId = authorAccountId;
                 Text = text;
@@ -63,13 +60,11 @@ namespace Unity1Week_Ura.Infrastructure
         sealed class ResolvedPostRow
         {
             public PostCsvRow Row { get; }
-            public Account CorrectPlayerAccount { get; }
             public Account Author { get; }
 
-            public ResolvedPostRow(PostCsvRow row, Account correctPlayerAccount, Account author)
+            public ResolvedPostRow(PostCsvRow row, Account author)
             {
                 Row = row;
-                CorrectPlayerAccount = correctPlayerAccount;
                 Author = author;
             }
         }
@@ -110,12 +105,14 @@ namespace Unity1Week_Ura.Infrastructure
 
             await EnsurePostsLoadedAsync(ct);
 
-            if (!postsByCorrectAccountId.TryGetValue(playerAccount.Id, out var posts))
+            var result = new List<Post>();
+            if (postsByCorrectAccountId.TryGetValue(playerAccount.Id, out var posts))
             {
-                return new List<Post>();
+                result.AddRange(posts);
             }
 
-            return new List<Post>(posts);
+            result.AddRange(postsForAnyPlayer);
+            return result;
         }
 
         public async UniTask<Post> GetPost(string postId, CancellationToken ct)
@@ -152,9 +149,6 @@ namespace Unity1Week_Ura.Infrastructure
                     replies.Add(post);
                 }
             }
-
-            // リプライはID順、もしくは投稿日時順（今回はPostに日時がなければ元の要素順など）でソートするのがよいですが、
-            // ひとまずCSV順（postsById.Valuesの列挙順）とします。
 
             return replies;
         }
@@ -221,6 +215,9 @@ namespace Unity1Week_Ura.Infrastructure
                 var assetReference = addressableConfig.PostDatas;
                 try
                 {
+                    var loadedPostsByCorrectAccountId = new Dictionary<string, List<Post>>(StringComparer.Ordinal);
+                    var loadedPostsForAnyPlayer = new List<Post>();
+                    var loadedPostsById = new Dictionary<string, Post>(StringComparer.Ordinal);
                     TextAsset csvAsset = await AddressableAssetLoader.LoadAsync<TextAsset>(assetReference, ct);
                     var csvText = csvAsset.text;
                     ct.ThrowIfCancellationRequested();
@@ -244,9 +241,8 @@ namespace Unity1Week_Ura.Infrastructure
                     foreach (var row in rows)
                     {
                         ct.ThrowIfCancellationRequested();
-                        var correctPlayerAccount = await GetAccountCachedAsync(row.CorrectPlayerAccountId);
                         var author = await GetAccountCachedAsync(row.AuthorAccountId);
-                        resolvedRows.Add(new ResolvedPostRow(row, correctPlayerAccount, author));
+                        resolvedRows.Add(new ResolvedPostRow(row, author));
                     }
 
                     var authorByPostId = new Dictionary<string, Account>(StringComparer.Ordinal);
@@ -259,11 +255,18 @@ namespace Unity1Week_Ura.Infrastructure
                     {
                         ct.ThrowIfCancellationRequested();
                         var row = resolvedRow.Row;
+                        var correctPlayerAccountId = resolvedRow.Author.RelatedPlayerAccountId;
+                        Account correctPlayerAccount = null;
+                        if (!string.IsNullOrEmpty(correctPlayerAccountId))
+                        {
+                            correctPlayerAccount = await GetAccountCachedAsync(correctPlayerAccountId);
+                        }
+
                         var attachedImage = AddressableSpriteLabelLoader.ResolveSprite(row.AttachedImageFileName, spritesByFileName);
                         authorByPostId.TryGetValue(row.ParentPostId, out var parentPostAuthor);
 
                         var property = new PostProperty(
-                            resolvedRow.CorrectPlayerAccount,
+                            correctPlayerAccount,
                             row.Id,
                             resolvedRow.Author,
                             row.Text,
@@ -272,14 +275,37 @@ namespace Unity1Week_Ura.Infrastructure
                             parentPostAuthor);
                         var post = new Post(property, row.DefaultLikeCount, row.DefaultRepostCount, 0);
 
-                        if (!postsByCorrectAccountId.TryGetValue(row.CorrectPlayerAccountId, out var list))
+                        if (string.IsNullOrEmpty(correctPlayerAccountId))
                         {
-                            list = new List<Post>();
-                            postsByCorrectAccountId[row.CorrectPlayerAccountId] = list;
+                            loadedPostsForAnyPlayer.Add(post);
+                        }
+                        else
+                        {
+                            if (!loadedPostsByCorrectAccountId.TryGetValue(correctPlayerAccountId, out var list))
+                            {
+                                list = new List<Post>();
+                                loadedPostsByCorrectAccountId[correctPlayerAccountId] = list;
+                            }
+
+                            list.Add(post);
                         }
 
-                        list.Add(post);
-                        postsById[row.Id] = post;
+                        loadedPostsById[row.Id] = post;
+                    }
+
+                    postsByCorrectAccountId.Clear();
+                    foreach (var postsPair in loadedPostsByCorrectAccountId)
+                    {
+                        postsByCorrectAccountId[postsPair.Key] = postsPair.Value;
+                    }
+
+                    postsForAnyPlayer.Clear();
+                    postsForAnyPlayer.AddRange(loadedPostsForAnyPlayer);
+
+                    postsById.Clear();
+                    foreach (var postPair in loadedPostsById)
+                    {
+                        postsById[postPair.Key] = postPair.Value;
                     }
 
                     isLoaded = true;
@@ -308,7 +334,6 @@ namespace Unity1Week_Ura.Infrastructure
                 throw new InvalidOperationException("Posts csv does not contain data rows.");
             }
 
-            int correctPlayerAccountColumn = -1;
             int idColumn = -1;
             int authorAccountIdColumn = -1;
             int textColumn = -1;
@@ -321,11 +346,7 @@ namespace Unity1Week_Ura.Infrastructure
             for (int i = 0; i < headerColumns.Length; i++)
             {
                 var column = headerColumns[i].Trim();
-                if (column.Equals(CsvColumnCorrectPlayerAccount, StringComparison.OrdinalIgnoreCase))
-                {
-                    correctPlayerAccountColumn = i;
-                }
-                else if (column.Equals(CsvColumnId, StringComparison.OrdinalIgnoreCase))
+                if (column.Equals(CsvColumnId, StringComparison.OrdinalIgnoreCase))
                 {
                     idColumn = i;
                 }
@@ -355,8 +376,7 @@ namespace Unity1Week_Ura.Infrastructure
                 }
             }
 
-            if (correctPlayerAccountColumn < 0
-                || idColumn < 0
+            if (idColumn < 0
                 || authorAccountIdColumn < 0
                 || textColumn < 0
                 || attachedImageFileNameColumn < 0
@@ -373,7 +393,7 @@ namespace Unity1Week_Ura.Infrastructure
             {
                 var columns = lines[i].Split(',');
                 int maxRequiredColumn = Math.Max(
-                    Math.Max(correctPlayerAccountColumn, idColumn),
+                    idColumn,
                     Math.Max(
                         Math.Max(authorAccountIdColumn, textColumn),
                         Math.Max(
@@ -384,15 +404,13 @@ namespace Unity1Week_Ura.Infrastructure
                     continue;
                 }
 
-                var correctPlayerAccountId = columns[correctPlayerAccountColumn].Trim();
                 var id = columns[idColumn].Trim();
                 var authorAccountId = columns[authorAccountIdColumn].Trim();
                 var text = columns[textColumn].Trim();
                 var attachedImageFileName = columns[attachedImageFileNameColumn].Trim();
                 var parentPostId = columns[parentPostIdColumn].Trim();
 
-                if (string.IsNullOrEmpty(correctPlayerAccountId)
-                    || string.IsNullOrEmpty(id)
+                if (string.IsNullOrEmpty(id)
                     || string.IsNullOrEmpty(authorAccountId))
                 {
                     continue;
@@ -409,7 +427,6 @@ namespace Unity1Week_Ura.Infrastructure
                 }
 
                 rows.Add(new PostCsvRow(
-                    correctPlayerAccountId,
                     id,
                     authorAccountId,
                     text,

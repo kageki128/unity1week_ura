@@ -9,7 +9,8 @@ namespace Unity1Week_Ura.Actor
 {
     public class GamePhoneScreenView : PhoneScreenViewBase
     {
-        public Observable<Post> OnDraftDroppedToPublish => onDraftDroppedToPublish;
+        public Observable<Post> OnNormalDraftDroppedToPublish => onNormalDraftDroppedToPublish;
+        public Observable<ReplyDraftPublishRequest> OnReplyDraftDroppedToPublish => onReplyDraftDroppedToPublish;
         public Observable<Account> OnPlayerAccountClicked => timelineGameSubScreenView.OnPlayerAccountClicked;
         public Observable<Post> OnLikedByPlayer => onLikedByPlayer;
         public Observable<Post> OnRepostedByPlayer => onRepostedByPlayer;
@@ -23,7 +24,8 @@ namespace Unity1Week_Ura.Actor
         readonly Dictionary<GameScreenType, PhoneScreenViewBase> subScreens = new();
         readonly SemaphoreSlim screenSemaphore = new(1, 1);
         readonly CompositeDisposable disposables = new();
-        Observable<Post> onDraftDroppedToPublish;
+        Observable<Post> onNormalDraftDroppedToPublish;
+        Observable<ReplyDraftPublishRequest> onReplyDraftDroppedToPublish;
         Observable<Post> onLikedByPlayer;
         Observable<Post> onRepostedByPlayer;
 
@@ -46,11 +48,8 @@ namespace Unity1Week_Ura.Actor
             focusGameSubScreenView.OnPostClicked.Subscribe(post => FocusCurrentPostAsync(post, destroyCancellationToken).Forget()).AddTo(disposables);
             focusGameSubScreenView.OnTimelineButtonClicked.Subscribe(_ => BackFromFocusAsync(destroyCancellationToken).Forget()).AddTo(disposables);
 
-            onDraftDroppedToPublish = Observable.Merge(new[]
-            {
-                timelineGameSubScreenView.OnDraftDroppedToPublish,
-                focusGameSubScreenView.OnDraftDropped
-            });
+            onNormalDraftDroppedToPublish = timelineGameSubScreenView.OnNormalDraftDroppedToPublish;
+            onReplyDraftDroppedToPublish = focusGameSubScreenView.OnReplyDraftDroppedToPublish;
             onLikedByPlayer = Observable.Merge(new[]
             {
                 timelineGameSubScreenView.OnLikedByPlayer,

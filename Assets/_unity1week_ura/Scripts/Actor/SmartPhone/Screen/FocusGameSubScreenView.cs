@@ -14,7 +14,7 @@ namespace Unity1Week_Ura.Actor
         public Observable<Post> OnPostClicked => onPostClicked;
         public Observable<Post> OnLikedByPlayer => focusView.OnLikedByPlayer;
         public Observable<Post> OnRepostedByPlayer => focusView.OnRepostedByPlayer;
-        public Observable<Post> OnDraftDropped => focusView.OnDraftDropped;
+        public Observable<ReplyDraftPublishRequest> OnReplyDraftDroppedToPublish => focusView.OnReplyDraftDropped;
 
         [SerializeField] ButtonView timelineButtonView;
         [SerializeField] FocusView focusView;

@@ -29,15 +29,14 @@ namespace Unity1Week_Ura.Tests
         public void ParsePostRows_ValidCsv_ReturnsExpectedRows()
         {
             var repository = CreateUninitializedRepository();
-            const string csv = "CorrectPlayerAccountID,ID,AuthorAccountID,Text,AttachedImageFileName,ParentPostID,DefaultLikeCount,DefaultRepostCount\n"
-                + "acc01,p01,acc02,hello,image.png,,100,20\n"
-                + "acc01,p02,acc03,skip,image2.png,,abc,0\n";
+            const string csv = "ID,AuthorAccountID,Text,AttachedImageFileName,ParentPostID,DefaultLikeCount,DefaultRepostCount\n"
+                + "p01,acc02,hello,image.png,,100,20\n"
+                + "p02,acc03,skip,image2.png,,abc,0\n";
 
             var rows = (IList)InvokePrivate(repository, "ParsePostRows", csv);
 
             Assert.That(rows.Count, Is.EqualTo(1));
             var first = rows[0];
-            Assert.That(GetProperty<string>(first, "CorrectPlayerAccountId"), Is.EqualTo("acc01"));
             Assert.That(GetProperty<string>(first, "Id"), Is.EqualTo("p01"));
             Assert.That(GetProperty<int>(first, "DefaultLikeCount"), Is.EqualTo(100));
             Assert.That(GetProperty<int>(first, "DefaultRepostCount"), Is.EqualTo(20));
@@ -86,6 +85,29 @@ namespace Unity1Week_Ura.Tests
             var actual = repository.GetPost("p01", default).GetAwaiter().GetResult();
 
             Assert.That(actual, Is.SameAs(expectedPost));
+        }
+
+        [Test]
+        public void GetPostsByCorrectPlayerAccountAsync_IncludesAnyPlayerPosts()
+        {
+            var repository = CreateUninitializedRepository();
+            var specificPost = (Post)FormatterServices.GetUninitializedObject(typeof(Post));
+            var anyPlayerPost = (Post)FormatterServices.GetUninitializedObject(typeof(Post));
+            var postsByCorrectAccountId = new Dictionary<string, List<Post>>(StringComparer.Ordinal)
+            {
+                { "player01", new List<Post> { specificPost } }
+            };
+
+            SetField(repository, "isLoaded", true);
+            SetField(repository, "postsByCorrectAccountId", postsByCorrectAccountId);
+            SetField(repository, "postsForAnyPlayer", new List<Post> { anyPlayerPost });
+
+            var playerAccount = new Account("player01", "Player1", null, AccountType.Normal, "player01");
+            var posts = repository.GetPostsByCorrectPlayerAccountAsync(playerAccount, default).GetAwaiter().GetResult();
+
+            Assert.That(posts.Count, Is.EqualTo(2));
+            Assert.That(posts[0], Is.SameAs(specificPost));
+            Assert.That(posts[1], Is.SameAs(anyPlayerPost));
         }
 
         static PostRepository CreateUninitializedRepository()

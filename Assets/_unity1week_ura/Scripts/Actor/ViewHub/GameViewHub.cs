@@ -9,7 +9,8 @@ namespace Unity1Week_Ura.Actor
 {
     public class GameViewHub : AnimationViewBase
     {
-        public Observable<Post> OnDraftDroppedToPublish => smartPhoneView.OnDraftDroppedToPublish;
+        public Observable<Post> OnNormalDraftDroppedToPublish => smartPhoneView.OnNormalDraftDroppedToPublish;
+        public Observable<ReplyDraftPublishRequest> OnReplyDraftDroppedToPublish => smartPhoneView.OnReplyDraftDroppedToPublish;
         public Observable<Account> OnPlayerAccountClicked => smartPhoneView.OnPlayerAccountClicked;
         public Observable<Post> OnLikedByPlayer => smartPhoneView.OnLikedByPlayer;
         public Observable<Post> OnRepostedByPlayer => smartPhoneView.OnRepostedByPlayer;

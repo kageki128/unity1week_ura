@@ -22,7 +22,8 @@ namespace Unity1Week_Ura.Core
         public IReadOnlyObservableList<Post> DraftPosts => draftPosts;
         readonly ObservableList<Post> draftPosts = new(new List<Post>());
 
-        List<Post> beforeAppearingPosts = new(new List<Post>());
+        List<Post> beforeAppearingNormalPosts = new(new List<Post>());
+        List<Post> advertisePosts = new(new List<Post>());
 
         readonly IAccountRepository accountRepository;
         readonly IPostRepository postRepository;
@@ -50,9 +51,34 @@ namespace Unity1Week_Ura.Core
             List<Post>[] loadedPostsByAccount = await UniTask.WhenAll(
                 playerAccounts.Select(account => postRepository.GetPostsByCorrectPlayerAccountAsync(account, ct))
             );
-            beforeAppearingPosts = loadedPostsByAccount.SelectMany(posts => posts).ToList();
+            var loadedPostIds = new HashSet<string>(System.StringComparer.Ordinal);
+            var mergedPosts = new List<Post>();
+            foreach (var posts in loadedPostsByAccount)
+            {
+                foreach (var post in posts)
+                {
+                    if (!loadedPostIds.Add(post.Property.Id))
+                    {
+                        continue;
+                    }
 
-            foreach (var post in beforeAppearingPosts)
+                    mergedPosts.Add(post);
+                }
+            }
+
+            beforeAppearingNormalPosts = mergedPosts
+                .Where(post => post.Property.Author.Type != AccountType.Advertise)
+                .ToList();
+            advertisePosts = mergedPosts
+                .Where(post => post.Property.Author.Type == AccountType.Advertise)
+                .ToList();
+
+            foreach (var post in beforeAppearingNormalPosts)
+            {
+                post.ResetPlayerAction();
+            }
+
+            foreach (var post in advertisePosts)
             {
                 post.ResetPlayerAction();
             }
@@ -60,7 +86,7 @@ namespace Unity1Week_Ura.Core
 
         public void TrySupplyPost(GameRuleSO gameRule, float deltaTime)
         {
-            if (beforeAppearingPosts.Count == 0)
+            if (beforeAppearingNormalPosts.Count == 0 && advertisePosts.Count == 0)
             {
                 return;
             }
@@ -71,7 +97,35 @@ namespace Unity1Week_Ura.Core
                 return;
             }
 
-            List<int> canAppearPostIndexes = beforeAppearingPosts
+            bool useAdvertisePost = advertisePosts.Count > 0
+                && Random.value < Mathf.Clamp01(gameRule.AdvertisePostProbability);
+            if (useAdvertisePost)
+            {
+                if (TrySupplyPostFrom(advertisePosts, false))
+                {
+                    return;
+                }
+
+                _ = TrySupplyPostFrom(beforeAppearingNormalPosts, true);
+                return;
+            }
+
+            if (TrySupplyPostFrom(beforeAppearingNormalPosts, true))
+            {
+                return;
+            }
+
+            _ = TrySupplyPostFrom(advertisePosts, false);
+        }
+
+        bool TrySupplyPostFrom(List<Post> sourcePosts, bool removeAfterSupply)
+        {
+            if (sourcePosts.Count == 0)
+            {
+                return false;
+            }
+
+            List<int> canAppearPostIndexes = sourcePosts
                 .Select((post, index) => new { post, index })
                 .Where(x => CanAppear(x.post))
                 .Select(x => x.index)
@@ -79,13 +133,22 @@ namespace Unity1Week_Ura.Core
 
             if (canAppearPostIndexes.Count == 0)
             {
-                return;
+                return false;
             }
 
             int appearedPostIndex = canAppearPostIndexes[Random.Range(0, canAppearPostIndexes.Count)];
-            Post appearedPost = beforeAppearingPosts[appearedPostIndex];
-            beforeAppearingPosts.RemoveAt(appearedPostIndex);
+            Post appearedPost = sourcePosts[appearedPostIndex];
+            if (removeAfterSupply)
+            {
+                sourcePosts.RemoveAt(appearedPostIndex);
+            }
 
+            SupplyPost(appearedPost);
+            return true;
+        }
+
+        void SupplyPost(Post appearedPost)
+        {
             bool isPlayerAccountPost = playerAccounts.Any(account => account.Id == appearedPost.Property.Author.Id);
             if (isPlayerAccountPost)
             {
@@ -111,7 +174,7 @@ namespace Unity1Week_Ura.Core
 
             // 正誤判定
             Account currentAccount = selectedPlayerAccount.CurrentValue;
-            return post.Property.CorrectPlayerAccount.Id == currentAccount.Id;
+            return IsPlayerAccountCorrectForPost(currentAccount, post);
         }
 
         public void SetCurrentPlayerAccount(Account account)
@@ -138,7 +201,7 @@ namespace Unity1Week_Ura.Core
                 return false;
             }
 
-            return post.Property.CorrectPlayerAccount.Id == currentAccount.Id;
+            return IsPlayerAccountCorrectForPost(currentAccount, post);
         }
 
         public void AddRepostToTimeline(Post originalPost)
@@ -167,6 +230,37 @@ namespace Unity1Week_Ura.Core
             }
 
             return publishedPosts.Any(p => p.Property.Id == parentPostId && p.State == PostState.Published);
+        }
+
+        static bool IsPlayerAccountCorrectForPost(Account playerAccount, Post post)
+        {
+            if (playerAccount == null || post == null)
+            {
+                return false;
+            }
+
+            if (IsRelatedToAnyPlayer(post))
+            {
+                return true;
+            }
+
+            var correctPlayerAccount = post.Property.CorrectPlayerAccount;
+            if (correctPlayerAccount == null || string.IsNullOrEmpty(correctPlayerAccount.Id))
+            {
+                return false;
+            }
+
+            return correctPlayerAccount.Id == playerAccount.Id;
+        }
+
+        static bool IsRelatedToAnyPlayer(Post post)
+        {
+            if (post?.Property?.Author == null)
+            {
+                return false;
+            }
+
+            return string.IsNullOrEmpty(post.Property.Author.RelatedPlayerAccountId);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Unity1Week_Ura.Tests
         public void ParseAccountRows_ValidCsv_ReturnsExpectedRows()
         {
             var repository = CreateRepository();
-            const string csv = "ID,Name,IconFileName,AccountType\nacc01,Main,main.png,Normal\n,NoId,ignored.png,Normal\nacc02,Sub,sub.jpg,Advertise\nshort";
+            const string csv = "ID,Name,IconFileName,AccountType,RelatedPlayerAccountID\nacc01,Main,main.png,Normal,player01\n,NoId,ignored.png,Normal,player01\nacc02,Sub,sub.jpg,Advertise,player02\nshort";
 
             var rows = (IList)InvokePrivate(repository, "ParseAccountRows", csv);
 
@@ -39,8 +39,25 @@ namespace Unity1Week_Ura.Tests
             Assert.That(GetProperty<string>(rows[0], "Name"), Is.EqualTo("Main"));
             Assert.That(GetProperty<string>(rows[0], "IconFileName"), Is.EqualTo("main.png"));
             Assert.That(GetProperty<AccountType>(rows[0], "Type"), Is.EqualTo(AccountType.Normal));
+            Assert.That(GetProperty<string>(rows[0], "RelatedPlayerAccountId"), Is.EqualTo("player01"));
             Assert.That(GetProperty<string>(rows[1], "Id"), Is.EqualTo("acc02"));
             Assert.That(GetProperty<AccountType>(rows[1], "Type"), Is.EqualTo(AccountType.Advertise));
+            Assert.That(GetProperty<string>(rows[1], "RelatedPlayerAccountId"), Is.EqualTo("player02"));
+        }
+
+        [Test]
+        public void ParseAccountRows_EmptyRelatedPlayerAccountId_IsAccepted()
+        {
+            var repository = CreateRepository();
+            const string csv = "ID,Name,IconFileName,AccountType,RelatedPlayerAccountID\nad01,Ad,ad.png,Advertise,\nnormal01,Normal,normal.png,Normal,player01";
+
+            var rows = (IList)InvokePrivate(repository, "ParseAccountRows", csv);
+
+            Assert.That(rows.Count, Is.EqualTo(2));
+            Assert.That(GetProperty<string>(rows[0], "Id"), Is.EqualTo("ad01"));
+            Assert.That(GetProperty<string>(rows[0], "RelatedPlayerAccountId"), Is.Empty);
+            Assert.That(GetProperty<string>(rows[1], "Id"), Is.EqualTo("normal01"));
+            Assert.That(GetProperty<string>(rows[1], "RelatedPlayerAccountId"), Is.EqualTo("player01"));
         }
 
         [Test]

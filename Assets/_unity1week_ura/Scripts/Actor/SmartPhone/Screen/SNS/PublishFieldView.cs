@@ -7,9 +7,11 @@ namespace Unity1Week_Ura.Actor
 {
     public class PublishFieldView : MonoBehaviour
     {
-        public Observable<Post> OnDraftDropped => onDraftDropped;
+        public Observable<Post> OnNormalDraftDropped => onNormalDraftDropped;
+        public Observable<Post> OnReplyDraftDropped => onReplyDraftDropped;
         public Observable<PointerEventData> OnScrolled => pointerEventObserver.OnScrolled;
-        readonly Subject<Post> onDraftDropped = new();
+        readonly Subject<Post> onNormalDraftDropped = new();
+        readonly Subject<Post> onReplyDraftDropped = new();
 
         public float Width => viewArranger.Width;
         public float Height => viewArranger.Height;
@@ -50,7 +52,13 @@ namespace Unity1Week_Ura.Actor
             }
 
             draftView.MarkAsDroppedOnPublishField();
-            onDraftDropped.OnNext(post);
+            if (post.Type == PostType.Reply)
+            {
+                onReplyDraftDropped.OnNext(post);
+                return;
+            }
+
+            onNormalDraftDropped.OnNext(post);
         }
 
         public void SetCurrentPlayerAccount(Account account)
@@ -67,8 +75,10 @@ namespace Unity1Week_Ura.Actor
 
         void OnDestroy()
         {
-            onDraftDropped.OnCompleted();
-            onDraftDropped.Dispose();
+            onNormalDraftDropped.OnCompleted();
+            onNormalDraftDropped.Dispose();
+            onReplyDraftDropped.OnCompleted();
+            onReplyDraftDropped.Dispose();
             disposables.Dispose();
         }
     }

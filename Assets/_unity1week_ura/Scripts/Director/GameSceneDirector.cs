@@ -60,7 +60,8 @@ namespace Unity1Week_Ura.Director
             {
                 gameViewHub.RemoveDraft(removeEvent.Value);
             }).AddTo(disposables);
-            gameViewHub.OnDraftDroppedToPublish.Subscribe(gameSession.TryPublishDraft).AddTo(disposables);
+            gameViewHub.OnNormalDraftDroppedToPublish.Subscribe(gameSession.TryPublishNormalDraft).AddTo(disposables);
+            gameViewHub.OnReplyDraftDroppedToPublish.Subscribe(gameSession.TryPublishReplyDraft).AddTo(disposables);
             gameViewHub.OnPlayerAccountClicked.Subscribe(gameSession.SetCurrentPlayerAccount).AddTo(disposables);
             gameViewHub.OnLikedByPlayer.Subscribe(gameSession.LikePostByPlayer).AddTo(disposables);
             gameViewHub.OnRepostedByPlayer.Subscribe(gameSession.RepostByPlayer).AddTo(disposables);

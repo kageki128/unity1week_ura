@@ -14,6 +14,7 @@ namespace Unity1Week_Ura.Infrastructure
         const string CsvColumnName = "Name";
         const string CsvColumnIconFileName = "IconFileName";
         const string CsvColumnAccountType = "AccountType";
+        const string CsvColumnRelatedPlayerAccountId = "RelatedPlayerAccountID";
 
         readonly AddressableConfigSO addressableConfig;
         readonly AddressableSpriteLabelLoader spriteLabelLoader;
@@ -27,13 +28,15 @@ namespace Unity1Week_Ura.Infrastructure
             public string Name { get; }
             public string IconFileName { get; }
             public AccountType Type { get; }
+            public string RelatedPlayerAccountId { get; }
 
-            public AccountCsvRow(string id, string name, string iconFileName, AccountType type)
+            public AccountCsvRow(string id, string name, string iconFileName, AccountType type, string relatedPlayerAccountId)
             {
                 Id = id;
                 Name = name;
                 IconFileName = iconFileName;
                 Type = type;
+                RelatedPlayerAccountId = relatedPlayerAccountId;
             }
         }
 
@@ -93,6 +96,7 @@ namespace Unity1Week_Ura.Infrastructure
                 var assetReference = addressableConfig.AccountDatas;
                 try
                 {
+                    var loadedAccountsById = new Dictionary<string, Account>(StringComparer.Ordinal);
                     TextAsset csvAsset = await AddressableAssetLoader.LoadAsync<TextAsset>(assetReference, ct);
                     var csvText = csvAsset.text;
                     ct.ThrowIfCancellationRequested();
@@ -103,7 +107,13 @@ namespace Unity1Week_Ura.Infrastructure
                     {
                         ct.ThrowIfCancellationRequested();
                         var icon = AddressableSpriteLabelLoader.ResolveSprite(row.IconFileName, iconsByFileName);
-                        accountsById[row.Id] = new Account(row.Id, row.Name, icon, row.Type);
+                        loadedAccountsById[row.Id] = new Account(row.Id, row.Name, icon, row.Type, row.RelatedPlayerAccountId);
+                    }
+
+                    accountsById.Clear();
+                    foreach (var accountPair in loadedAccountsById)
+                    {
+                        accountsById[accountPair.Key] = accountPair.Value;
                     }
 
                     isLoaded = true;
@@ -136,6 +146,7 @@ namespace Unity1Week_Ura.Infrastructure
             int nameColumn = -1;
             int iconFileNameColumn = -1;
             int accountTypeColumn = -1;
+            int relatedPlayerAccountIdColumn = -1;
 
             var headerColumns = lines[0].Split(',');
             for (int i = 0; i < headerColumns.Length; i++)
@@ -157,11 +168,15 @@ namespace Unity1Week_Ura.Infrastructure
                 {
                     accountTypeColumn = i;
                 }
+                else if (column.Equals(CsvColumnRelatedPlayerAccountId, StringComparison.OrdinalIgnoreCase))
+                {
+                    relatedPlayerAccountIdColumn = i;
+                }
             }
 
-            if (idColumn < 0 || nameColumn < 0 || iconFileNameColumn < 0 || accountTypeColumn < 0)
+            if (idColumn < 0 || nameColumn < 0 || iconFileNameColumn < 0 || accountTypeColumn < 0 || relatedPlayerAccountIdColumn < 0)
             {
-                throw new InvalidOperationException($"Accounts csv must have {CsvColumnId}, {CsvColumnName}, {CsvColumnIconFileName} and {CsvColumnAccountType} columns.");
+                throw new InvalidOperationException($"Accounts csv must have {CsvColumnId}, {CsvColumnName}, {CsvColumnIconFileName}, {CsvColumnAccountType} and {CsvColumnRelatedPlayerAccountId} columns.");
             }
 
             var rows = new List<AccountCsvRow>(lines.Length - 1);
@@ -169,7 +184,7 @@ namespace Unity1Week_Ura.Infrastructure
             for (int i = 1; i < lines.Length; i++)
             {
                 var columns = lines[i].Split(',');
-                int maxRequiredColumn = Math.Max(Math.Max(idColumn, nameColumn), Math.Max(iconFileNameColumn, accountTypeColumn));
+                int maxRequiredColumn = Math.Max(Math.Max(idColumn, nameColumn), Math.Max(Math.Max(iconFileNameColumn, accountTypeColumn), relatedPlayerAccountIdColumn));
                 if (columns.Length <= maxRequiredColumn)
                 {
                     continue;
@@ -179,6 +194,7 @@ namespace Unity1Week_Ura.Infrastructure
                 var name = columns[nameColumn].Trim();
                 var iconFileName = columns[iconFileNameColumn].Trim();
                 var accountTypeText = columns[accountTypeColumn].Trim();
+                var relatedPlayerAccountId = columns[relatedPlayerAccountIdColumn].Trim();
                 if (string.IsNullOrEmpty(id))
                 {
                     continue;
@@ -189,7 +205,7 @@ namespace Unity1Week_Ura.Infrastructure
                     continue;
                 }
 
-                rows.Add(new AccountCsvRow(id, name, iconFileName, type));
+                rows.Add(new AccountCsvRow(id, name, iconFileName, type, relatedPlayerAccountId));
             }
 
             return rows;
