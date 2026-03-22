@@ -128,6 +128,7 @@ namespace Unity1Week_Ura.Actor
         public void ClearTimeline() => gamePhoneScreenView.ClearPosts();
         public void SetPlayerAccounts(IReadOnlyList<Account> accounts) => gamePhoneScreenView.SetPlayerAccounts(accounts);
         public void SetSelectedPlayerAccount(Account account) => gamePhoneScreenView.SetSelectedPlayerAccount(account);
+        public UniTask PlayResultShareComposeAsync(string shareText, CancellationToken ct) => resultPhoneScreenView.PlayShareComposeAsync(shareText, ct);
 
         PhoneScreenViewBase GetScreenView(SceneType sceneType)
         {

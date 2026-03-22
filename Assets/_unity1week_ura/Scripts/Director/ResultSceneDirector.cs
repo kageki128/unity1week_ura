@@ -41,15 +41,19 @@ namespace Unity1Week_Ura.Director
 
             await resultViewHub.ShowAsync(ct);
 
-            // ボタンを購読
+            var shareText = gameSession.GetResultShareText();
+            await resultViewHub.PlayShareComposeAsync(shareText, ct);
+
             resultViewHub.OnRetryButtonClicked.Subscribe(_ =>
             {
                 sceneModel.ChangeScene(SceneType.Game);
             }).AddTo(disposables);
+
             resultViewHub.OnBackToSelectButtonClicked.Subscribe(_ =>
             {
                 sceneModel.ChangeScene(SceneType.Select);
             }).AddTo(disposables);
+
             resultViewHub.OnShareButtonClicked.Subscribe(_ =>
             {
                 gameSession.ShareResultAsync(cts.Token).Forget();

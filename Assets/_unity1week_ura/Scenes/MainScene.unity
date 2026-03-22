@@ -8846,6 +8846,23 @@ MonoBehaviour:
   RetryButtonView: {fileID: 1728129676}
   BackToSelectButtonView: {fileID: 763153853}
   ShareButtonView: {fileID: 8843899376194745845}
+  shareContentText: {fileID: 4761581167231148399}
+  shareContentRect: {fileID: 1378352254806633086}
+  shareFieldFrame: {fileID: 2047497337067232625}
+  shareFieldTopLine: {fileID: 4371523533247254310}
+  shareFieldBottomLine: {fileID: 8326097733379553}
+  shareFieldIconsRoot: {fileID: 5443983555104269575}
+  shareButtonRoot: {fileID: 8843899376194745842}
+  placeholderText: "\u3044\u307E\u3069\u3046\u3057\u3066\u308B\uFF1F"
+  placeholderTextColor: {r: 0.3254902, g: 0.39215687, b: 0.44313726, a: 1}
+  typingTextColor: {r: 0.06666667, g: 0.078431375, b: 0.09803922, a: 1}
+  minTypingInterval: 0.03
+  maxTypingInterval: 0.1
+  punctuationPause: 0.08
+  lineBreakPause: 0.14
+  flickBurstChance: 0.2
+  shareButtonFadeDuration: 0.8
+  shareButtonFadeEase: 9
 --- !u!1 &1493059332
 GameObject:
   m_ObjectHideFlags: 0
@@ -13839,6 +13856,7 @@ GameObject:
   - component: {fileID: 1378352254806633086}
   - component: {fileID: 7876464696495779874}
   - component: {fileID: 4761581167231148399}
+  - component: {fileID: 7876464696495779875}
   m_Layer: 0
   m_Name: Content
   m_TagString: Untagged
@@ -14800,6 +14818,20 @@ MeshRenderer:
   m_SortingOrder: 12
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &7876464696495779875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1288088434813952558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7d38e4cbd886014b8842f11bed80158, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.HashtagPainter
+  targetText: {fileID: 4761581167231148399}
+  hashtagColor: {r: 0.93333334, g: 0.3529412, b: 0.49803922, a: 1}
 --- !u!23 &8087377550792800570
 MeshRenderer:
   m_ObjectHideFlags: 0

@@ -39,7 +39,7 @@ namespace Unity1Week_Ura.Core
         readonly HashSet<string> likeScoredPostIds = new(StringComparer.Ordinal);
         readonly HashSet<string> repostScoredPostIds = new(StringComparer.Ordinal);
         GameRuleSO gameRule;
-        
+
         public GameSession(GameConfigSO gameConfig, IAccountRepository accountRepository, IPostRepository postRepository, ISocialSharePort socialSharePort)
         {
             timeline = new Timeline(accountRepository, postRepository);
@@ -50,9 +50,9 @@ namespace Unity1Week_Ura.Core
 
         public void SetNewGameRule(GameRuleSO newGameRule)
         {
-            if(currentGameState.CurrentValue != GameState.Preparing && currentGameState.CurrentValue != GameState.Finished)
+            if (currentGameState.CurrentValue != GameState.Preparing && currentGameState.CurrentValue != GameState.Finished)
             {
-                throw new InvalidOperationException("ゲーム中はルールを変更できません。");
+                throw new InvalidOperationException("Cannot change game rule while the game is running.");
             }
 
             gameRule = newGameRule;
@@ -60,9 +60,9 @@ namespace Unity1Week_Ura.Core
 
         public async UniTask LoadNewGame(CancellationToken ct)
         {
-            if(currentGameState.CurrentValue != GameState.Preparing && currentGameState.CurrentValue != GameState.Finished)
+            if (currentGameState.CurrentValue != GameState.Preparing && currentGameState.CurrentValue != GameState.Finished)
             {
-                throw new InvalidOperationException("ゲーム中は新しいゲームをロードできません。");
+                throw new InvalidOperationException("Cannot load a new game while the current game is running.");
             }
 
             await timeline.LoadAsync(gameRule, ct);
@@ -100,6 +100,7 @@ namespace Unity1Week_Ura.Core
             {
                 return;
             }
+
             onGameCanceled.OnNext(Unit.Default);
             currentGameState.Value = GameState.Finished;
         }
@@ -110,13 +111,18 @@ namespace Unity1Week_Ura.Core
             {
                 return;
             }
+
             onGameRestarted.OnNext(Unit.Default);
             currentGameState.Value = GameState.Finished;
         }
 
         void FinishGame()
         {
-            if (currentGameState.CurrentValue == GameState.Finished) return;
+            if (currentGameState.CurrentValue == GameState.Finished)
+            {
+                return;
+            }
+
             currentGameState.Value = GameState.Finished;
             onGameFinished.OnNext(Unit.Default);
         }
@@ -150,7 +156,6 @@ namespace Unity1Week_Ura.Core
             }
             else
             {
-                // ゲームオーバー
                 FinishGame();
             }
         }
@@ -220,16 +225,23 @@ namespace Unity1Week_Ura.Core
 
         public async UniTask ShareResultAsync(CancellationToken ct)
         {
-            if (currentGameState.CurrentValue != GameState.Finished)
+            var shareText = GetResultShareText();
+            await socialSharePort.ShareResultTextAsync(shareText, ct);
+        }
+
+        public string GetResultShareText()
+        {
+            var state = currentGameState.CurrentValue;
+            if (state != GameState.Finished && state != GameState.Preparing)
             {
-                throw new InvalidOperationException("ゲームが終了していないため、結果を共有できません。");
+                throw new InvalidOperationException("Cannot share result text while the game is playing or paused.");
             }
 
             GameResult gameResult = new(
                 score: score.Value,
                 gameRule: gameRule
             );
-            await socialSharePort.ShareResultAsync(gameResult, ct);
+            return socialSharePort.BuildResultShareText(gameResult);
         }
     }
 }

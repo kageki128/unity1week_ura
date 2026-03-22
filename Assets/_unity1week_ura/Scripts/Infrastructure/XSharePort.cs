@@ -19,10 +19,8 @@ namespace Unity1Week_Ura.Infrastructure
             this.gameConfig = gameConfig;
         }
 
-        public UniTask ShareResultAsync(GameResult gameResult, CancellationToken ct)
+        public string BuildResultShareText(GameResult gameResult)
         {
-            ct.ThrowIfCancellationRequested();
-
             if (gameResult == null)
             {
                 throw new ArgumentNullException(nameof(gameResult));
@@ -30,11 +28,22 @@ namespace Unity1Week_Ura.Infrastructure
 
             var difficultyName = gameResult.GameRule == null ? "Unknown" : gameResult.GameRule.DifficultyName;
             var shareUrl = Application.absoluteURL;
-            var text = gameConfig.ResultText
+            return gameConfig.ResultText
                 .Replace(DifficultyPlaceholder, difficultyName)
                 .Replace(ScorePlaceholder, gameResult.Score.ToString())
                 .Replace(UrlPlaceholder, shareUrl);
-            var encodedText = Uri.EscapeDataString(text);
+        }
+
+        public UniTask ShareResultTextAsync(string shareText, CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            if (shareText == null)
+            {
+                throw new ArgumentNullException(nameof(shareText));
+            }
+
+            var encodedText = Uri.EscapeDataString(shareText);
             var url = $"{XIntentBaseUrl}?text={encodedText}";
 
             Debug.Log($"[XSharePort] Share URL: {url}");

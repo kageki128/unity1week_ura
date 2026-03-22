@@ -5,6 +5,7 @@ namespace Unity1Week_Ura.Core
 {
     public interface ISocialSharePort
     {
-        UniTask ShareResultAsync(GameResult gameResult, CancellationToken ct);
+        string BuildResultShareText(GameResult gameResult);
+        UniTask ShareResultTextAsync(string shareText, CancellationToken ct);
     }
 }

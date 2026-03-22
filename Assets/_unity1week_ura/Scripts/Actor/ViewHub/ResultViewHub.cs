@@ -31,5 +31,10 @@ namespace Unity1Week_Ura.Actor
             await smartPhoneView.HideSceneAsync(SceneType.Result, ct);
             gameObject.SetActive(false);
         }
+
+        public UniTask PlayShareComposeAsync(string shareText, CancellationToken ct)
+        {
+            return smartPhoneView.PlayResultShareComposeAsync(shareText, ct);
+        }
     }
 }
