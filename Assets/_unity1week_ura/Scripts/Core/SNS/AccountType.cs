@@ -1,8 +1,8 @@
 namespace Unity1Week_Ura.Core
 {
-    public enum PostType
+    public enum AccountType
     {
         Normal,
-        Advertisement
+        Advertise
     }
 }

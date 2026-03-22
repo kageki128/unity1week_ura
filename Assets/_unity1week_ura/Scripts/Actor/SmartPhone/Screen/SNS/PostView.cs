@@ -74,7 +74,7 @@ namespace Unity1Week_Ura.Actor
             iconImage.sprite = property.Author.Icon;
             headerText.text = $"{property.Author.Name}<size={subTextFontSizeOffset}><color={subTextColorHex}>　@{property.Author.Id}　{post.PublishDateTime:yyyy/MM/dd HH:mm}</color></size>";
 
-            advertisementText.gameObject.SetActive(property.Type == PostType.Advertisement);
+            advertisementText.gameObject.SetActive(property.Author.Type == AccountType.Advertise);
 
             if (string.IsNullOrEmpty(property.ParentPostId))
             {

@@ -16,7 +16,6 @@ namespace Unity1Week_Ura.Infrastructure
         const string CsvColumnText = "Text";
         const string CsvColumnAttachedImageFileName = "AttachedImageFileName";
         const string CsvColumnParentPostId = "ParentPostID";
-        const string CsvColumnPostType = "Type";
         const string CsvColumnDefaultLikeCount = "DefaultLikeCount";
         const string CsvColumnDefaultRepostCount = "DefaultRepostCount";
 
@@ -37,7 +36,6 @@ namespace Unity1Week_Ura.Infrastructure
             public string Text { get; }
             public string AttachedImageFileName { get; }
             public string ParentPostId { get; }
-            public PostType Type { get; }
             public int DefaultLikeCount { get; }
             public int DefaultRepostCount { get; }
 
@@ -48,7 +46,6 @@ namespace Unity1Week_Ura.Infrastructure
                 string text,
                 string attachedImageFileName,
                 string parentPostId,
-                PostType type,
                 int defaultLikeCount,
                 int defaultRepostCount)
             {
@@ -58,7 +55,6 @@ namespace Unity1Week_Ura.Infrastructure
                 Text = text;
                 AttachedImageFileName = attachedImageFileName;
                 ParentPostId = parentPostId;
-                Type = type;
                 DefaultLikeCount = defaultLikeCount;
                 DefaultRepostCount = defaultRepostCount;
             }
@@ -273,8 +269,7 @@ namespace Unity1Week_Ura.Infrastructure
                             row.Text,
                             attachedImage,
                             row.ParentPostId,
-                            parentPostAuthor,
-                            row.Type);
+                            parentPostAuthor);
                         var post = new Post(property, row.DefaultLikeCount, row.DefaultRepostCount, 0);
 
                         if (!postsByCorrectAccountId.TryGetValue(row.CorrectPlayerAccountId, out var list))
@@ -319,7 +314,6 @@ namespace Unity1Week_Ura.Infrastructure
             int textColumn = -1;
             int attachedImageFileNameColumn = -1;
             int parentPostIdColumn = -1;
-            int postTypeColumn = -1;
             int defaultLikeCountColumn = -1;
             int defaultRepostCountColumn = -1;
 
@@ -351,10 +345,6 @@ namespace Unity1Week_Ura.Infrastructure
                 {
                     parentPostIdColumn = i;
                 }
-                else if (column.Equals(CsvColumnPostType, StringComparison.OrdinalIgnoreCase))
-                {
-                    postTypeColumn = i;
-                }
                 else if (column.Equals(CsvColumnDefaultLikeCount, StringComparison.OrdinalIgnoreCase))
                 {
                     defaultLikeCountColumn = i;
@@ -371,7 +361,6 @@ namespace Unity1Week_Ura.Infrastructure
                 || textColumn < 0
                 || attachedImageFileNameColumn < 0
                 || parentPostIdColumn < 0
-                || postTypeColumn < 0
                 || defaultLikeCountColumn < 0
                 || defaultRepostCountColumn < 0)
             {
@@ -389,9 +378,7 @@ namespace Unity1Week_Ura.Infrastructure
                         Math.Max(authorAccountIdColumn, textColumn),
                         Math.Max(
                             Math.Max(attachedImageFileNameColumn, parentPostIdColumn),
-                            Math.Max(
-                                postTypeColumn,
-                                Math.Max(defaultLikeCountColumn, defaultRepostCountColumn)))));
+                            Math.Max(defaultLikeCountColumn, defaultRepostCountColumn))));
                 if (columns.Length <= maxRequiredColumn)
                 {
                     continue;
@@ -403,12 +390,10 @@ namespace Unity1Week_Ura.Infrastructure
                 var text = columns[textColumn].Trim();
                 var attachedImageFileName = columns[attachedImageFileNameColumn].Trim();
                 var parentPostId = columns[parentPostIdColumn].Trim();
-                var postTypeText = columns[postTypeColumn].Trim();
 
                 if (string.IsNullOrEmpty(correctPlayerAccountId)
                     || string.IsNullOrEmpty(id)
-                    || string.IsNullOrEmpty(authorAccountId)
-                    || string.IsNullOrEmpty(postTypeText))
+                    || string.IsNullOrEmpty(authorAccountId))
                 {
                     continue;
                 }
@@ -423,11 +408,6 @@ namespace Unity1Week_Ura.Infrastructure
                     continue;
                 }
 
-                if (!Enum.TryParse(postTypeText, true, out PostType type))
-                {
-                    continue;
-                }
-
                 rows.Add(new PostCsvRow(
                     correctPlayerAccountId,
                     id,
@@ -435,7 +415,6 @@ namespace Unity1Week_Ura.Infrastructure
                     text,
                     attachedImageFileName,
                     parentPostId,
-                    type,
                     defaultLikeCount,
                     defaultRepostCount));
             }

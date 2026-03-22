@@ -3,6 +3,7 @@ using System.Collections;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
+using Unity1Week_Ura.Core;
 using Unity1Week_Ura.Infrastructure;
 
 namespace Unity1Week_Ura.Tests
@@ -29,7 +30,7 @@ namespace Unity1Week_Ura.Tests
         public void ParseAccountRows_ValidCsv_ReturnsExpectedRows()
         {
             var repository = CreateRepository();
-            const string csv = "ID,Name,IconFileName\nacc01,Main,main.png\n,NoId,ignored.png\nacc02,Sub,sub.jpg\nshort";
+            const string csv = "ID,Name,IconFileName,AccountType\nacc01,Main,main.png,Normal\n,NoId,ignored.png,Normal\nacc02,Sub,sub.jpg,Advertise\nshort";
 
             var rows = (IList)InvokePrivate(repository, "ParseAccountRows", csv);
 
@@ -37,7 +38,9 @@ namespace Unity1Week_Ura.Tests
             Assert.That(GetProperty<string>(rows[0], "Id"), Is.EqualTo("acc01"));
             Assert.That(GetProperty<string>(rows[0], "Name"), Is.EqualTo("Main"));
             Assert.That(GetProperty<string>(rows[0], "IconFileName"), Is.EqualTo("main.png"));
+            Assert.That(GetProperty<AccountType>(rows[0], "Type"), Is.EqualTo(AccountType.Normal));
             Assert.That(GetProperty<string>(rows[1], "Id"), Is.EqualTo("acc02"));
+            Assert.That(GetProperty<AccountType>(rows[1], "Type"), Is.EqualTo(AccountType.Advertise));
         }
 
         [Test]

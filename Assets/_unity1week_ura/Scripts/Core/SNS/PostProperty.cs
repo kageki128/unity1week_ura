@@ -15,9 +15,8 @@ namespace Unity1Week_Ura.Core
         public Sprite AttachedImage { get; }
         public string ParentPostId { get; }
         public Account ParentPostAuthor { get; }
-        public PostType Type { get; }
 
-        public PostProperty(Account correctPlayerAccount, string id, Account author, string text, Sprite attachedImage, string parentPostId, Account parentPostAuthor, PostType type)
+        public PostProperty(Account correctPlayerAccount, string id, Account author, string text, Sprite attachedImage, string parentPostId, Account parentPostAuthor)
         {
             CorrectPlayerAccount = correctPlayerAccount;
             Id = id;
@@ -26,7 +25,6 @@ namespace Unity1Week_Ura.Core
             AttachedImage = attachedImage;
             ParentPostId = parentPostId;
             ParentPostAuthor = parentPostAuthor;
-            Type = type;
         }
     }
 }
