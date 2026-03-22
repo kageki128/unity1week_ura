@@ -32,9 +32,33 @@ namespace Unity1Week_Ura.Actor
             var postViews = new List<PostView>();
             foreach (var reply in replies)
             {
+                if (reply.State != PostState.Published)
+                {
+                    continue;
+                }
+
                 var view = Create(reply, parent);
                 postViews.Add(view);
             }
+            return postViews;
+        }
+
+        public async UniTask<List<PostView>> CreateAncestorPostsAsync(Post childPost, Transform parent, CancellationToken ct)
+        {
+            var ancestors = await postRepository.GetAncestorPostsAsync(childPost.Property.Id, ct);
+
+            var postViews = new List<PostView>();
+            foreach (var ancestor in ancestors)
+            {
+                if (ancestor.State != PostState.Published)
+                {
+                    continue;
+                }
+
+                var view = Create(ancestor, parent);
+                postViews.Add(view);
+            }
+
             return postViews;
         }
     }

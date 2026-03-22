@@ -9,5 +9,6 @@ namespace Unity1Week_Ura.Core
         UniTask<Post> GetPost(string postId, CancellationToken ct);
         UniTask<List<Post>> GetPostsByCorrectPlayerAccountAsync(Account playerAccount, CancellationToken ct);
         UniTask<List<Post>> GetRepliesAsync(string postId, CancellationToken ct);
+        UniTask<List<Post>> GetAncestorPostsAsync(string postId, CancellationToken ct);
     }
 }

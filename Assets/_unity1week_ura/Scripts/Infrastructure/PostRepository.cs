@@ -163,6 +163,45 @@ namespace Unity1Week_Ura.Infrastructure
             return replies;
         }
 
+        public async UniTask<List<Post>> GetAncestorPostsAsync(string postId, CancellationToken ct)
+        {
+            if (string.IsNullOrEmpty(postId))
+            {
+                throw new ArgumentException("postId is null or empty.", nameof(postId));
+            }
+
+            await EnsurePostsLoadedAsync(ct);
+
+            if (!postsById.TryGetValue(postId, out var currentPost))
+            {
+                throw new KeyNotFoundException($"Post not found. postId: {postId}");
+            }
+
+            var ancestors = new List<Post>();
+            var visitedPostIds = new HashSet<string>(StringComparer.Ordinal);
+            string parentPostId = currentPost.Property.ParentPostId;
+
+            while (!string.IsNullOrEmpty(parentPostId))
+            {
+                ct.ThrowIfCancellationRequested();
+                if (!visitedPostIds.Add(parentPostId))
+                {
+                    break;
+                }
+
+                if (!postsById.TryGetValue(parentPostId, out var parentPost))
+                {
+                    break;
+                }
+
+                ancestors.Add(parentPost);
+                parentPostId = parentPost.Property.ParentPostId;
+            }
+
+            ancestors.Reverse();
+            return ancestors;
+        }
+
         async UniTask EnsurePostsLoadedAsync(CancellationToken ct)
         {
             if (isLoaded)

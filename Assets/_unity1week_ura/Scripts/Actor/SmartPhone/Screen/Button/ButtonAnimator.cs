@@ -360,22 +360,39 @@ namespace Unity1Week_Ura.Actor
             return Color.Lerp(baseColor, Color.white, amount);
         }
 
-        void OnDestroy()
+        public void StopAnimations()
         {
             idleTween?.Kill();
+            idleTween = null;
+
             scaleTween?.Kill();
+            scaleTween = null;
+
             moveTween?.Kill();
+            moveTween = null;
 
-            for (var i = 0; i < spriteColorTweens.Length; i++)
+            if (spriteColorTweens != null)
             {
-                spriteColorTweens[i]?.Kill();
+                for (var i = 0; i < spriteColorTweens.Length; i++)
+                {
+                    spriteColorTweens[i]?.Kill();
+                    spriteColorTweens[i] = null;
+                }
             }
 
-            for (var i = 0; i < textColorTweens.Length; i++)
+            if (textColorTweens != null)
             {
-                textColorTweens[i]?.Kill();
+                for (var i = 0; i < textColorTweens.Length; i++)
+                {
+                    textColorTweens[i]?.Kill();
+                    textColorTweens[i] = null;
+                }
             }
+        }
 
+        void OnDestroy()
+        {
+            StopAnimations();
             disposables.Dispose();
         }
     }

@@ -32,6 +32,7 @@ namespace Unity1Week_Ura.Actor
         public override async UniTask ShowAsync(CancellationToken ct)
         {
             gameObject.SetActive(true);
+            timelineView.FlushPendingPosts(useAnimation: false);
             await screenTransitionViewHub.HideAsync(ct);
         }
 

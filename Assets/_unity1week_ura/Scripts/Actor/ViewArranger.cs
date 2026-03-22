@@ -50,10 +50,19 @@ namespace Unity1Week_Ura.Actor
             appearTween = null;
         }
 
-        public void SetPosition(float x, float y)
+        public void SetPosition(float x, float y, bool useAnimation = true)
         {
             var target = positionTarget != null ? positionTarget : transform;
             var targetPosition = new Vector3(x, y, target.localPosition.z);
+
+            if (!useAnimation)
+            {
+                StopAnimations();
+                hasAppeared = true;
+                SetVisualAlpha(1f);
+                target.localPosition = targetPosition;
+                return;
+            }
 
             if (enableAppearAnimation && !hasAppeared)
             {

@@ -21,6 +21,7 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] float bottomSpacingAtMaxScroll = 1f;
 
         readonly List<PostView> postViews = new();
+        readonly List<Post> pendingPosts = new();
         readonly CompositeDisposable disposables = new();
         readonly CompositeDisposable postViewEventDisposables = new();
         readonly Subject<Post> onPostClicked = new();
@@ -49,9 +50,25 @@ namespace Unity1Week_Ura.Actor
 
         public void AddPost(Post post)
         {
-            var postView = CreatePostView(post);
-            postViews.Insert(0, postView);
+            if (!gameObject.activeInHierarchy)
+            {
+                pendingPosts.Add(post);
+                return;
+            }
+
+            AddPostInternal(post);
             ArrangePosts();
+        }
+
+        public void FlushPendingPosts(bool useAnimation = true)
+        {
+            for (int i = 0; i < pendingPosts.Count; i++)
+            {
+                AddPostInternal(pendingPosts[i]);
+            }
+
+            pendingPosts.Clear();
+            ArrangePosts(useAnimation);
         }
 
         public void ClearPosts()
@@ -60,25 +77,42 @@ namespace Unity1Week_Ura.Actor
 
             foreach (var postView in postViews)
             {
+                if (postView == null || postView.gameObject == null)
+                {
+                    continue;
+                }
+
+                postView.StopAnimations();
                 Destroy(postView.gameObject);
             }
+
             postViews.Clear();
+            pendingPosts.Clear();
             scrollOffsetY = 0f;
             UpdateScrollBar(0f, GetViewportHeight(), 0f);
         }
 
-        void ArrangePosts()
+        void AddPostInternal(Post post)
         {
-            // リストの新しい順に上から隙間無く配置する
+            var postView = CreatePostView(post);
+            postViews.Insert(0, postView);
+        }
+
+        void ArrangePosts(bool useAnimation = true)
+        {
             float topY = 0f;
             float contentHeight = GetContentHeight();
             float viewportHeight = GetViewportHeight();
             float clampedOffsetY = GetClampedScrollOffsetY();
+            float viewportTopY = GetViewportTopY();
+            float viewportBottomY = GetViewportBottomY();
+
             for (int i = 0; i < postViews.Count; i++)
             {
                 var postView = postViews[i];
                 float y = topY - postView.Height * 0.5f + clampedOffsetY;
-                postView.SetPosition(0, y);
+                postView.SetPosition(0, y, useAnimation);
+                UpdatePostInteractability(postView, y, viewportTopY, viewportBottomY);
                 topY -= postView.Height;
             }
 
@@ -137,6 +171,40 @@ namespace Unity1Week_Ura.Actor
             return worldHeight / localScaleY;
         }
 
+        float GetViewportTopY()
+        {
+            if (viewportCollider == null)
+            {
+                return 0f;
+            }
+
+            if (timelinePostParent == null)
+            {
+                return viewportCollider.bounds.max.y;
+            }
+
+            var parentPosition = timelinePostParent.position;
+            var topWorldPosition = new Vector3(parentPosition.x, viewportCollider.bounds.max.y, parentPosition.z);
+            return timelinePostParent.InverseTransformPoint(topWorldPosition).y;
+        }
+
+        float GetViewportBottomY()
+        {
+            if (viewportCollider == null)
+            {
+                return 0f;
+            }
+
+            if (timelinePostParent == null)
+            {
+                return viewportCollider.bounds.min.y;
+            }
+
+            var parentPosition = timelinePostParent.position;
+            var bottomWorldPosition = new Vector3(parentPosition.x, viewportCollider.bounds.min.y, parentPosition.z);
+            return timelinePostParent.InverseTransformPoint(bottomWorldPosition).y;
+        }
+
         float GetContentHeight()
         {
             float total = 0f;
@@ -157,6 +225,26 @@ namespace Unity1Week_Ura.Actor
 
             float visualContentHeight = contentHeight + bottomSpacingAtMaxScroll;
             scrollBarView.UpdateVisual(visualContentHeight, viewportHeight, clampedOffsetY);
+        }
+
+        void UpdatePostInteractability(PostView postView, float centerY, float viewportTopY, float viewportBottomY)
+        {
+            if (postView == null)
+            {
+                return;
+            }
+
+            if (viewportCollider == null)
+            {
+                postView.SetInteractable(true);
+                return;
+            }
+
+            float halfHeight = postView.Height * 0.5f;
+            float postTopY = centerY + halfHeight;
+            float postBottomY = centerY - halfHeight;
+            bool isWithinViewport = postBottomY < viewportTopY && postTopY > viewportBottomY;
+            postView.SetInteractable(isWithinViewport);
         }
 
         void OnDestroy()

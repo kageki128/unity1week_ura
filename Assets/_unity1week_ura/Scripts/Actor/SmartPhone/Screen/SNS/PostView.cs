@@ -1,3 +1,4 @@
+using DG.Tweening;
 using R3;
 using TMPro;
 using Unity1Week_Ura.Core;
@@ -97,9 +98,72 @@ namespace Unity1Week_Ura.Actor
             AdjustLayout();
         }
 
-        public void SetPosition(float x, float y)
+        public void SetPosition(float x, float y, bool useAnimation = true)
         {
-            viewArranger.SetPosition(x, y);
+            viewArranger.SetPosition(x, y, useAnimation);
+        }
+
+        public void SetInteractable(bool isInteractable)
+        {
+            postButtonView?.SetInteractable(isInteractable);
+            repostButtonView?.SetInteractable(isInteractable);
+            likeButtonView?.SetInteractable(isInteractable);
+        }
+
+        public void StopAnimations()
+        {
+            if (viewArranger != null)
+            {
+                viewArranger.StopAnimations();
+            }
+
+            var buttonAnimators = GetComponentsInChildren<ButtonAnimator>(true);
+            for (var i = 0; i < buttonAnimators.Length; i++)
+            {
+                var buttonAnimator = buttonAnimators[i];
+                if (buttonAnimator == null)
+                {
+                    continue;
+                }
+
+                buttonAnimator.StopAnimations();
+            }
+
+            var transforms = GetComponentsInChildren<Transform>(true);
+            for (var i = 0; i < transforms.Length; i++)
+            {
+                var target = transforms[i];
+                if (target == null)
+                {
+                    continue;
+                }
+
+                DOTween.Kill(target);
+            }
+
+            var spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+            for (var i = 0; i < spriteRenderers.Length; i++)
+            {
+                var target = spriteRenderers[i];
+                if (target == null)
+                {
+                    continue;
+                }
+
+                DOTween.Kill(target);
+            }
+
+            var texts = GetComponentsInChildren<TMP_Text>(true);
+            for (var i = 0; i < texts.Length; i++)
+            {
+                var target = texts[i];
+                if (target == null)
+                {
+                    continue;
+                }
+
+                DOTween.Kill(target);
+            }
         }
 
         void SubscribePostState()

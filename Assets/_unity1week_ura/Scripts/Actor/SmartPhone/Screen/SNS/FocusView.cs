@@ -13,6 +13,7 @@ namespace Unity1Week_Ura.Actor
         public Observable<Post> OnPostClicked => onPostClicked;
         public Observable<Post> OnLikedByPlayer => onLikedByPlayer;
         public Observable<Post> OnRepostedByPlayer => onRepostedByPlayer;
+        public Observable<Post> OnDraftDropped => onDraftDropped;
 
         [Header("Components")]
         [SerializeField] Transform mainPostParent;
@@ -30,24 +31,34 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] float wheelScrollStep = 0.45f;
         [SerializeField] float bottomSpacingAtMaxScroll = 1f;
 
+        readonly List<PostView> ancestorPostViews = new();
         readonly List<PostView> replyPostViews = new();
         readonly CompositeDisposable disposables = new();
-        readonly CompositeDisposable replyPostViewEventDisposables = new();
+        readonly CompositeDisposable postViewEventDisposables = new();
         readonly Subject<Post> onPostClicked = new();
         readonly Subject<Post> onLikedByPlayer = new();
         readonly Subject<Post> onRepostedByPlayer = new();
+        readonly Subject<Post> onDraftDropped = new();
         PostView mainPostView;
         float scrollOffsetY;
+        float mainPostTopAlignOffsetY;
         CancellationTokenSource cts;
+        Account currentPlayerAccount;
 
         public void Initialize()
         {
             disposables.Clear();
             scrollBarView?.Initialize();
             publishFieldView?.Initialize();
+            if (publishFieldView != null)
+            {
+                publishFieldView.OnScrolled.Subscribe(OnScrolled).AddTo(disposables);
+                publishFieldView.OnDraftDropped.Subscribe(onDraftDropped.OnNext).AddTo(disposables);
+            }
 
             if (pointerEventObserver == null)
             {
+                UpdateScrollBar(0f, GetViewportHeight(), 0f);
                 return;
             }
 
@@ -71,84 +82,131 @@ namespace Unity1Week_Ura.Actor
 
             var mainPostViewParent = mainPostParent != null ? mainPostParent : timelinePostParent;
             mainPostView = postViewFactory.Create(mainPost, mainPostViewParent);
-            mainPostView.OnPostClicked.Subscribe(onPostClicked.OnNext).AddTo(replyPostViewEventDisposables);
-            mainPostView.OnLikedByPlayer.Subscribe(onLikedByPlayer.OnNext).AddTo(replyPostViewEventDisposables);
-            mainPostView.OnRepostedByPlayer.Subscribe(onRepostedByPlayer.OnNext).AddTo(replyPostViewEventDisposables);
-            mainPostView.OnScrolled.Subscribe(OnScrolled).AddTo(replyPostViewEventDisposables);
+            mainPostView.OnPostClicked.Subscribe(onPostClicked.OnNext).AddTo(postViewEventDisposables);
+            mainPostView.OnLikedByPlayer.Subscribe(onLikedByPlayer.OnNext).AddTo(postViewEventDisposables);
+            mainPostView.OnRepostedByPlayer.Subscribe(onRepostedByPlayer.OnNext).AddTo(postViewEventDisposables);
+            mainPostView.OnScrolled.Subscribe(OnScrolled).AddTo(postViewEventDisposables);
 
-            publishFieldView.gameObject.SetActive(true);
-
-            // リプライを取得して生成
-            var replies = await postViewFactory.CreateRepliesAsync(mainPost, timelinePostParent, linkedCt);
-            linkedCt.ThrowIfCancellationRequested();
-
-            foreach (var replyView in replies)
+            if (publishFieldView != null)
             {
-                replyView.OnPostClicked.Subscribe(onPostClicked.OnNext).AddTo(replyPostViewEventDisposables);
-                replyView.OnLikedByPlayer.Subscribe(onLikedByPlayer.OnNext).AddTo(replyPostViewEventDisposables);
-                replyView.OnRepostedByPlayer.Subscribe(onRepostedByPlayer.OnNext).AddTo(replyPostViewEventDisposables);
-                replyView.OnScrolled.Subscribe(OnScrolled).AddTo(replyPostViewEventDisposables);
-                replyPostViews.Add(replyView);
+                publishFieldView.gameObject.SetActive(true);
+                publishFieldView.SetCurrentPlayerAccount(currentPlayerAccount);
             }
 
-            ArrangeElements();
+            var ancestors = await postViewFactory.CreateAncestorPostsAsync(mainPost, mainPostViewParent, linkedCt);
+            linkedCt.ThrowIfCancellationRequested();
+            for (int i = 0; i < ancestors.Count; i++)
+            {
+                RegisterPostView(ancestors[i]);
+                ancestorPostViews.Add(ancestors[i]);
+            }
+
+            var replies = await postViewFactory.CreateRepliesAsync(mainPost, timelinePostParent, linkedCt);
+            linkedCt.ThrowIfCancellationRequested();
+            for (int i = 0; i < replies.Count; i++)
+            {
+                RegisterPostView(replies[i]);
+                replyPostViews.Add(replies[i]);
+            }
+
+            mainPostTopAlignOffsetY = GetAncestorContentHeight();
+            scrollOffsetY = mainPostTopAlignOffsetY;
+            ArrangeElements(useAnimation: false);
         }
 
         public void ClearPosts()
         {
-            replyPostViewEventDisposables.Clear();
+            postViewEventDisposables.Clear();
 
-            if (mainPostView != null && mainPostView.gameObject != null)
-            {
-                Destroy(mainPostView.gameObject);
-            }
+            DestroyPostView(mainPostView);
             mainPostView = null;
 
-            foreach (var replyView in replyPostViews)
+            for (int i = 0; i < ancestorPostViews.Count; i++)
             {
-                if (replyView != null && replyView.gameObject != null)
-                {
-                    Destroy(replyView.gameObject);
-                }
+                DestroyPostView(ancestorPostViews[i]);
+            }
+            ancestorPostViews.Clear();
+
+            for (int i = 0; i < replyPostViews.Count; i++)
+            {
+                DestroyPostView(replyPostViews[i]);
             }
             replyPostViews.Clear();
 
-            publishFieldView.gameObject.SetActive(false);
+            if (publishFieldView != null)
+            {
+                publishFieldView.gameObject.SetActive(false);
+            }
 
             scrollOffsetY = 0f;
+            mainPostTopAlignOffsetY = 0f;
             UpdateScrollBar(0f, GetViewportHeight(), 0f);
         }
 
-        void ArrangeElements()
+        void RegisterPostView(PostView postView)
         {
-            float topY = topEdgeTransform != null ? topEdgeTransform.localPosition.y : 0f;
+            postView.OnPostClicked.Subscribe(onPostClicked.OnNext).AddTo(postViewEventDisposables);
+            postView.OnLikedByPlayer.Subscribe(onLikedByPlayer.OnNext).AddTo(postViewEventDisposables);
+            postView.OnRepostedByPlayer.Subscribe(onRepostedByPlayer.OnNext).AddTo(postViewEventDisposables);
+            postView.OnScrolled.Subscribe(OnScrolled).AddTo(postViewEventDisposables);
+        }
+
+        void DestroyPostView(PostView postView)
+        {
+            if (postView == null || postView.gameObject == null)
+            {
+                return;
+            }
+
+            postView.StopAnimations();
+            Destroy(postView.gameObject);
+        }
+
+        public void SetCurrentPlayerAccount(Account account)
+        {
+            currentPlayerAccount = account;
+            publishFieldView?.SetCurrentPlayerAccount(account);
+        }
+
+        void ArrangeElements(bool useAnimation = true)
+        {
+            float viewportTopY = topEdgeTransform != null ? topEdgeTransform.localPosition.y : 0f;
+            float topY = viewportTopY;
             float contentHeight = GetContentHeight();
             float viewportHeight = GetViewportHeight();
             float clampedOffsetY = GetClampedScrollOffsetY();
 
-            // 1. メインポストの配置
+            for (int i = 0; i < ancestorPostViews.Count; i++)
+            {
+                var ancestorView = ancestorPostViews[i];
+                float y = topY - ancestorView.Height * 0.5f + clampedOffsetY;
+                ancestorView.SetPosition(0, y, useAnimation);
+                UpdatePostClickability(ancestorView, y, viewportTopY, viewportHeight);
+                topY -= ancestorView.Height;
+            }
+
             if (mainPostView != null)
             {
                 float y = topY - mainPostView.Height * 0.5f + clampedOffsetY;
-                mainPostView.SetPosition(0, y);
+                mainPostView.SetPosition(0, y, useAnimation);
+                UpdatePostClickability(mainPostView, y, viewportTopY, viewportHeight);
                 topY -= mainPostView.Height;
             }
 
-            // 2. PublishFieldの配置
-            if (publishFieldView.gameObject.activeSelf)
+            if (publishFieldView != null && publishFieldView.gameObject.activeSelf)
             {
                 float y = topY - publishFieldView.Height * 0.5f + clampedOffsetY;
-                publishFieldView.SetPosition(0, y);
+                publishFieldView.SetPosition(0, y, useAnimation);
                 topY -= publishFieldView.Height;
             }
 
-            // 3. 返信ポストの配置
             for (int i = 0; i < replyPostViews.Count; i++)
             {
-                var postView = replyPostViews[i];
-                float y = topY - postView.Height * 0.5f + clampedOffsetY;
-                postView.SetPosition(0, y);
-                topY -= postView.Height;
+                var replyView = replyPostViews[i];
+                float y = topY - replyView.Height * 0.5f + clampedOffsetY;
+                replyView.SetPosition(0, y, useAnimation);
+                UpdatePostClickability(replyView, y, viewportTopY, viewportHeight);
+                topY -= replyView.Height;
             }
 
             scrollOffsetY = clampedOffsetY;
@@ -171,7 +229,8 @@ namespace Unity1Week_Ura.Actor
 
         float GetMaxScrollOffset(float contentHeight, float viewportHeight)
         {
-            return Mathf.Max(0f, contentHeight + bottomSpacingAtMaxScroll - viewportHeight);
+            float defaultMaxOffset = Mathf.Max(0f, contentHeight + bottomSpacingAtMaxScroll - viewportHeight);
+            return Mathf.Max(mainPostTopAlignOffsetY, defaultMaxOffset);
         }
 
         float GetViewportHeight()
@@ -199,13 +258,15 @@ namespace Unity1Week_Ura.Actor
         float GetContentHeight()
         {
             float total = 0f;
-            
+
+            total += GetAncestorContentHeight();
+
             if (mainPostView != null)
             {
                 total += mainPostView.Height;
             }
 
-            if (publishFieldView.gameObject.activeSelf)
+            if (publishFieldView != null && publishFieldView.gameObject.activeSelf)
             {
                 total += publishFieldView.Height;
             }
@@ -218,6 +279,17 @@ namespace Unity1Week_Ura.Actor
             return total;
         }
 
+        float GetAncestorContentHeight()
+        {
+            float total = 0f;
+            for (int i = 0; i < ancestorPostViews.Count; i++)
+            {
+                total += ancestorPostViews[i].Height;
+            }
+
+            return total;
+        }
+
         void UpdateScrollBar(float contentHeight, float viewportHeight, float clampedOffsetY)
         {
             if (scrollBarView == null)
@@ -225,23 +297,42 @@ namespace Unity1Week_Ura.Actor
                 return;
             }
 
-            float visualContentHeight = contentHeight + bottomSpacingAtMaxScroll;
+            float maxOffset = GetMaxScrollOffset(contentHeight, viewportHeight);
+            float visualContentHeight = viewportHeight + maxOffset;
             scrollBarView.UpdateVisual(visualContentHeight, viewportHeight, clampedOffsetY);
+        }
+
+        void UpdatePostClickability(PostView postView, float centerY, float viewportTopY, float viewportHeight)
+        {
+            if (postView == null)
+            {
+                return;
+            }
+
+            float halfHeight = postView.Height * 0.5f;
+            float postTopY = centerY + halfHeight;
+            float postBottomY = centerY - halfHeight;
+            float viewportBottomY = viewportTopY - viewportHeight;
+
+            bool isWithinViewport = postBottomY < viewportTopY && postTopY > viewportBottomY;
+            postView.SetInteractable(isWithinViewport);
         }
 
         void OnDestroy()
         {
             cts?.Cancel();
             cts?.Dispose();
-            
+
             disposables.Dispose();
-            replyPostViewEventDisposables.Dispose();
+            postViewEventDisposables.Dispose();
             onPostClicked.OnCompleted();
             onPostClicked.Dispose();
             onLikedByPlayer.OnCompleted();
             onLikedByPlayer.Dispose();
             onRepostedByPlayer.OnCompleted();
             onRepostedByPlayer.Dispose();
+            onDraftDropped.OnCompleted();
+            onDraftDropped.Dispose();
         }
     }
 }

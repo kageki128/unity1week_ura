@@ -9,10 +9,10 @@ namespace Unity1Week_Ura.Actor
 {
     public class GamePhoneScreenView : PhoneScreenViewBase
     {
-        public Observable<Post> OnDraftDroppedToPublish => timelineGameSubScreenView.OnDraftDroppedToPublish;
+        public Observable<Post> OnDraftDroppedToPublish => onDraftDroppedToPublish;
         public Observable<Account> OnPlayerAccountClicked => timelineGameSubScreenView.OnPlayerAccountClicked;
-        public Observable<Post> OnLikedByPlayer => timelineGameSubScreenView.OnLikedByPlayer;
-        public Observable<Post> OnRepostedByPlayer => timelineGameSubScreenView.OnRepostedByPlayer;
+        public Observable<Post> OnLikedByPlayer => onLikedByPlayer;
+        public Observable<Post> OnRepostedByPlayer => onRepostedByPlayer;
         public Observable<Unit> OnSelectSceneButtonClicked => settingGameSubScreenView.OnSelectSceneButtonClicked;
         public Observable<Unit> OnRestartButtonClicked => settingGameSubScreenView.OnRestartButtonClicked;
 
@@ -22,22 +22,45 @@ namespace Unity1Week_Ura.Actor
 
         readonly Dictionary<GameScreenType, PhoneScreenViewBase> subScreens = new();
         readonly SemaphoreSlim screenSemaphore = new(1, 1);
+        readonly CompositeDisposable disposables = new();
+        Observable<Post> onDraftDroppedToPublish;
+        Observable<Post> onLikedByPlayer;
+        Observable<Post> onRepostedByPlayer;
 
         GameScreenType currentScreenType = GameScreenType.Timeline;
+        bool isBackFromFocusProcessing;
 
         public override void Initialize(ScreenTransitionViewHub screenTransitionViewHub)
         {
             base.Initialize(screenTransitionViewHub);
+            disposables.Clear();
 
             subScreens.Clear();
             subScreens.Add(GameScreenType.Timeline, timelineGameSubScreenView);
             subScreens.Add(GameScreenType.Setting, settingGameSubScreenView);
             subScreens.Add(GameScreenType.Focus, focusGameSubScreenView);
 
-            timelineGameSubScreenView.OnSettingButtonClicked.Subscribe(_ => ChangeScreenAsync(GameScreenType.Setting, destroyCancellationToken).Forget()).AddTo(this);
-            settingGameSubScreenView.OnTimelineButtonClicked.Subscribe(_ => ChangeScreenAsync(GameScreenType.Timeline, destroyCancellationToken).Forget()).AddTo(this);
-            timelineGameSubScreenView.OnPostClicked.Subscribe(post => GoToFocusScreenAsync(post, destroyCancellationToken).Forget()).AddTo(this);
-            focusGameSubScreenView.OnTimelineButtonClicked.Subscribe(_ => ChangeScreenAsync(GameScreenType.Timeline, destroyCancellationToken).Forget()).AddTo(this);
+            timelineGameSubScreenView.OnSettingButtonClicked.Subscribe(_ => ChangeScreenAsync(GameScreenType.Setting, destroyCancellationToken).Forget()).AddTo(disposables);
+            settingGameSubScreenView.OnTimelineButtonClicked.Subscribe(_ => ChangeScreenAsync(GameScreenType.Timeline, destroyCancellationToken).Forget()).AddTo(disposables);
+            timelineGameSubScreenView.OnPostClicked.Subscribe(post => GoToFocusScreenAsync(post, destroyCancellationToken).Forget()).AddTo(disposables);
+            focusGameSubScreenView.OnPostClicked.Subscribe(post => FocusCurrentPostAsync(post, destroyCancellationToken).Forget()).AddTo(disposables);
+            focusGameSubScreenView.OnTimelineButtonClicked.Subscribe(_ => BackFromFocusAsync(destroyCancellationToken).Forget()).AddTo(disposables);
+
+            onDraftDroppedToPublish = Observable.Merge(new[]
+            {
+                timelineGameSubScreenView.OnDraftDroppedToPublish,
+                focusGameSubScreenView.OnDraftDropped
+            });
+            onLikedByPlayer = Observable.Merge(new[]
+            {
+                timelineGameSubScreenView.OnLikedByPlayer,
+                focusGameSubScreenView.OnLikedByPlayer
+            });
+            onRepostedByPlayer = Observable.Merge(new[]
+            {
+                timelineGameSubScreenView.OnRepostedByPlayer,
+                focusGameSubScreenView.OnRepostedByPlayer
+            });
 
             foreach (var screen in subScreens.Values)
             {
@@ -94,14 +117,91 @@ namespace Unity1Week_Ura.Actor
 
         async UniTask GoToFocusScreenAsync(Post post, CancellationToken ct)
         {
-            await focusGameSubScreenView.SetPost(post, ct);
+            if (post == null)
+            {
+                return;
+            }
+
+            focusGameSubScreenView.SetPost(post);
             await ChangeScreenAsync(GameScreenType.Focus, ct);
+        }
+
+        async UniTask FocusCurrentPostAsync(Post post, CancellationToken ct)
+        {
+            if (post == null)
+            {
+                return;
+            }
+
+            await screenSemaphore.WaitAsync(ct);
+            try
+            {
+                if (currentScreenType != GameScreenType.Focus)
+                {
+                    return;
+                }
+
+                await focusGameSubScreenView.FocusPostAsync(post, ct);
+            }
+            finally
+            {
+                screenSemaphore.Release();
+            }
+        }
+
+        async UniTask BackFromFocusAsync(CancellationToken ct)
+        {
+            if (isBackFromFocusProcessing)
+            {
+                return;
+            }
+
+            isBackFromFocusProcessing = true;
+            bool movedToPreviousFocus = false;
+
+            try
+            {
+                await screenSemaphore.WaitAsync(ct);
+                try
+                {
+                    if (currentScreenType != GameScreenType.Focus)
+                    {
+                        return;
+                    }
+
+                    movedToPreviousFocus = await focusGameSubScreenView.BackToPreviousFocusAsync(ct);
+                }
+                finally
+                {
+                    screenSemaphore.Release();
+                }
+
+                if (movedToPreviousFocus)
+                {
+                    return;
+                }
+
+                await ChangeScreenAsync(GameScreenType.Timeline, ct);
+            }
+            finally
+            {
+                isBackFromFocusProcessing = false;
+            }
         }
 
         public void AddPost(Post post) => timelineGameSubScreenView.AddPost(post);
         public void ClearPosts() => timelineGameSubScreenView.ClearPosts();
-        public void SetPlayerAccounts(IReadOnlyList<Account> accounts) => timelineGameSubScreenView.SetPlayerAccounts(accounts);
-        public void SetSelectedPlayerAccount(Account account) => timelineGameSubScreenView.SetSelectedPlayerAccount(account);
+        public void SetPlayerAccounts(IReadOnlyList<Account> accounts)
+        {
+            timelineGameSubScreenView.SetPlayerAccounts(accounts);
+            Account initialAccount = accounts != null && accounts.Count > 0 ? accounts[0] : null;
+            focusGameSubScreenView.SetCurrentPlayerAccount(initialAccount);
+        }
+        public void SetSelectedPlayerAccount(Account account)
+        {
+            timelineGameSubScreenView.SetSelectedPlayerAccount(account);
+            focusGameSubScreenView.SetCurrentPlayerAccount(account);
+        }
 
         PhoneScreenViewBase GetScreenView(GameScreenType screenType)
         {
@@ -115,6 +215,7 @@ namespace Unity1Week_Ura.Actor
 
         void OnDestroy()
         {
+            disposables.Dispose();
             screenSemaphore.Dispose();
         }
     }

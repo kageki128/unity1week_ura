@@ -8,6 +8,7 @@ namespace Unity1Week_Ura.Actor
     public class PublishFieldView : MonoBehaviour
     {
         public Observable<Post> OnDraftDropped => onDraftDropped;
+        public Observable<PointerEventData> OnScrolled => pointerEventObserver.OnScrolled;
         readonly Subject<Post> onDraftDropped = new();
 
         public float Width => viewArranger.Width;
@@ -55,7 +56,7 @@ namespace Unity1Week_Ura.Actor
             accountIcon.sprite = account?.Icon;
         }
 
-        public void SetPosition(float x, float y) => viewArranger.SetPosition(x, y);
+        public void SetPosition(float x, float y, bool useAnimation = true) => viewArranger.SetPosition(x, y, useAnimation);
 
         void OnDestroy()
         {

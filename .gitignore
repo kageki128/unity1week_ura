@@ -227,3 +227,4 @@ crashlytics-build.properties
 .github/
 .cursor/
 .agents/
+AGENTS.md
