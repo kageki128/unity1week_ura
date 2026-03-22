@@ -17,6 +17,7 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] PointerEventObserver pointerEventObserver;
         [SerializeField] SpriteRenderer accountIcon;
         [SerializeField] ViewArranger viewArranger;
+        [SerializeField] PostType acceptedPostType = PostType.Normal;
 
         readonly CompositeDisposable disposables = new();
 
@@ -42,8 +43,14 @@ namespace Unity1Week_Ura.Actor
                 return;
             }
 
+            var post = draftView.post;
+            if (post == null || post.Type != acceptedPostType)
+            {
+                return;
+            }
+
             draftView.MarkAsDroppedOnPublishField();
-            onDraftDropped.OnNext(draftView.post);
+            onDraftDropped.OnNext(post);
         }
 
         public void SetCurrentPlayerAccount(Account account)

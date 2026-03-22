@@ -6,7 +6,8 @@ namespace Unity1Week_Ura.Core
     public class Post
     {
         public PostProperty Property { get; }
-        public bool IsReply => !string.IsNullOrEmpty(Property.ParentPostId);
+        public PostType Type => string.IsNullOrEmpty(Property.ParentPostId) ? PostType.Normal : PostType.Reply;
+        public bool IsReply => Type == PostType.Reply;
 
         readonly int defaultLikeCount;
         readonly int defaultRepostCount;
