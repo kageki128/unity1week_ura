@@ -8,6 +8,7 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] float minThumbLength = 0.4f;
         [SerializeField] bool hideWhenNotScrollable = true;
 
+        bool isCached;
         Vector3 thumbBaseLocalScale;
         float thumbBaseCenterY;
         float thumbMovableAreaLength;
@@ -68,9 +69,15 @@ namespace Unity1Week_Ura.Actor
 
         void CacheBaseStateIfNeeded()
         {
+            if (isCached)
+            {
+                return;
+            }
+
             thumbBaseLocalScale = thumb.localScale;
             thumbBaseCenterY = thumb.localPosition.y;
             thumbMovableAreaLength = Mathf.Abs(thumbBaseLocalScale.y);
+            isCached = true;
         }
     }
 }

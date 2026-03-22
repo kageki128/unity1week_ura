@@ -1002,7 +1002,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 121928758}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d93f70cbebce4f77baaf4f420c5fcb39, type: 3}
+  m_Script: {fileID: 11500000, guid: 510ffe31b42fd8742b4ed8cfb5238ea4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.ScrollBarView
   thumb: {fileID: 121928759}
@@ -2257,7 +2257,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &354892795
 Transform:
   m_ObjectHideFlags: 0
@@ -3008,7 +3008,7 @@ MonoBehaviour:
   timelinePostParent: {fileID: 372057065}
   pointerEventObserver: {fileID: 1840996769}
   viewportCollider: {fileID: 1840996768}
-  scrollBarView: {fileID: 1409970493}
+  scrollBarView: {fileID: 1409970495}
   wheelScrollStep: 0.45
   bottomSpacingAtMaxScroll: 1
 --- !u!1 &437063974
@@ -6598,7 +6598,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1158059795
 Transform:
   m_ObjectHideFlags: 0
@@ -7549,7 +7549,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1409970492}
   - component: {fileID: 1409970494}
-  - component: {fileID: 1409970493}
+  - component: {fileID: 1409970495}
   m_Layer: 0
   m_Name: ScrollBar
   m_TagString: Untagged
@@ -7572,21 +7572,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 433196082}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1409970493
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1409970491}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d93f70cbebce4f77baaf4f420c5fcb39, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.ScrollBarView
-  thumb: {fileID: 1409970492}
-  minThumbLength: 0.4
-  hideWhenNotScrollable: 1
 --- !u!212 &1409970494
 SpriteRenderer:
   serializedVersion: 2
@@ -7646,6 +7631,21 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &1409970495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1409970491}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 510ffe31b42fd8742b4ed8cfb5238ea4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.ScrollBarView
+  thumb: {fileID: 1409970492}
+  minThumbLength: 0.4
+  hideWhenNotScrollable: 1
 --- !u!1 &1424786206
 GameObject:
   m_ObjectHideFlags: 0
