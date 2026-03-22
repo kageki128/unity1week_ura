@@ -11,6 +11,7 @@ namespace Unity1Week_Ura.Actor
     {
         public Observable<Post> OnDraftDroppedToPublish => publishFieldView.OnDraftDropped;
         public Observable<Account> OnPlayerAccountClicked => playerAccountListView.OnClicked;
+        public Observable<Post> OnPostClicked => timelineView.OnPostClicked;
         public Observable<Post> OnLikedByPlayer => timelineView.OnLikedByPlayer;
         public Observable<Post> OnRepostedByPlayer => timelineView.OnRepostedByPlayer;
         public Observable<Unit> OnSettingButtonClicked => settingButtonView.OnClicked;

@@ -17,6 +17,8 @@ namespace Unity1Week_Ura.CompositionRoot
         [SerializeField] SelectViewHub selectViewHub;
         [SerializeField] GameViewHub gameViewHub;
         [SerializeField] ResultViewHub resultViewHub;
+        [Header("Factory")]
+        [SerializeField] PostViewFactory postViewFactory;
 
         [Header("SO")]
         [SerializeField] GameConfigSO gameConfig;
@@ -47,6 +49,7 @@ namespace Unity1Week_Ura.CompositionRoot
             builder.RegisterInstance(selectViewHub);
             builder.RegisterInstance(gameViewHub);
             builder.RegisterInstance(resultViewHub);
+            builder.RegisterComponent(postViewFactory);
         }
         void RegisterDirector(IContainerBuilder builder)
         {

@@ -2,6 +2,7 @@ using R3;
 using TMPro;
 using Unity1Week_Ura.Core;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Unity1Week_Ura.Actor
 {
@@ -10,8 +11,10 @@ namespace Unity1Week_Ura.Actor
         public Post post { get; private set; }
         public float Width => viewArranger.Width;
         public float Height => viewArranger.Height;
+        public Observable<Post> OnPostClicked => onPostClicked;
         public Observable<Post> OnLikedByPlayer => onLikedByPlayer;
         public Observable<Post> OnRepostedByPlayer => onRepostedByPlayer;
+        public Observable<PointerEventData> OnScrolled => onScrolled;
 
         [Header("Layout")]
         [SerializeField] ViewArranger viewArranger;
@@ -41,6 +44,7 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] Color repltTextColor = new Color32(0xEE, 0x5A, 0x7F, 0xFF);
 
         [Header("Action Buttons")]
+        [SerializeField] ButtonView postButtonView;
         [SerializeField] ButtonView repostButtonView;
         [SerializeField] ButtonView likeButtonView;
         [SerializeField] SpriteRenderer repostIconImage;
@@ -52,8 +56,10 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] Color likeActiveColor = new Color32(0xF9, 0x18, 0x80, 0xFF);
 
         readonly CompositeDisposable disposables = new();
+        readonly Subject<Post> onPostClicked = new();
         readonly Subject<Post> onLikedByPlayer = new();
         readonly Subject<Post> onRepostedByPlayer = new();
+        readonly Subject<UnityEngine.EventSystems.PointerEventData> onScrolled = new();
 
         public void Initialize(Post post)
         {
@@ -176,15 +182,28 @@ namespace Unity1Week_Ura.Actor
 
         void SubscribeActions()
         {
+            if (postButtonView != null)
+            {
+                postButtonView.OnClicked.Subscribe(_ => OnPostClickedEvent()).AddTo(disposables);
+                postButtonView.OnScrolled.Subscribe(onScrolled.OnNext).AddTo(disposables);
+            }
+
             if (repostButtonView != null)
             {
                 repostButtonView.OnClicked.Subscribe(_ => OnRepostClicked()).AddTo(disposables);
+                repostButtonView.OnScrolled.Subscribe(onScrolled.OnNext).AddTo(disposables);
             }
 
             if (likeButtonView != null)
             {
                 likeButtonView.OnClicked.Subscribe(_ => OnLikeClicked()).AddTo(disposables);
+                likeButtonView.OnScrolled.Subscribe(onScrolled.OnNext).AddTo(disposables);
             }
+        }
+
+        void OnPostClickedEvent()
+        {
+            onPostClicked.OnNext(post);
         }
 
         void OnRepostClicked()
@@ -256,10 +275,14 @@ namespace Unity1Week_Ura.Actor
         void OnDestroy()
         {
             disposables.Dispose();
+            onPostClicked.OnCompleted();
+            onPostClicked.Dispose();
             onLikedByPlayer.OnCompleted();
             onLikedByPlayer.Dispose();
             onRepostedByPlayer.OnCompleted();
             onRepostedByPlayer.Dispose();
+            onScrolled.OnCompleted();
+            onScrolled.Dispose();
         }
     }
 }

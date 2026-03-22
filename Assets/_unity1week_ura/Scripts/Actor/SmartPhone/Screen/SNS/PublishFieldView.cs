@@ -10,8 +10,12 @@ namespace Unity1Week_Ura.Actor
         public Observable<Post> OnDraftDropped => onDraftDropped;
         readonly Subject<Post> onDraftDropped = new();
 
+        public float Width => viewArranger.Width;
+        public float Height => viewArranger.Height;
+
         [SerializeField] PointerEventObserver pointerEventObserver;
         [SerializeField] SpriteRenderer accountIcon;
+        [SerializeField] ViewArranger viewArranger;
 
         readonly CompositeDisposable disposables = new();
 
@@ -50,6 +54,8 @@ namespace Unity1Week_Ura.Actor
 
             accountIcon.sprite = account?.Icon;
         }
+
+        public void SetPosition(float x, float y) => viewArranger.SetPosition(x, y);
 
         void OnDestroy()
         {

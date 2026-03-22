@@ -139,6 +139,30 @@ namespace Unity1Week_Ura.Infrastructure
             throw new KeyNotFoundException($"Post not found. postId: {postId}");
         }
 
+        public async UniTask<List<Post>> GetRepliesAsync(string postId, CancellationToken ct)
+        {
+            if (string.IsNullOrEmpty(postId))
+            {
+                throw new ArgumentException("postId is null or empty.", nameof(postId));
+            }
+
+            await EnsurePostsLoadedAsync(ct);
+
+            var replies = new List<Post>();
+            foreach (var post in postsById.Values)
+            {
+                if (post.Property.ParentPostId == postId)
+                {
+                    replies.Add(post);
+                }
+            }
+
+            // リプライはID順、もしくは投稿日時順（今回はPostに日時がなければ元の要素順など）でソートするのがよいですが、
+            // ひとまずCSV順（postsById.Valuesの列挙順）とします。
+
+            return replies;
+        }
+
         async UniTask EnsurePostsLoadedAsync(CancellationToken ct)
         {
             if (isLoaded)

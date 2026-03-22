@@ -18,6 +18,7 @@ namespace Unity1Week_Ura.Actor
 
         [SerializeField] TimelineGameSubScreenView timelineGameSubScreenView;
         [SerializeField] SettingGameSubScreenView settingGameSubScreenView;
+        [SerializeField] FocusGameSubScreenView focusGameSubScreenView;
 
         readonly Dictionary<GameScreenType, PhoneScreenViewBase> subScreens = new();
         readonly SemaphoreSlim screenSemaphore = new(1, 1);
@@ -31,9 +32,12 @@ namespace Unity1Week_Ura.Actor
             subScreens.Clear();
             subScreens.Add(GameScreenType.Timeline, timelineGameSubScreenView);
             subScreens.Add(GameScreenType.Setting, settingGameSubScreenView);
+            subScreens.Add(GameScreenType.Focus, focusGameSubScreenView);
 
             timelineGameSubScreenView.OnSettingButtonClicked.Subscribe(_ => ChangeScreenAsync(GameScreenType.Setting, destroyCancellationToken).Forget()).AddTo(this);
             settingGameSubScreenView.OnTimelineButtonClicked.Subscribe(_ => ChangeScreenAsync(GameScreenType.Timeline, destroyCancellationToken).Forget()).AddTo(this);
+            timelineGameSubScreenView.OnPostClicked.Subscribe(post => GoToFocusScreenAsync(post, destroyCancellationToken).Forget()).AddTo(this);
+            focusGameSubScreenView.OnTimelineButtonClicked.Subscribe(_ => ChangeScreenAsync(GameScreenType.Timeline, destroyCancellationToken).Forget()).AddTo(this);
 
             foreach (var screen in subScreens.Values)
             {
@@ -86,6 +90,12 @@ namespace Unity1Week_Ura.Actor
             {
                 screenSemaphore.Release();
             }
+        }
+
+        async UniTask GoToFocusScreenAsync(Post post, CancellationToken ct)
+        {
+            await focusGameSubScreenView.SetPost(post, ct);
+            await ChangeScreenAsync(GameScreenType.Focus, ct);
         }
 
         public void AddPost(Post post) => timelineGameSubScreenView.AddPost(post);
