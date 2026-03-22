@@ -13,13 +13,16 @@ namespace Unity1Week_Ura.Actor
         public Observable<Account> OnPlayerAccountClicked => timelineGameSubScreenView.OnPlayerAccountClicked;
         public Observable<Post> OnLikedByPlayer => timelineGameSubScreenView.OnLikedByPlayer;
         public Observable<Post> OnRepostedByPlayer => timelineGameSubScreenView.OnRepostedByPlayer;
+        public Observable<Unit> OnSelectSceneButtonClicked => settingGameSubScreenView.OnSelectSceneButtonClicked;
+        public Observable<Unit> OnRestartButtonClicked => settingGameSubScreenView.OnRestartButtonClicked;
 
         [SerializeField] TimelineGameSubScreenView timelineGameSubScreenView;
+        [SerializeField] SettingGameSubScreenView settingGameSubScreenView;
 
         readonly Dictionary<GameScreenType, PhoneScreenViewBase> subScreens = new();
         readonly SemaphoreSlim screenSemaphore = new(1, 1);
 
-        PhoneScreenViewBase currentScreen;
+        GameScreenType currentScreenType = GameScreenType.Timeline;
 
         public override void Initialize(ScreenTransitionViewHub screenTransitionViewHub)
         {
@@ -27,13 +30,15 @@ namespace Unity1Week_Ura.Actor
 
             subScreens.Clear();
             subScreens.Add(GameScreenType.Timeline, timelineGameSubScreenView);
+            subScreens.Add(GameScreenType.Setting, settingGameSubScreenView);
+
+            timelineGameSubScreenView.OnSettingButtonClicked.Subscribe(_ => ChangeScreenAsync(GameScreenType.Setting, destroyCancellationToken).Forget()).AddTo(this);
+            settingGameSubScreenView.OnTimelineButtonClicked.Subscribe(_ => ChangeScreenAsync(GameScreenType.Timeline, destroyCancellationToken).Forget()).AddTo(this);
 
             foreach (var screen in subScreens.Values)
             {
                 screen.Initialize(screenTransitionViewHub);
             }
-
-            currentScreen = GetScreenView(GameScreenType.Timeline);
 
             gameObject.SetActive(false);
         }
@@ -41,6 +46,8 @@ namespace Unity1Week_Ura.Actor
         public override async UniTask ShowAsync(CancellationToken ct)
         {
             gameObject.SetActive(true);
+
+            var currentScreen = GetScreenView(currentScreenType);
             await currentScreen.ShowAsync(ct);
             await screenTransitionViewHub.HideAsync(ct);
         }
@@ -48,6 +55,13 @@ namespace Unity1Week_Ura.Actor
         public override async UniTask HideAsync(CancellationToken ct)
         {
             await screenTransitionViewHub.ShowAsync(ScreenTransitionType.CircleWipe, ct);
+
+            foreach (var screen in subScreens.Values)
+            {
+                screen.gameObject.SetActive(false);
+            }
+            
+            currentScreenType = GameScreenType.Timeline;
             gameObject.SetActive(false);
         }
 
@@ -56,20 +70,17 @@ namespace Unity1Week_Ura.Actor
             await screenSemaphore.WaitAsync(ct);
             try
             {
+                var currentScreen = GetScreenView(currentScreenType);
                 var nextScreen = GetScreenView(targetType);
 
-                if (currentScreen == nextScreen)
+                if (currentScreenType == targetType)
                 {
                     return;
                 }
 
-                if (currentScreen != null)
-                {
-                    await currentScreen.HideAsync(ct);
-                }
-
-                currentScreen = nextScreen;
-                await currentScreen.ShowAsync(ct);
+                await currentScreen.HideAsync(ct);
+                await nextScreen.ShowAsync(ct);
+                currentScreenType = targetType;
             }
             finally
             {

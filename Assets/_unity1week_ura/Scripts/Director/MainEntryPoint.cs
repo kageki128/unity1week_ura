@@ -60,6 +60,11 @@ namespace Unity1Week_Ura.Director
                 HandleSceneTransition(from, to).Forget();
             }).AddTo(disposables);
 
+            sceneModel.OnSceneReload.Subscribe(scene =>
+            {
+                HandleSceneTransition(scene, scene).Forget();
+            }).AddTo(disposables);
+
             // 初期シーンのDirectorのEnterAsyncを呼び出す
             currentScene = sceneModel.CurrentScene.CurrentValue;
             await GetCurrentSceneDirector(currentScene).EnterAsync(ct);

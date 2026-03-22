@@ -64,12 +64,26 @@ namespace Unity1Week_Ura.Director
             gameViewHub.OnPlayerAccountClicked.Subscribe(gameSession.SetCurrentPlayerAccount).AddTo(disposables);
             gameViewHub.OnLikedByPlayer.Subscribe(gameSession.LikePostByPlayer).AddTo(disposables);
             gameViewHub.OnRepostedByPlayer.Subscribe(gameSession.RepostByPlayer).AddTo(disposables);
+            
+            gameViewHub.OnSelectSceneButtonClicked.Subscribe(_ => gameSession.CancelGame()).AddTo(disposables);
+            gameViewHub.OnRestartButtonClicked.Subscribe(_ => gameSession.RestartGame()).AddTo(disposables);
+            
             // UI
             gameSession.SelectedPlayerAccount.Subscribe(gameViewHub.SetSelectedPlayerAccount).AddTo(disposables);
             gameSession.Score.Subscribe(gameViewHub.SetScore).AddTo(disposables);
             gameSession.RemainingTimeSeconds.Subscribe(gameViewHub.SetRemainingTime).AddTo(disposables);
+            
             // ゲーム終了を購読
-            gameSession.CurrentGameState.Where(state => state == GameState.Finished).Take(1).Subscribe(_ =>
+            gameSession.OnGameCanceled.Subscribe(_ =>
+            {
+                sceneModel.ChangeScene(SceneType.Select);
+            }).AddTo(disposables);
+
+            gameSession.OnGameRestarted.Subscribe(_ =>
+            {
+                sceneModel.ReloadCurrentScene();
+            }).AddTo(disposables);
+            gameSession.OnGameFinished.Take(1).Subscribe(_ =>
             {
                 sceneModel.ChangeScene(SceneType.Result);
             }).AddTo(disposables);

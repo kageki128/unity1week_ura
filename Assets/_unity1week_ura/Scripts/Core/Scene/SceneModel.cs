@@ -8,6 +8,9 @@ namespace Unity1Week_Ura.Core
         public ReadOnlyReactiveProperty<SceneType> CurrentScene => currentScene;
         readonly ReactiveProperty<SceneType> currentScene = new(SceneType.Title);
 
+        public Observable<SceneType> OnSceneReload => onSceneReload;
+        readonly Subject<SceneType> onSceneReload = new();
+
         readonly SemaphoreSlim sceneTransitionSemaphore = new(1, 1);
 
         readonly GameConfigSO gameConfig;
@@ -38,6 +41,17 @@ namespace Unity1Week_Ura.Core
         public void ReleaseLock()
         {
             sceneTransitionSemaphore.Release();
+        }
+
+        public void ReloadCurrentScene()
+        {
+            if (!sceneTransitionSemaphore.Wait(0))
+            {
+                // シーン遷移中の場合は無視する
+                return;
+            }
+
+            onSceneReload.OnNext(currentScene.Value);
         }
     }
 }

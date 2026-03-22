@@ -11,12 +11,12 @@ namespace Unity1Week_Ura.Actor
         [Header("Dependencies")]
         [SerializeField] GameObject fadeObject;
 
-        [Header("Show (Fade Out to clear)")]
-        [SerializeField, Min(0f)] float showDuration = 0.5f;
+        [Header("Show (Fade In to white)")]
+        [SerializeField, Min(0f)] float showDuration = 0.15f;
         [SerializeField] Ease showEase = Ease.OutCubic;
 
-        [Header("Hide (Fade In to white)")]
-        [SerializeField, Min(0f)] float hideDuration = 0.5f;
+        [Header("Hide (Fade Out to clear)")]
+        [SerializeField, Min(0f)] float hideDuration = 0.15f;
         [SerializeField] Ease hideEase = Ease.InCubic;
 
         Tween currentTween;
@@ -30,23 +30,27 @@ namespace Unity1Week_Ura.Actor
             gameObject.SetActive(false);
         }
 
-        // ShowAsync in Transition means the screen becomes visible (wipe opening / fade out)
+        // ShowAsync in Transition means the transition effect appears (cover screen with white)
         public override async UniTask ShowAsync(CancellationToken ct)
-        {
-            ValidateDependencies();
-            SetFadeAlpha(1f);
-            gameObject.SetActive(true);
-            await PlayFadeAsync(0f, showDuration, showEase, ct);
-            gameObject.SetActive(false);
-        }
-
-        // HideAsync in Transition means the screen gets hidden (wipe closing / fade in)
-        public override async UniTask HideAsync(CancellationToken ct)
         {
             ValidateDependencies();
             gameObject.SetActive(true);
             SetFadeAlpha(0f);
-            await PlayFadeAsync(1f, hideDuration, hideEase, ct);
+            await PlayFadeAsync(1f, showDuration, showEase, ct);
+        }
+
+        // HideAsync in Transition means the transition effect disappears (uncover screen)
+        public override async UniTask HideAsync(CancellationToken ct)
+        {
+            ValidateDependencies();
+
+            if (!gameObject.activeSelf)
+            {
+                return;
+            }
+
+            await PlayFadeAsync(0f, hideDuration, hideEase, ct);
+            gameObject.SetActive(false);
         }
 
         async UniTask PlayFadeAsync(float targetAlpha, float duration, Ease ease, CancellationToken ct)

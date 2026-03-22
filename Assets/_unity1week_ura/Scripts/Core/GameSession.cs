@@ -24,6 +24,15 @@ namespace Unity1Week_Ura.Core
         public IReadOnlyObservableList<Post> PublishedPosts => timeline.PublishedPosts;
         public IReadOnlyObservableList<Post> DraftPosts => timeline.DraftPosts;
 
+        public Observable<Unit> OnGameCanceled => onGameCanceled;
+        readonly Subject<Unit> onGameCanceled = new();
+
+        public Observable<Unit> OnGameRestarted => onGameRestarted;
+        readonly Subject<Unit> onGameRestarted = new();
+
+        public Observable<Unit> OnGameFinished => onGameFinished;
+        readonly Subject<Unit> onGameFinished = new();
+
         readonly Timeline timeline;
         readonly ISocialSharePort socialSharePort;
         readonly GameConfigSO gameConfig;
@@ -85,6 +94,33 @@ namespace Unity1Week_Ura.Core
             currentGameState.Value = GameState.Pause;
         }
 
+        public void CancelGame()
+        {
+            if (currentGameState.CurrentValue != GameState.Playing && currentGameState.CurrentValue != GameState.Pause)
+            {
+                return;
+            }
+            onGameCanceled.OnNext(Unit.Default);
+            currentGameState.Value = GameState.Finished;
+        }
+
+        public void RestartGame()
+        {
+            if (currentGameState.CurrentValue != GameState.Playing && currentGameState.CurrentValue != GameState.Pause)
+            {
+                return;
+            }
+            onGameRestarted.OnNext(Unit.Default);
+            currentGameState.Value = GameState.Finished;
+        }
+
+        void FinishGame()
+        {
+            if (currentGameState.CurrentValue == GameState.Finished) return;
+            currentGameState.Value = GameState.Finished;
+            onGameFinished.OnNext(Unit.Default);
+        }
+
         public void Proceed(float deltaTime)
         {
             if (currentGameState.CurrentValue != GameState.Playing)
@@ -97,7 +133,7 @@ namespace Unity1Week_Ura.Core
             remainingTimeSeconds.Value = Mathf.Max(remainingTimeSeconds.Value - deltaTime, 0);
             if (remainingTimeSeconds.Value <= 0)
             {
-                currentGameState.Value = GameState.Finished;
+                FinishGame();
             }
         }
 
@@ -115,7 +151,7 @@ namespace Unity1Week_Ura.Core
             else
             {
                 // ゲームオーバー
-                currentGameState.Value = GameState.Finished;
+                FinishGame();
             }
         }
 
@@ -135,7 +171,7 @@ namespace Unity1Week_Ura.Core
 
             if (!timeline.IsCurrentPlayerAccountCorrectForAction(post))
             {
-                currentGameState.Value = GameState.Finished;
+                FinishGame();
                 return;
             }
 
@@ -165,7 +201,7 @@ namespace Unity1Week_Ura.Core
 
             if (!timeline.IsCurrentPlayerAccountCorrectForAction(post))
             {
-                currentGameState.Value = GameState.Finished;
+                FinishGame();
                 return;
             }
 
