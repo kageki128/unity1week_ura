@@ -85,7 +85,7 @@ namespace Unity1Week_Ura.Actor
         public override async UniTask HideAsync(CancellationToken ct)
         {
             StopShareComposeAnimations();
-            await screenTransitionViewHub.ShowAsync(ScreenTransitionType.CircleWipe, ct);
+            await screenTransitionViewHub.ShowAsync(ScreenTransitionType.AppIconLaunchPortrait, ct);
             ResetShareComposePresentation();
             gameObject.SetActive(false);
         }

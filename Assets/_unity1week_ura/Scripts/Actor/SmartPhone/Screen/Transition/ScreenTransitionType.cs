@@ -4,5 +4,7 @@ namespace Unity1Week_Ura.Actor
     {
         CircleWipe,
         WhiteFade,
+        AppIconLaunchPortrait,
+        AppIconLaunchLandscape,
     }
 }

@@ -9,19 +9,25 @@ namespace Unity1Week_Ura.Actor
     {
         [SerializeField] CircleWipeTransitionView circleWipeTransitionView;
         [SerializeField] WhiteFadeTransitionView whiteFadeTransitionView;
+        [SerializeField] AppIconLaunchTransitionView appIconLaunchTransitionView;
 
         Dictionary<ScreenTransitionType, AnimationViewBase> transitionViews = new();
         readonly SemaphoreSlim transitionSemaphore = new(1, 1);
 
         AnimationViewBase currentTransitionView;
+        ScreenTransitionType currentTransitionType;
+        bool hasCurrentTransitionType;
 
         public void Initialize()
         {
             transitionViews.Clear();
+            var appIconTransition = ResolveAppIconTransition();
             transitionViews = new Dictionary<ScreenTransitionType, AnimationViewBase>
             {
                 { ScreenTransitionType.CircleWipe, circleWipeTransitionView },
                 { ScreenTransitionType.WhiteFade, whiteFadeTransitionView },
+                { ScreenTransitionType.AppIconLaunchPortrait, appIconTransition },
+                { ScreenTransitionType.AppIconLaunchLandscape, appIconTransition },
             };
 
             foreach (var view in transitionViews)
@@ -30,6 +36,7 @@ namespace Unity1Week_Ura.Actor
             }
 
             currentTransitionView = null;
+            hasCurrentTransitionType = false;
         }
 
         public async UniTask ShowAsync(ScreenTransitionType type, CancellationToken ct)
@@ -37,9 +44,14 @@ namespace Unity1Week_Ura.Actor
             await transitionSemaphore.WaitAsync(ct);
             try
             {
-                var view = transitionViews[type];
+                if (!transitionViews.TryGetValue(type, out var view))
+                {
+                    throw new KeyNotFoundException($"Transition view for type {type} not found.");
+                }
 
-                if (currentTransitionView == view)
+                ConfigureTransitionView(type, view);
+
+                if (currentTransitionView == view && hasCurrentTransitionType && currentTransitionType == type)
                 {
                     return;
                 }
@@ -51,6 +63,8 @@ namespace Unity1Week_Ura.Actor
 
                 await view.ShowAsync(ct);
                 currentTransitionView = view;
+                currentTransitionType = type;
+                hasCurrentTransitionType = true;
             }
             finally
             {
@@ -70,6 +84,7 @@ namespace Unity1Week_Ura.Actor
 
                 await currentTransitionView.HideAsync(ct);
                 currentTransitionView = null;
+                hasCurrentTransitionType = false;
             }
             finally
             {
@@ -80,6 +95,45 @@ namespace Unity1Week_Ura.Actor
         void OnDestroy()
         {
             transitionSemaphore.Dispose();
+        }
+
+        AppIconLaunchTransitionView ResolveAppIconTransition()
+        {
+            if (appIconLaunchTransitionView != null)
+            {
+                return appIconLaunchTransitionView;
+            }
+
+            if (circleWipeTransitionView == null)
+            {
+                throw new KeyNotFoundException("ScreenTransitionViewHub: circleWipeTransitionView is not assigned.");
+            }
+
+            appIconLaunchTransitionView = circleWipeTransitionView.GetComponent<AppIconLaunchTransitionView>();
+            if (appIconLaunchTransitionView != null)
+            {
+                return appIconLaunchTransitionView;
+            }
+
+            throw new KeyNotFoundException("ScreenTransitionViewHub: appIconLaunchTransitionView is not assigned. Assign it in Inspector.");
+        }
+
+        void ConfigureTransitionView(ScreenTransitionType type, AnimationViewBase view)
+        {
+            if (view is not AppIconLaunchTransitionView appIconLaunchTransition)
+            {
+                return;
+            }
+
+            switch (type)
+            {
+                case ScreenTransitionType.AppIconLaunchLandscape:
+                    appIconLaunchTransition.SetIconRotationOffset(-90f);
+                    return;
+                case ScreenTransitionType.AppIconLaunchPortrait:
+                    appIconLaunchTransition.SetIconRotationOffset(0f);
+                    return;
+            }
         }
     }
 }
