@@ -42,6 +42,14 @@ namespace Unity1Week_Ura.Actor
         TMP_Text[] texts;
         bool hasAppeared;
 
+        public void StopAnimations()
+        {
+            moveTween?.Kill();
+            moveTween = null;
+            appearTween?.Kill();
+            appearTween = null;
+        }
+
         public void SetPosition(float x, float y)
         {
             var target = positionTarget != null ? positionTarget : transform;
@@ -194,8 +202,7 @@ namespace Unity1Week_Ura.Actor
 
         void OnDestroy()
         {
-            moveTween?.Kill();
-            appearTween?.Kill();
+            StopAnimations();
         }
     }
 }

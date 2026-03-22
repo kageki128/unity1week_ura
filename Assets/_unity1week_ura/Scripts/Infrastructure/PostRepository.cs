@@ -17,10 +17,8 @@ namespace Unity1Week_Ura.Infrastructure
         const string CsvColumnAttachedImageFileName = "AttachedImageFileName";
         const string CsvColumnParentPostId = "ParentPostID";
         const string CsvColumnPostType = "Type";
-        const string CsvColumnPublishPoint = "PublishPoint";
         const string CsvColumnDefaultLikeCount = "DefaultLikeCount";
         const string CsvColumnDefaultRepostCount = "DefaultRepostCount";
-        const string CsvColumnWrongTextPrefix = "WrongText";
 
         readonly AddressableConfigSO addressableConfig;
         readonly IAccountRepository accountRepository;
@@ -40,8 +38,6 @@ namespace Unity1Week_Ura.Infrastructure
             public string AttachedImageFileName { get; }
             public string ParentPostId { get; }
             public PostType Type { get; }
-            public int PublishPoint { get; }
-            public List<string> WrongTexts { get; }
             public int DefaultLikeCount { get; }
             public int DefaultRepostCount { get; }
 
@@ -53,8 +49,6 @@ namespace Unity1Week_Ura.Infrastructure
                 string attachedImageFileName,
                 string parentPostId,
                 PostType type,
-                int publishPoint,
-                List<string> wrongTexts,
                 int defaultLikeCount,
                 int defaultRepostCount)
             {
@@ -65,8 +59,6 @@ namespace Unity1Week_Ura.Infrastructure
                 AttachedImageFileName = attachedImageFileName;
                 ParentPostId = parentPostId;
                 Type = type;
-                PublishPoint = publishPoint;
-                WrongTexts = wrongTexts;
                 DefaultLikeCount = defaultLikeCount;
                 DefaultRepostCount = defaultRepostCount;
             }
@@ -220,8 +212,7 @@ namespace Unity1Week_Ura.Infrastructure
                             row.ParentPostId,
                             parentPostAuthor,
                             row.Type);
-                        var scoreInfo = new PostScoreInfo(row.PublishPoint, row.WrongTexts);
-                        var post = new Post(property, scoreInfo, row.DefaultLikeCount, row.DefaultRepostCount, 0);
+                        var post = new Post(property, row.DefaultLikeCount, row.DefaultRepostCount, 0);
 
                         if (!postsByCorrectAccountId.TryGetValue(row.CorrectPlayerAccountId, out var list))
                         {
@@ -266,10 +257,8 @@ namespace Unity1Week_Ura.Infrastructure
             int attachedImageFileNameColumn = -1;
             int parentPostIdColumn = -1;
             int postTypeColumn = -1;
-            int publishPointColumn = -1;
             int defaultLikeCountColumn = -1;
             int defaultRepostCountColumn = -1;
-            var wrongTextColumns = new List<int>();
 
             var headerColumns = lines[0].Split(',');
             for (int i = 0; i < headerColumns.Length; i++)
@@ -303,10 +292,6 @@ namespace Unity1Week_Ura.Infrastructure
                 {
                     postTypeColumn = i;
                 }
-                else if (column.Equals(CsvColumnPublishPoint, StringComparison.OrdinalIgnoreCase))
-                {
-                    publishPointColumn = i;
-                }
                 else if (column.Equals(CsvColumnDefaultLikeCount, StringComparison.OrdinalIgnoreCase))
                 {
                     defaultLikeCountColumn = i;
@@ -314,10 +299,6 @@ namespace Unity1Week_Ura.Infrastructure
                 else if (column.Equals(CsvColumnDefaultRepostCount, StringComparison.OrdinalIgnoreCase))
                 {
                     defaultRepostCountColumn = i;
-                }
-                else if (column.StartsWith(CsvColumnWrongTextPrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    wrongTextColumns.Add(i);
                 }
             }
 
@@ -328,7 +309,6 @@ namespace Unity1Week_Ura.Infrastructure
                 || attachedImageFileNameColumn < 0
                 || parentPostIdColumn < 0
                 || postTypeColumn < 0
-                || publishPointColumn < 0
                 || defaultLikeCountColumn < 0
                 || defaultRepostCountColumn < 0)
             {
@@ -347,7 +327,7 @@ namespace Unity1Week_Ura.Infrastructure
                         Math.Max(
                             Math.Max(attachedImageFileNameColumn, parentPostIdColumn),
                             Math.Max(
-                                Math.Max(postTypeColumn, publishPointColumn),
+                                postTypeColumn,
                                 Math.Max(defaultLikeCountColumn, defaultRepostCountColumn)))));
                 if (columns.Length <= maxRequiredColumn)
                 {
@@ -370,11 +350,6 @@ namespace Unity1Week_Ura.Infrastructure
                     continue;
                 }
 
-                if (!int.TryParse(columns[publishPointColumn].Trim(), out int publishPoint))
-                {
-                    continue;
-                }
-
                 if (!int.TryParse(columns[defaultLikeCountColumn].Trim(), out int defaultLikeCount))
                 {
                     continue;
@@ -390,23 +365,6 @@ namespace Unity1Week_Ura.Infrastructure
                     continue;
                 }
 
-                var wrongTexts = new List<string>();
-                foreach (int columnIndex in wrongTextColumns)
-                {
-                    if (columns.Length <= columnIndex)
-                    {
-                        continue;
-                    }
-
-                    var wrongText = columns[columnIndex].Trim();
-                    if (string.IsNullOrEmpty(wrongText))
-                    {
-                        continue;
-                    }
-
-                    wrongTexts.Add(wrongText);
-                }
-
                 rows.Add(new PostCsvRow(
                     correctPlayerAccountId,
                     id,
@@ -415,10 +373,8 @@ namespace Unity1Week_Ura.Infrastructure
                     attachedImageFileName,
                     parentPostId,
                     type,
-                    publishPoint,
-                    wrongTexts,
                     defaultLikeCount,
-                        defaultRepostCount));
+                    defaultRepostCount));
             }
 
             return rows;

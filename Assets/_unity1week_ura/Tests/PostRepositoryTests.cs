@@ -26,12 +26,12 @@ namespace Unity1Week_Ura.Tests
         }
 
         [Test]
-        public void ParsePostRows_ValidCsv_ReturnsExpectedRowsAndWrongTexts()
+        public void ParsePostRows_ValidCsv_ReturnsExpectedRows()
         {
             var repository = CreateUninitializedRepository();
-            const string csv = "CorrectPlayerAccountID,ID,AuthorAccountID,Text,AttachedImageFileName,ParentPostID,Type,PublishPoint,WrongText1,WrongText2,DefaultLikeCount,DefaultRepostCount\n"
-                + "acc01,p01,acc02,hello,image.png,,Normal,10,bad1,bad2,100,20\n"
-                + "acc01,p02,acc03,skip,image2.png,,Normal,abc,x,y,0,0\n";
+            const string csv = "CorrectPlayerAccountID,ID,AuthorAccountID,Text,AttachedImageFileName,ParentPostID,Type,DefaultLikeCount,DefaultRepostCount\n"
+                + "acc01,p01,acc02,hello,image.png,,Normal,100,20\n"
+                + "acc01,p02,acc03,skip,image2.png,,Normal,abc,0\n";
 
             var rows = (IList)InvokePrivate(repository, "ParsePostRows", csv);
 
@@ -40,13 +40,8 @@ namespace Unity1Week_Ura.Tests
             Assert.That(GetProperty<string>(first, "CorrectPlayerAccountId"), Is.EqualTo("acc01"));
             Assert.That(GetProperty<string>(first, "Id"), Is.EqualTo("p01"));
             Assert.That(GetProperty<PostType>(first, "Type"), Is.EqualTo(PostType.Normal));
-            Assert.That(GetProperty<int>(first, "PublishPoint"), Is.EqualTo(10));
             Assert.That(GetProperty<int>(first, "DefaultLikeCount"), Is.EqualTo(100));
-
-            var wrongTexts = (List<string>)GetProperty<object>(first, "WrongTexts");
-            Assert.That(wrongTexts.Count, Is.EqualTo(2));
-            Assert.That(wrongTexts[0], Is.EqualTo("bad1"));
-            Assert.That(wrongTexts[1], Is.EqualTo("bad2"));
+            Assert.That(GetProperty<int>(first, "DefaultRepostCount"), Is.EqualTo(20));
         }
 
         [Test]

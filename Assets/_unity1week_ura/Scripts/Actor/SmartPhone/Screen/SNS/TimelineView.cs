@@ -16,6 +16,7 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] PointerEventObserver pointerEventObserver;
         [SerializeField] Collider2D viewportCollider;
         [SerializeField] float wheelScrollStep = 0.45f;
+        [SerializeField] float bottomSpacingAtMaxScroll = 1f;
 
         readonly List<PostView> postViews = new();
         readonly CompositeDisposable disposables = new();
@@ -95,7 +96,7 @@ namespace Unity1Week_Ura.Actor
         {
             float contentHeight = GetContentHeight();
             float viewportHeight = GetViewportHeight();
-            float maxOffset = Mathf.Max(0f, contentHeight - viewportHeight);
+            float maxOffset = Mathf.Max(0f, contentHeight + bottomSpacingAtMaxScroll - viewportHeight);
             return Mathf.Clamp(scrollOffsetY, 0f, maxOffset);
         }
 

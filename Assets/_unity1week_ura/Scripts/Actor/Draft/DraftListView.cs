@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using R3;
 using Unity1Week_Ura.Core;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Unity1Week_Ura.Actor
 {
@@ -8,13 +11,39 @@ namespace Unity1Week_Ura.Actor
     {
         [SerializeField] DraftView draftViewPrefab;
         [SerializeField] Transform draftParent;
+        [SerializeField] PointerEventObserver pointerEventObserver;
+        [SerializeField] Collider2D viewportCollider;
+        [SerializeField] float wheelScrollStep = 0.2f;
+        [SerializeField] float bottomSpacingAtMaxScroll = 1f;
 
         readonly List<DraftView> draftViews = new();
+        readonly CompositeDisposable disposables = new();
+        readonly Dictionary<DraftView, IDisposable> draftViewScrollSubscriptions = new();
+        float scrollOffsetY;
+
+        public void Initialize()
+        {
+            disposables.Clear();
+            ClearDraftViewScrollSubscriptions();
+
+            if (pointerEventObserver == null)
+            {
+                return;
+            }
+
+            if (viewportCollider == null)
+            {
+                pointerEventObserver.TryGetComponent(out viewportCollider);
+            }
+
+            pointerEventObserver.OnScrolled.Subscribe(OnScrolled).AddTo(disposables);
+        }
 
         public void AddDraft(Post post)
         {
             var draftView = CreateDraftView(post);
             draftViews.Insert(0, draftView);
+            RegisterDraftViewScroll(draftView);
             ArrangeDrafts();
         }
 
@@ -23,6 +52,7 @@ namespace Unity1Week_Ura.Actor
             var draftView = draftViews.Find(view => view.post == post);
             if (draftView != null)
             {
+                UnregisterDraftViewScroll(draftView);
                 draftViews.Remove(draftView);
                 Destroy(draftView.gameObject);
                 ArrangeDrafts();
@@ -31,17 +61,21 @@ namespace Unity1Week_Ura.Actor
 
         public void ClearDrafts()
         {
+            ClearDraftViewScrollSubscriptions();
+
             foreach (var draftView in draftViews)
             {
                 Destroy(draftView.gameObject);
             }
             draftViews.Clear();
+            scrollOffsetY = 0f;
         }
 
         void ArrangeDrafts()
         {
             // 先頭要素の上端が原点になるように上から隙間無く配置する
             float topY = 0f;
+            float clampedOffsetY = GetClampedScrollOffsetY();
             for (int i = 0; i < draftViews.Count; i++)
             {
                 var draftView = draftViews[i];
@@ -50,7 +84,7 @@ namespace Unity1Week_Ura.Actor
                     continue;
                 }
 
-                float y = topY - draftView.Height * 0.5f;
+                float y = topY - draftView.Height * 0.5f + clampedOffsetY;
                 draftView.SetReturnPosition(0, y);
                 if (!draftView.IsDragging)
                 {
@@ -58,13 +92,114 @@ namespace Unity1Week_Ura.Actor
                 }
                 topY -= draftView.Height;
             }
+
+            scrollOffsetY = clampedOffsetY;
+        }
+
+        void OnScrolled(PointerEventData eventData)
+        {
+            scrollOffsetY -= eventData.scrollDelta.y * wheelScrollStep;
+            ArrangeDrafts();
+        }
+
+        float GetClampedScrollOffsetY()
+        {
+            float contentHeight = GetContentHeight();
+            float viewportHeight = GetViewportHeight();
+            float maxOffset = Mathf.Max(0f, contentHeight + bottomSpacingAtMaxScroll - viewportHeight);
+            return Mathf.Clamp(scrollOffsetY, 0f, maxOffset);
+        }
+
+        float GetViewportHeight()
+        {
+            if (viewportCollider == null)
+            {
+                return 0f;
+            }
+
+            float worldHeight = viewportCollider.bounds.size.y;
+            if (draftParent == null)
+            {
+                return worldHeight;
+            }
+
+            float localScaleY = Mathf.Abs(draftParent.lossyScale.y);
+            if (localScaleY <= Mathf.Epsilon)
+            {
+                return worldHeight;
+            }
+
+            return worldHeight / localScaleY;
+        }
+
+        float GetContentHeight()
+        {
+            float total = 0f;
+            for (int i = 0; i < draftViews.Count; i++)
+            {
+                var draftView = draftViews[i];
+                if (draftView == null)
+                {
+                    continue;
+                }
+
+                total += draftView.Height;
+            }
+
+            return total;
         }
 
         DraftView CreateDraftView(Post post)
         {
             DraftView draftView = Instantiate(draftViewPrefab, draftParent);
+
+            var pos = draftView.transform.localPosition;
+            pos.z = -1f;  // 背景のリストビュー（Z=0）より確実に手前に配置し、Raycastを奪う
+            draftView.transform.localPosition = pos;
+
             draftView.Initialize(post);
             return draftView;
+        }
+
+        void RegisterDraftViewScroll(DraftView draftView)
+        {
+            if (draftView == null)
+            {
+                return;
+            }
+
+            UnregisterDraftViewScroll(draftView);
+            draftViewScrollSubscriptions[draftView] = draftView.OnScrolled.Subscribe(OnScrolled);
+        }
+
+        void UnregisterDraftViewScroll(DraftView draftView)
+        {
+            if (draftView == null)
+            {
+                return;
+            }
+
+            if (draftViewScrollSubscriptions.TryGetValue(draftView, out var subscription))
+            {
+                subscription.Dispose();
+                draftViewScrollSubscriptions.Remove(draftView);
+            }
+        }
+
+        void ClearDraftViewScrollSubscriptions()
+        {
+            foreach (var subscription in draftViewScrollSubscriptions.Values)
+            {
+                subscription.Dispose();
+            }
+
+            draftViewScrollSubscriptions.Clear();
+        }
+
+        void OnDestroy()
+        {
+            ClearDraftViewScrollSubscriptions();
+            disposables.Dispose();
         }
     }
 }

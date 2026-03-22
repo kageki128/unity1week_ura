@@ -110,7 +110,7 @@ namespace Unity1Week_Ura.Core
 
             if (timeline.TryPublishDraft(post))
             {
-                score.Value += post.ScoreInfo.PublishPoint;
+                score.Value += post.IsReply ? gameConfig.ReplyPoint : gameConfig.PostPoint;
             }
             else
             {

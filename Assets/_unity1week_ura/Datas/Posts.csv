@@ -1,23 +1,23 @@
-CorrectPlayerAccountID,ID,AuthorAccountID,Text,AttachedImageFileName,ParentPostID,Type,PublishPoint,WrongText0,WrongText1,WrongText2,WrongText3,DefaultLikeCount,DefaultRepostCount
-Public,P0001,Public,おはようございます！今日もがんばるぞ！,,,Normal,30,自撮りした！,推しが尊い,,,12,3
-Selfie,P0002,Selfie,新しいフィルター盛れたかも,,,Normal,35,仕事つらい,バズれー,,,20,5
-Kimoota,P0003,Kimoota,推しの新曲ループ中 #神,,,Normal,40,ランチおいしかった,筋トレした,,,25,7
-Meme,P0004,Meme,このテンプレまだ生きてる？www,,,Advertisement,20,まじめに連絡です,会議資料共有,,,40,15
-Public,P0005,Public,この投稿への返信テスト,,P0001,Normal,25,いい天気,猫かわいい,,,8,2
-Public,P0006,Public,雨だけど通勤えらい,,P0001,Normal,28,フィルター盛れた,推しの現場,,,10,2
-Selfie,P0007,Selfie,この角度めっちゃ盛れる！,selfie_pose.png,,Normal,38,議事録共有します,納品完了です,,,22,6
-Kimoota,P0008,Kimoota,円盤予約完了。生きる理由できた,,,Normal,42,筋トレ記録Day12,早寝早起き,,,27,8
-Meme,P0009,Meme,この猫ミーム令和最新版です,,,Advertisement,24,業務連絡です,提出お願いします,,,55,19
-Public,P0010,Public,昼休みに近所のパン屋いった,,,Normal,26,自撮り失敗した,推し供給ありがとう,,,9,2
-Selfie,P0011,Selfie,返信ありがとう！そのリップどこの？,,P0007,Normal,33,会議室A予約した,請求書送ります,,,15,4
-Kimoota,P0012,Kimoota,P0003の続き: サビで毎回泣く,,P0003,Normal,37,お弁当作った,散歩した,,,18,5
-Meme,P0013,Meme,バズるまで寝ない選手権 開幕,,,Advertisement,22,進捗共有します,先方確認中,,,45,16
-Public,P0014,test0,テスト垢0: 正常系チェック,,,Normal,18,表垢で投稿します,自撮りいきます,,,3,1
-Selfie,P0015,test1,テスト垢1: 返信導線チェック,,P0014,Normal,19,推し語りしたい,ミーム貼る,,,2,1
-Meme,P0016,test2,テスト垢2: 広告投稿チェック,,,Advertisement,16,普通の日記です,朝ごはん記録,,,6,3
-Kimoota,P0017,test3,テスト垢3: 低ポイント投稿,,,Normal,12,バズり狙い,推ししか勝たん,,,1,0
-Public,P0018,Public,告知: 週末イベント参加します,,,Advertisement,21,盛れ写真あげる,推し語りします,,,30,10
-Selfie,P0019,Selfie,ノーメイク日だけど記録で投稿,,,Normal,29,契約更新しました,在庫確認お願いします,,,11,3
-Kimoota,P0020,Kimoota,現場から帰還。余韻で無限リピート,,P0018,Normal,41,散髪した,料理した,,,24,7
-Public,P0021,Public,長文テスト: 今日は朝の通勤から帰宅までいろいろあって、電車遅延と雨と忘れ物の三連コンボだったけど、最後に温かいごはんを食べて少し元気になった。,,,Normal,27,短文です,定型文です,,,14,3
-Selfie,P0022,Selfie,返信長文テスト: さっきの投稿見てくれてありがとう。おすすめしてくれたカフェに行ってみたら雰囲気も良くて、写真もたくさん撮れたし、次は別メニューも試してみたいと思った！,,P0021,Normal,31,返信短文です,返信定型文です,,,13,4
+CorrectPlayerAccountID,ID,AuthorAccountID,Text,AttachedImageFileName,ParentPostID,Type,DefaultLikeCount,DefaultRepostCount
+Public,P0001,Public,おはようございます！今日もがんばるぞ！,,,Normal,12,3
+Selfie,P0002,Selfie,新しいフィルター盛れたかも,,,Normal,20,5
+Kimoota,P0003,Kimoota,推しの新曲ループ中 #神,,,Normal,25,7
+Meme,P0004,Meme,このテンプレまだ生きてる？www,,,Advertisement,40,15
+Public,P0005,Public,この投稿への返信テスト,,P0001,Normal,8,2
+Public,P0006,Public,雨だけど通勤えらい,,P0001,Normal,10,2
+Selfie,P0007,Selfie,この角度めっちゃ盛れる！,selfie_pose.png,,Normal,22,6
+Kimoota,P0008,Kimoota,円盤予約完了。生きる理由できた,,,Normal,27,8
+Meme,P0009,Meme,この猫ミーム令和最新版です,,,Advertisement,55,19
+Public,P0010,Public,昼休みに近所のパン屋いった,,,Normal,9,2
+Selfie,P0011,Selfie,返信ありがとう！そのリップどこの？,,P0007,Normal,15,4
+Kimoota,P0012,Kimoota,P0003の続き: サビで毎回泣く,,P0003,Normal,18,5
+Meme,P0013,Meme,バズるまで寝ない選手権 開幕,,,Advertisement,45,16
+Public,P0014,test0,テスト垢0: 正常系チェック,,,Normal,3,1
+Selfie,P0015,test1,テスト垢1: 返信導線チェック,,P0014,Normal,2,1
+Meme,P0016,test2,テスト垢2: 広告投稿チェック,,,Advertisement,6,3
+Kimoota,P0017,test3,テスト垢3: 低ポイント投稿,,,Normal,1,0
+Public,P0018,Public,告知: 週末イベント参加します,,,Advertisement,30,10
+Selfie,P0019,Selfie,ノーメイク日だけど記録で投稿,,,Normal,11,3
+Kimoota,P0020,Kimoota,現場から帰還。余韻で無限リピート,,P0018,Normal,24,7
+Public,P0021,Public,長文テスト: 今日は朝の通勤から帰宅までいろいろあって、電車遅延と雨と忘れ物の三連コンボだったけど、最後に温かいごはんを食べて少し元気になった。,,,Normal,14,3
+Selfie,P0022,Selfie,返信長文テスト: さっきの投稿見てくれてありがとう。おすすめしてくれたカフェに行ってみたら雰囲気も良くて、写真もたくさん撮れたし、次は別メニューも試してみたいと思った！,,P0021,Normal,13,4

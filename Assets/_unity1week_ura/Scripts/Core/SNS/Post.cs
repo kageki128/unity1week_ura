@@ -6,7 +6,7 @@ namespace Unity1Week_Ura.Core
     public class Post
     {
         public PostProperty Property { get; }
-        public PostScoreInfo ScoreInfo { get; }
+        public bool IsReply => !string.IsNullOrEmpty(Property.ParentPostId);
 
         readonly int defaultLikeCount;
         readonly int defaultRepostCount;
@@ -23,10 +23,9 @@ namespace Unity1Week_Ura.Core
         public PostState State { get; private set; }
         public DateTimeOffset PublishDateTime { get; private set; }
 
-        public Post(PostProperty property, PostScoreInfo scoreInfo, int defaultLikeCount, int defaultRepostCount, int defaultReplyCount)
+        public Post(PostProperty property, int defaultLikeCount, int defaultRepostCount, int defaultReplyCount)
         {
             Property = property;
-            ScoreInfo = scoreInfo;
             this.defaultLikeCount = defaultLikeCount;
             this.defaultRepostCount = defaultRepostCount;
             LikeCount = defaultLikeCount;

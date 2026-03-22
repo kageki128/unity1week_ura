@@ -9,10 +9,13 @@ namespace Unity1Week_Ura.Actor
 {
     public class DraftView : MonoBehaviour
     {
+        const int DraggingSortingOrderOffset = 3;
+
         public Post post { get; private set; }
         public float Width => viewArranger.Width;
         public float Height => viewArranger.Height;
         public bool IsDragging { get; private set; }
+        public Observable<PointerEventData> OnScrolled => onScrolled;
 
         [FormerlySerializedAs("sizeCalculator")]
         [SerializeField] ViewArranger viewArranger;
@@ -32,21 +35,34 @@ namespace Unity1Week_Ura.Actor
         Vector2 dragColliderBaseSize;
         float baseContentRenderedHeight;
         bool hasCachedFrameBaseValues;
+        bool hasCachedSortingOrders;
+        int frameImageBaseSortingOrder;
+        int subFrameImageBaseSortingOrder;
+        int contentTextBaseSortingOrder;
+        TextMeshPro contentTextMesh;
+        Renderer contentTextRenderer;
 
         readonly CompositeDisposable disposables = new();
+        readonly Subject<PointerEventData> onScrolled = new();
 
         public void Initialize(Post post)
         {
             CacheFrameBaseValuesIfNeeded();
+            CacheSortingOrdersIfNeeded();
 
             contentText.text = BuildContentText(post.Property);
             this.post = post;
             AdjustLayout();
+            SetDraggingSortingOrder(false);
 
             disposables.Clear();
-            pointerEventObserver.OnBeginDragged.Subscribe(OnBeginDrag).AddTo(disposables);
-            pointerEventObserver.OnDragged.Subscribe(OnDrag).AddTo(disposables);
-            pointerEventObserver.OnEndDragged.Subscribe(OnEndDrag).AddTo(disposables);
+            if (pointerEventObserver != null)
+            {
+                pointerEventObserver.OnScrolled.Subscribe(onScrolled.OnNext).AddTo(disposables);
+                pointerEventObserver.OnBeginDragged.Subscribe(OnBeginDrag).AddTo(disposables);
+                pointerEventObserver.OnDragged.Subscribe(OnDrag).AddTo(disposables);
+                pointerEventObserver.OnEndDragged.Subscribe(OnEndDrag).AddTo(disposables);
+            }
         }
 
         string BuildContentText(PostProperty property)
@@ -115,6 +131,43 @@ namespace Unity1Week_Ura.Actor
             hasCachedFrameBaseValues = true;
         }
 
+        void CacheSortingOrdersIfNeeded()
+        {
+            if (hasCachedSortingOrders)
+            {
+                return;
+            }
+
+            if (frameImage != null)
+            {
+                frameImageBaseSortingOrder = frameImage.sortingOrder;
+            }
+
+            if (subFrameImage != null)
+            {
+                subFrameImageBaseSortingOrder = subFrameImage.sortingOrder;
+            }
+
+            if (contentText != null)
+            {
+                contentTextMesh = contentText as TextMeshPro;
+                if (contentTextMesh != null)
+                {
+                    contentTextBaseSortingOrder = contentTextMesh.sortingOrder;
+                }
+                else
+                {
+                    contentTextRenderer = contentText.GetComponent<Renderer>();
+                    if (contentTextRenderer != null)
+                    {
+                        contentTextBaseSortingOrder = contentTextRenderer.sortingOrder;
+                    }
+                }
+            }
+
+            hasCachedSortingOrders = true;
+        }
+
         void AdjustLayout()
         {
             contentText.ForceMeshUpdate();
@@ -159,11 +212,16 @@ namespace Unity1Week_Ura.Actor
 
         void OnBeginDrag(PointerEventData eventData)
         {
+            viewArranger.StopAnimations();
             IsDragging = true;
             originalLocalPosition = transform.localPosition;
             droppedOnPublishField = false;
+            SetDraggingSortingOrder(true);
             // ドラッグ中はColliderを無効化して、PublishFieldViewへのレイキャストを遮蔽しない
-            dragCollider.enabled = false;
+            if (dragCollider != null)
+            {
+                dragCollider.enabled = false;
+            }
         }
 
         void OnDrag(PointerEventData eventData)
@@ -174,8 +232,7 @@ namespace Unity1Week_Ura.Actor
 
         void OnEndDrag(PointerEventData eventData)
         {
-            IsDragging = false;
-            dragCollider.enabled = true;
+            RestoreDragState();
 
             if (!droppedOnPublishField)
             {
@@ -184,9 +241,51 @@ namespace Unity1Week_Ura.Actor
             }
         }
 
+        void RestoreDragState()
+        {
+            IsDragging = false;
+            SetDraggingSortingOrder(false);
+            if (dragCollider != null)
+            {
+                dragCollider.enabled = true;
+            }
+        }
+
+        void SetDraggingSortingOrder(bool isDragging)
+        {
+            int offset = isDragging ? DraggingSortingOrderOffset : 0;
+
+            if (frameImage != null)
+            {
+                frameImage.sortingOrder = frameImageBaseSortingOrder + offset;
+            }
+
+            if (subFrameImage != null)
+            {
+                subFrameImage.sortingOrder = subFrameImageBaseSortingOrder + offset;
+            }
+
+            if (contentTextMesh != null)
+            {
+                contentTextMesh.sortingOrder = contentTextBaseSortingOrder + offset;
+            }
+            else if (contentTextRenderer != null)
+            {
+                contentTextRenderer.sortingOrder = contentTextBaseSortingOrder + offset;
+            }
+        }
+
+        void OnDisable()
+        {
+            // ウィンドウ外でマウスアップした場合などにOnEndDragが来ないケースでも掴める状態に戻す
+            RestoreDragState();
+        }
+
         void OnDestroy()
         {
             disposables.Dispose();
+            onScrolled.OnCompleted();
+            onScrolled.Dispose();
         }
     }
 }

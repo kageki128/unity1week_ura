@@ -22,6 +22,7 @@ namespace Unity1Week_Ura.Actor
         public override void Initialize()
         {
             smartPhoneView.Initialize();
+            draftListView.Initialize();
             remainingTimeView.Initialize();
             scoreView.Initialize();
             gameObject.SetActive(false);
