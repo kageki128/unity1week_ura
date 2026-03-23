@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -110,6 +111,11 @@ namespace Unity1Week_Ura.Actor
             linkedCt.ThrowIfCancellationRequested();
             for (int i = 0; i < replies.Count; i++)
             {
+                if (ContainsReplyPost(replies[i].post))
+                {
+                    continue;
+                }
+
                 RegisterPostView(replies[i]);
                 replyPostViews.Add(replies[i]);
             }
@@ -172,6 +178,24 @@ namespace Unity1Week_Ura.Actor
         {
             currentPlayerAccount = account;
             publishFieldView?.SetCurrentPlayerAccount(account);
+        }
+
+        public void AddPublishedPost(Post post)
+        {
+            if (!CanDisplayAsReplyForCurrentFocus(post))
+            {
+                return;
+            }
+
+            if (ContainsReplyPost(post))
+            {
+                return;
+            }
+
+            var replyView = postViewFactory.Create(post, timelinePostParent);
+            RegisterPostView(replyView);
+            replyPostViews.Insert(0, replyView);
+            ArrangeElements();
         }
 
         void ArrangeElements(bool useAnimation = true)
@@ -322,6 +346,51 @@ namespace Unity1Week_Ura.Actor
 
             bool isWithinViewport = postBottomY < viewportTopY && postTopY > viewportBottomY;
             postView.SetInteractable(isWithinViewport);
+        }
+
+        bool CanDisplayAsReplyForCurrentFocus(Post post)
+        {
+            if (post == null || post.State != PostState.Published || post.Type != PostType.Reply)
+            {
+                return false;
+            }
+
+            if (currentFocusedPost?.Property == null)
+            {
+                return false;
+            }
+
+            var currentFocusId = currentFocusedPost.Property.Id;
+            if (string.IsNullOrEmpty(currentFocusId))
+            {
+                return false;
+            }
+
+            return string.Equals(post.Property.ParentPostId, currentFocusId, StringComparison.Ordinal);
+        }
+
+        bool ContainsReplyPost(Post post)
+        {
+            if (post?.Property == null || string.IsNullOrEmpty(post.Property.Id))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < replyPostViews.Count; i++)
+            {
+                var replyView = replyPostViews[i];
+                if (replyView?.post?.Property == null)
+                {
+                    continue;
+                }
+
+                if (string.Equals(replyView.post.Property.Id, post.Property.Id, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         void OnDestroy()

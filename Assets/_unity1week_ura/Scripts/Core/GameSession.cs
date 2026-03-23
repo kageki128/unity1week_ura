@@ -41,6 +41,7 @@ namespace Unity1Week_Ura.Core
         readonly HashSet<string> likeScoredPostIds = new(StringComparer.Ordinal);
         readonly HashSet<string> repostScoredPostIds = new(StringComparer.Ordinal);
         GameRuleSO gameRule;
+        bool hasSuppliedInitialPost;
 
         public GameSession(GameConfigSO gameConfig, IAccountRepository accountRepository, IPostRepository postRepository, ISocialSharePort socialSharePort)
         {
@@ -74,6 +75,7 @@ namespace Unity1Week_Ura.Core
             remainingTimeSeconds.Value = gameRule.TimeLimitSeconds;
             score.Value = 0;
             finishReason.Value = FinishReason.None;
+            hasSuppliedInitialPost = false;
             currentGameState.Value = GameState.Pause;
         }
 
@@ -85,6 +87,11 @@ namespace Unity1Week_Ura.Core
             }
 
             currentGameState.Value = GameState.Playing;
+
+            if (!hasSuppliedInitialPost)
+            {
+                hasSuppliedInitialPost = timeline.TrySupplyPostGuaranteed(gameRule);
+            }
         }
 
         public void Pause()
@@ -138,7 +145,14 @@ namespace Unity1Week_Ura.Core
                 return;
             }
 
-            timeline.TrySupplyPost(gameRule, deltaTime);
+            if (!hasSuppliedInitialPost)
+            {
+                hasSuppliedInitialPost = timeline.TrySupplyPostGuaranteed(gameRule);
+            }
+            else
+            {
+                timeline.TrySupplyPost(gameRule, deltaTime);
+            }
 
             remainingTimeSeconds.Value = Mathf.Max(remainingTimeSeconds.Value - deltaTime, 0);
             if (remainingTimeSeconds.Value <= 0)
@@ -162,7 +176,7 @@ namespace Unity1Week_Ura.Core
 
             if (timeline.TryPublishDraft(post))
             {
-                score.Value += gameConfig.PostPoint;
+                AddScore(gameConfig.PostPoint);
             }
             else
             {
@@ -198,7 +212,7 @@ namespace Unity1Week_Ura.Core
 
             if (timeline.TryPublishDraft(replyDraft))
             {
-                score.Value += GetActionScoreDelta(request.FocusedPost, gameConfig.ReplyPoint);
+                AddScore(GetActionScoreDelta(request.FocusedPost, gameConfig.ReplyPoint));
             }
             else
             {
@@ -234,7 +248,7 @@ namespace Unity1Week_Ura.Core
 
             if (likeScoredPostIds.Add(post.Property.Id))
             {
-                score.Value += GetActionScoreDelta(post, gameConfig.LikePoint);
+                AddScore(GetActionScoreDelta(post, gameConfig.LikePoint));
             }
         }
 
@@ -264,9 +278,14 @@ namespace Unity1Week_Ura.Core
 
             if (repostScoredPostIds.Add(post.Property.Id))
             {
-                score.Value += GetActionScoreDelta(post, gameConfig.RepostPoint);
+                AddScore(GetActionScoreDelta(post, gameConfig.RepostPoint));
                 timeline.AddRepostToTimeline(post);
             }
+        }
+
+        void AddScore(int delta)
+        {
+            score.Value = Mathf.Max(score.Value + delta, 0);
         }
 
         public async UniTask ShareResultAsync(CancellationToken ct)

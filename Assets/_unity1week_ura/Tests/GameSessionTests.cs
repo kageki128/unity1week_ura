@@ -40,7 +40,7 @@ namespace Unity1Week_Ura.Tests
         }
 
         [Test]
-        public void LikePostByPlayer_AdvertisePost_SubtractsLikePoint()
+        public void LikePostByPlayer_AdvertisePost_DoesNotGoBelowZero()
         {
             var publicAccount = new Account("Public", "Public", null, AccountType.Normal, "Public");
             var selfieAccount = new Account("Selfie", "Selfie", null, AccountType.Normal, "Selfie");
@@ -63,12 +63,12 @@ namespace Unity1Week_Ura.Tests
             var post = CreatePost("p-like-ad", advertiseAuthor, null, null);
             session.LikePostByPlayer(post);
 
-            Assert.That(GetReactiveCurrentValue<int>(session, "Score"), Is.EqualTo(-10));
+            Assert.That(GetReactiveCurrentValue<int>(session, "Score"), Is.EqualTo(0));
             Assert.That(GetReactiveCurrentValue<GameState>(session, "CurrentGameState"), Is.EqualTo(GameState.Playing));
         }
 
         [Test]
-        public void RepostByPlayer_AdvertisePost_SubtractsRepostPoint()
+        public void RepostByPlayer_AdvertisePost_DoesNotGoBelowZero()
         {
             var publicAccount = new Account("Public", "Public", null, AccountType.Normal, "Public");
             var selfieAccount = new Account("Selfie", "Selfie", null, AccountType.Normal, "Selfie");
@@ -91,12 +91,12 @@ namespace Unity1Week_Ura.Tests
             var post = CreatePost("p-repost-ad", advertiseAuthor, null, null);
             session.RepostByPlayer(post);
 
-            Assert.That(GetReactiveCurrentValue<int>(session, "Score"), Is.EqualTo(-50));
+            Assert.That(GetReactiveCurrentValue<int>(session, "Score"), Is.EqualTo(0));
             Assert.That(GetReactiveCurrentValue<GameState>(session, "CurrentGameState"), Is.EqualTo(GameState.Playing));
         }
 
         [Test]
-        public void TryPublishReplyDraft_WhenFocusedPostIsAdvertise_SubtractsReplyPoint()
+        public void TryPublishReplyDraft_WhenFocusedPostIsAdvertise_DoesNotGoBelowZero()
         {
             var publicAccount = new Account("Public", "Public", null, AccountType.Normal, "Public");
             var advertiseAuthor = new Account("ad", "Ad", null, AccountType.Advertise, string.Empty);
@@ -124,7 +124,39 @@ namespace Unity1Week_Ura.Tests
 
             session.TryPublishReplyDraft(new ReplyDraftPublishRequest(replyDraft, focusedPost));
 
-            Assert.That(GetReactiveCurrentValue<int>(session, "Score"), Is.EqualTo(-30));
+            Assert.That(GetReactiveCurrentValue<int>(session, "Score"), Is.EqualTo(0));
+            Assert.That(GetReactiveCurrentValue<GameState>(session, "CurrentGameState"), Is.EqualTo(GameState.Playing));
+        }
+
+        [Test]
+        public void LikePostByPlayer_AdvertisePost_ClampsAfterPositiveScore()
+        {
+            var publicAccount = new Account("Public", "Public", null, AccountType.Normal, "Public");
+            var selfieAccount = new Account("Selfie", "Selfie", null, AccountType.Normal, "Selfie");
+            var normalAuthor = new Account("npc", "Npc", null, AccountType.Normal, string.Empty);
+            var advertiseAuthor = new Account("ad", "Ad", null, AccountType.Advertise, string.Empty);
+
+            var session = CreateSession(
+                CreateGameRule("Public", "Selfie"),
+                new Dictionary<string, Account>(StringComparer.Ordinal)
+                {
+                    { publicAccount.Id, publicAccount },
+                    { selfieAccount.Id, selfieAccount },
+                    { normalAuthor.Id, normalAuthor },
+                    { advertiseAuthor.Id, advertiseAuthor }
+                },
+                new Dictionary<string, List<Post>>(StringComparer.Ordinal));
+
+            session.LoadNewGame(default).GetAwaiter().GetResult();
+            session.Play();
+            session.SetCurrentPlayerAccount(selfieAccount);
+
+            var normalPost = CreatePost("p-like-normal", normalAuthor, null, null);
+            session.LikePostByPlayer(normalPost);
+            var advertisePost = CreatePost("p-like-ad-after", advertiseAuthor, null, null);
+            session.LikePostByPlayer(advertisePost);
+
+            Assert.That(GetReactiveCurrentValue<int>(session, "Score"), Is.EqualTo(0));
             Assert.That(GetReactiveCurrentValue<GameState>(session, "CurrentGameState"), Is.EqualTo(GameState.Playing));
         }
 

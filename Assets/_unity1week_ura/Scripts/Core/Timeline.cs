@@ -97,25 +97,49 @@ namespace Unity1Week_Ura.Core
                 return;
             }
 
+            _ = TrySupplyPostInternal(gameRule);
+        }
+
+        public bool TrySupplyPostGuaranteed(GameRuleSO gameRule)
+        {
+            if (beforeAppearingNormalPosts.Count == 0 && advertisePosts.Count == 0)
+            {
+                return false;
+            }
+
+            return TrySupplyPostInternal(gameRule);
+        }
+
+        bool TrySupplyPostInternal(GameRuleSO gameRule)
+        {
+            if (beforeAppearingNormalPosts.Count == 0 && advertisePosts.Count == 0)
+            {
+                return false;
+            }
+
+            if (!beforeAppearingNormalPosts.Any(CanAppear))
+            {
+                return false;
+            }
+
             bool useAdvertisePost = advertisePosts.Count > 0
                 && Random.value < Mathf.Clamp01(gameRule.AdvertisePostProbability);
             if (useAdvertisePost)
             {
                 if (TrySupplyPostFrom(advertisePosts, false))
                 {
-                    return;
+                    return true;
                 }
 
-                _ = TrySupplyPostFrom(beforeAppearingNormalPosts, true);
-                return;
+                return TrySupplyPostFrom(beforeAppearingNormalPosts, true);
             }
 
             if (TrySupplyPostFrom(beforeAppearingNormalPosts, true))
             {
-                return;
+                return true;
             }
 
-            _ = TrySupplyPostFrom(advertisePosts, false);
+            return false;
         }
 
         bool TrySupplyPostFrom(List<Post> sourcePosts, bool removeAfterSupply)

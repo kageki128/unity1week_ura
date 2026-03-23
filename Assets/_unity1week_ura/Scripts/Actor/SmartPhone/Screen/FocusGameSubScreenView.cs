@@ -136,6 +136,11 @@ namespace Unity1Week_Ura.Actor
             focusView.SetCurrentPlayerAccount(account);
         }
 
+        public void AddPublishedPost(Post post)
+        {
+            focusView.AddPublishedPost(post);
+        }
+
         Post GetCurrentFocusedPost()
         {
             if (!focusPostStack.TryPeek(out var currentPost))

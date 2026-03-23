@@ -237,7 +237,7 @@ namespace Unity1Week_Ura.Actor
             if (!droppedOnPublishField)
             {
                 // PublishFieldView以外にドロップされた場合は元の位置に戻す
-                transform.localPosition = originalLocalPosition;
+                SetPosition(originalLocalPosition.x, originalLocalPosition.y);
             }
         }
 

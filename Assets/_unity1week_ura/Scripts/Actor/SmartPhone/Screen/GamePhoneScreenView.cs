@@ -188,7 +188,12 @@ namespace Unity1Week_Ura.Actor
             }
         }
 
-        public void AddPost(Post post) => timelineGameSubScreenView.AddPost(post);
+        public void AddPost(Post post)
+        {
+            timelineGameSubScreenView.AddPost(post);
+            focusGameSubScreenView.AddPublishedPost(post);
+        }
+
         public void ClearPosts() => timelineGameSubScreenView.ClearPosts();
         public void SetPlayerAccounts(IReadOnlyList<Account> accounts)
         {
