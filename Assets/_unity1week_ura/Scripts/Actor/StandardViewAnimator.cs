@@ -96,6 +96,8 @@ namespace Unity1Week_Ura.Actor
         Vector3 shownLocalPosition;
         Tween activeTween;
         bool isInitialized;
+        IAnimationSuspendable[] animationSuspendables = Array.Empty<IAnimationSuspendable>();
+        int suspendDepth;
 
         public override void Initialize()
         {
@@ -118,30 +120,39 @@ namespace Unity1Week_Ura.Actor
             EnsureInitializedForRuntime();
             KillActiveTween();
             RefreshVisualTargetsForPlayback();
+            RefreshAnimationSuspendablesForPlayback();
 
             gameObject.SetActive(true);
+            SuspendAnimationSuspendables();
 
-            var startPosition = shownLocalPosition + ToDirectionVector(showDirection) * showMoveDistance;
-            var clampedVisibleAlpha = Mathf.Clamp01(visibleAlpha);
-            var clampedHiddenAlpha = Mathf.Clamp01(hiddenAlpha);
-
-            if (showDuration <= 0f)
+            try
             {
-                moveTarget.localPosition = shownLocalPosition;
-                SetVisualAlpha(clampedVisibleAlpha);
-                return;
-            }
+                var startPosition = shownLocalPosition + ToDirectionVector(showDirection) * showMoveDistance;
+                var clampedVisibleAlpha = Mathf.Clamp01(visibleAlpha);
+                var clampedHiddenAlpha = Mathf.Clamp01(hiddenAlpha);
 
-            moveTarget.localPosition = startPosition;
-            SetVisualAlpha(clampedHiddenAlpha);
-            await PlayAnimationAsync(
-                startPosition,
-                shownLocalPosition,
-                clampedHiddenAlpha,
-                clampedVisibleAlpha,
-                showDuration,
-                showEase,
-                ct);
+                if (showDuration <= 0f)
+                {
+                    moveTarget.localPosition = shownLocalPosition;
+                    SetVisualAlpha(clampedVisibleAlpha);
+                    return;
+                }
+
+                moveTarget.localPosition = startPosition;
+                SetVisualAlpha(clampedHiddenAlpha);
+                await PlayAnimationAsync(
+                    startPosition,
+                    shownLocalPosition,
+                    clampedHiddenAlpha,
+                    clampedVisibleAlpha,
+                    showDuration,
+                    showEase,
+                    ct);
+            }
+            finally
+            {
+                ResumeAnimationSuspendables();
+            }
         }
 
         public override async UniTask HideAsync(CancellationToken ct)
@@ -157,29 +168,39 @@ namespace Unity1Week_Ura.Actor
                 return;
             }
 
-            shownLocalPosition = moveTarget.localPosition;
+            RefreshAnimationSuspendablesForPlayback();
+            SuspendAnimationSuspendables();
 
-            var hidePosition = shownLocalPosition + ToDirectionVector(hideDirection) * hideMoveDistance;
-            var clampedVisibleAlpha = Mathf.Clamp01(visibleAlpha);
-            var clampedHiddenAlpha = Mathf.Clamp01(hiddenAlpha);
-
-            if (hideDuration <= 0f)
+            try
             {
-                moveTarget.localPosition = hidePosition;
-                SetVisualAlpha(clampedHiddenAlpha);
-                FinalizeHideState();
-                return;
-            }
+                shownLocalPosition = moveTarget.localPosition;
 
-            await PlayAnimationAsync(
-                shownLocalPosition,
-                hidePosition,
-                clampedVisibleAlpha,
-                clampedHiddenAlpha,
-                hideDuration,
-                hideEase,
-                ct);
-            FinalizeHideState();
+                var hidePosition = shownLocalPosition + ToDirectionVector(hideDirection) * hideMoveDistance;
+                var clampedVisibleAlpha = Mathf.Clamp01(visibleAlpha);
+                var clampedHiddenAlpha = Mathf.Clamp01(hiddenAlpha);
+
+                if (hideDuration <= 0f)
+                {
+                    moveTarget.localPosition = hidePosition;
+                    SetVisualAlpha(clampedHiddenAlpha);
+                    FinalizeHideState();
+                    return;
+                }
+
+                await PlayAnimationAsync(
+                    shownLocalPosition,
+                    hidePosition,
+                    clampedVisibleAlpha,
+                    clampedHiddenAlpha,
+                    hideDuration,
+                    hideEase,
+                    ct);
+                FinalizeHideState();
+            }
+            finally
+            {
+                ResumeAnimationSuspendables();
+            }
         }
 
         // 現在位置を「表示時の基準位置」として再記録する。
@@ -262,11 +283,87 @@ namespace Unity1Week_Ura.Actor
             }
 
             RefreshAutoCollectedVisualTargets();
+            RefreshAnimationSuspendablesForPlayback();
         }
 
         void RefreshVisualTargetsForPlayback()
         {
             RefreshAutoCollectedVisualTargets();
+        }
+
+        void RefreshAnimationSuspendablesForPlayback()
+        {
+            var behaviours = GetComponentsInChildren<MonoBehaviour>(true);
+            if (behaviours == null || behaviours.Length == 0)
+            {
+                animationSuspendables = Array.Empty<IAnimationSuspendable>();
+                return;
+            }
+
+            var count = 0;
+            for (var i = 0; i < behaviours.Length; i++)
+            {
+                if (behaviours[i] is IAnimationSuspendable)
+                {
+                    count++;
+                }
+            }
+
+            if (count <= 0)
+            {
+                animationSuspendables = Array.Empty<IAnimationSuspendable>();
+                return;
+            }
+
+            if (animationSuspendables.Length != count)
+            {
+                animationSuspendables = new IAnimationSuspendable[count];
+            }
+
+            var index = 0;
+            for (var i = 0; i < behaviours.Length; i++)
+            {
+                if (behaviours[i] is not IAnimationSuspendable suspendable)
+                {
+                    continue;
+                }
+
+                animationSuspendables[index] = suspendable;
+                index++;
+            }
+        }
+
+        void SuspendAnimationSuspendables()
+        {
+            suspendDepth++;
+            if (suspendDepth != 1)
+            {
+                return;
+            }
+
+            for (var i = 0; i < animationSuspendables.Length; i++)
+            {
+                animationSuspendables[i].SuspendAnimation();
+            }
+        }
+
+        void ResumeAnimationSuspendables()
+        {
+            if (suspendDepth <= 0)
+            {
+                return;
+            }
+
+            suspendDepth--;
+            if (suspendDepth > 0)
+            {
+                return;
+            }
+
+            for (var i = 0; i < animationSuspendables.Length; i++)
+            {
+                animationSuspendables[i].ResumeAnimation();
+            }
         }
 
         void RefreshAutoCollectedVisualTargets()

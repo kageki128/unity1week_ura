@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class ButtonAnimator : MonoBehaviour
+    public class ButtonAnimator : MonoBehaviour, IAnimationSuspendable
     {
         enum HoverColorMode
         {
@@ -61,6 +61,7 @@ namespace Unity1Week_Ura.Actor
         Tween moveTween;
         Tween[] spriteColorTweens;
         Tween[] textColorTweens;
+        int suspendCount;
 
         void Awake()
         {
@@ -78,6 +79,11 @@ namespace Unity1Week_Ura.Actor
 
         void OnPointerEnter()
         {
+            if (suspendCount > 0)
+            {
+                return;
+            }
+
             isHovered = true;
 
             StopIdleAnimation();
@@ -95,6 +101,11 @@ namespace Unity1Week_Ura.Actor
 
         void OnPointerExit()
         {
+            if (suspendCount > 0)
+            {
+                return;
+            }
+
             isHovered = false;
 
             if (isPressed)
@@ -112,6 +123,11 @@ namespace Unity1Week_Ura.Actor
 
         void OnPointerDown()
         {
+            if (suspendCount > 0)
+            {
+                return;
+            }
+
             isPressed = true;
 
             StopIdleAnimation();
@@ -127,6 +143,11 @@ namespace Unity1Week_Ura.Actor
 
         void OnPointerUp()
         {
+            if (suspendCount > 0)
+            {
+                return;
+            }
+
             isPressed = false;
 
             var targetScale = isHovered ? GetHoverScale() : baseLocalScale;
@@ -156,7 +177,7 @@ namespace Unity1Week_Ura.Actor
 
         void PlayIdleAnimationIfNeeded()
         {
-            if (!playIdleAnimation || isPressed || isHovered)
+            if (suspendCount > 0 || !playIdleAnimation || isPressed || isHovered)
             {
                 return;
             }
@@ -230,6 +251,39 @@ namespace Unity1Week_Ura.Actor
         {
             baseLocalScale = transform.localScale;
             baseLocalPosition = transform.localPosition;
+        }
+
+        public void SuspendAnimation()
+        {
+            suspendCount++;
+            if (suspendCount != 1)
+            {
+                return;
+            }
+
+            StopAnimations();
+            isHovered = false;
+            isPressed = false;
+            ApplyBaseTransformImmediately();
+            ApplyBaseColorsImmediately();
+        }
+
+        public void ResumeAnimation()
+        {
+            if (suspendCount <= 0)
+            {
+                return;
+            }
+
+            suspendCount--;
+            if (suspendCount > 0)
+            {
+                return;
+            }
+
+            RefreshBaseTransformFromCurrent();
+            RefreshBaseColorsFromCurrent();
+            PlayIdleAnimationIfNeeded();
         }
 
         void TweenToHoverColors()
@@ -358,6 +412,47 @@ namespace Unity1Week_Ura.Actor
         {
             var amount = Mathf.Clamp01(brightenAmount);
             return Color.Lerp(baseColor, Color.white, amount);
+        }
+
+        void ApplyBaseTransformImmediately()
+        {
+            transform.localScale = baseLocalScale;
+            transform.localPosition = baseLocalPosition;
+        }
+
+        void ApplyBaseColorsImmediately()
+        {
+            for (var i = 0; i < spriteRenderers.Length; i++)
+            {
+                var sprite = spriteRenderers[i];
+                if (sprite == null)
+                {
+                    continue;
+                }
+
+                if (baseSpriteColors == null || i >= baseSpriteColors.Length)
+                {
+                    continue;
+                }
+
+                sprite.color = baseSpriteColors[i];
+            }
+
+            for (var i = 0; i < texts.Length; i++)
+            {
+                var text = texts[i];
+                if (text == null)
+                {
+                    continue;
+                }
+
+                if (baseTextColors == null || i >= baseTextColors.Length)
+                {
+                    continue;
+                }
+
+                text.color = baseTextColors[i];
+            }
         }
 
         public void StopAnimations()
