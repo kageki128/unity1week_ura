@@ -96,6 +96,7 @@ namespace Unity1Week_Ura.Actor
         Vector3 shownLocalPosition;
         Tween activeTween;
         bool isInitialized;
+        bool isPlayingAnimation;
         IAnimationSuspendable[] animationSuspendables = Array.Empty<IAnimationSuspendable>();
         int suspendDepth;
 
@@ -222,6 +223,7 @@ namespace Unity1Week_Ura.Actor
         {
             moveTarget.localPosition = fromPosition;
             SetVisualAlpha(fromAlpha);
+            isPlayingAnimation = true;
 
             var animatedAlpha = fromAlpha;
             var sequence = DOTween.Sequence()
@@ -251,6 +253,7 @@ namespace Unity1Week_Ura.Actor
             }
             finally
             {
+                isPlayingAnimation = false;
                 if (activeTween == sequence)
                 {
                     activeTween = null;
@@ -381,6 +384,10 @@ namespace Unity1Week_Ura.Actor
         void SetVisualAlpha(float alpha)
         {
             var clampedAlpha = Mathf.Clamp01(alpha);
+            if (isPlayingAnimation && autoCollectVisualTargets && canvasGroupTarget == null)
+            {
+                RefreshAutoCollectedVisualTargets();
+            }
 
             if (canvasGroupTarget != null)
             {

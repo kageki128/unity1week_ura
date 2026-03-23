@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
 {
-    public class ViewArranger : MonoBehaviour
+    public class ViewArranger : MonoBehaviour, IAnimationSuspendable
     {
         enum AppearDirection
         {
@@ -41,6 +41,7 @@ namespace Unity1Week_Ura.Actor
         SpriteRenderer[] spriteRenderers;
         TMP_Text[] texts;
         bool hasAppeared;
+        int suspendCount;
 
         public void StopAnimations()
         {
@@ -54,8 +55,9 @@ namespace Unity1Week_Ura.Actor
         {
             var target = positionTarget != null ? positionTarget : transform;
             var targetPosition = new Vector3(x, y, target.localPosition.z);
+            bool shouldUseAnimation = useAnimation && suspendCount <= 0;
 
-            if (!useAnimation)
+            if (!shouldUseAnimation)
             {
                 StopAnimations();
                 hasAppeared = true;
@@ -90,6 +92,27 @@ namespace Unity1Week_Ura.Actor
                 .DOLocalMove(targetPosition, moveAnimationDuration)
                 .SetEase(moveAnimationEase)
                 .OnComplete(() => moveTween = null);
+        }
+
+        public void SuspendAnimation()
+        {
+            suspendCount++;
+            if (suspendCount != 1)
+            {
+                return;
+            }
+
+            StopAnimations();
+        }
+
+        public void ResumeAnimation()
+        {
+            if (suspendCount <= 0)
+            {
+                return;
+            }
+
+            suspendCount--;
         }
 
         void PlayAppearAnimation(Transform target, Vector3 targetPosition)

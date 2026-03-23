@@ -24,6 +24,8 @@ namespace Unity1Week_Ura.Actor
         public Observable<Account> OnPlayerAccountClicked => gamePhoneScreenView.OnPlayerAccountClicked;
         public Observable<Post> OnLikedByPlayer => gamePhoneScreenView.OnLikedByPlayer;
         public Observable<Post> OnRepostedByPlayer => gamePhoneScreenView.OnRepostedByPlayer;
+        public Observable<Unit> OnGameSettingOpened => gamePhoneScreenView.OnSettingOpened;
+        public Observable<Unit> OnGameSettingClosed => gamePhoneScreenView.OnSettingClosed;
         public Observable<Unit> OnSelectSceneButtonClicked => gamePhoneScreenView.OnSelectSceneButtonClicked;
         public Observable<Unit> OnRestartButtonClicked => gamePhoneScreenView.OnRestartButtonClicked;
 

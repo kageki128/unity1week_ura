@@ -84,9 +84,9 @@ namespace Unity1Week_Ura.Actor
             return $"<color={replyTextColorHex}>{replyText}</color>\n{property.Text}";
         }
 
-        public void SetPosition(float x, float y)
+        public void SetPosition(float x, float y, bool useAnimation = true)
         {
-            viewArranger.SetPosition(x, y);
+            viewArranger.SetPosition(x, y, useAnimation);
         }
 
         public void SetReturnPosition(float x, float y)

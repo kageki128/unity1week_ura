@@ -14,12 +14,15 @@ namespace Unity1Week_Ura.Actor
         public Observable<Account> OnPlayerAccountClicked => timelineGameSubScreenView.OnPlayerAccountClicked;
         public Observable<Post> OnLikedByPlayer => onLikedByPlayer;
         public Observable<Post> OnRepostedByPlayer => onRepostedByPlayer;
+        public Observable<Unit> OnSettingOpened => onSettingOpened;
+        public Observable<Unit> OnSettingClosed => onSettingClosed;
         public Observable<Unit> OnSelectSceneButtonClicked => settingGameSubScreenView.OnSelectSceneButtonClicked;
         public Observable<Unit> OnRestartButtonClicked => settingGameSubScreenView.OnRestartButtonClicked;
 
         [SerializeField] TimelineGameSubScreenView timelineGameSubScreenView;
         [SerializeField] SettingGameSubScreenView settingGameSubScreenView;
         [SerializeField] FocusGameSubScreenView focusGameSubScreenView;
+        [SerializeField] DraftListView draftListView;
 
         readonly Dictionary<GameScreenType, PhoneScreenViewBase> subScreens = new();
         readonly SemaphoreSlim screenSemaphore = new(1, 1);
@@ -28,6 +31,8 @@ namespace Unity1Week_Ura.Actor
         Observable<ReplyDraftPublishRequest> onReplyDraftDroppedToPublish;
         Observable<Post> onLikedByPlayer;
         Observable<Post> onRepostedByPlayer;
+        readonly Subject<Unit> onSettingOpened = new();
+        readonly Subject<Unit> onSettingClosed = new();
 
         GameScreenType currentScreenType = GameScreenType.Timeline;
         bool isBackFromFocusProcessing;
@@ -72,6 +77,10 @@ namespace Unity1Week_Ura.Actor
         public override async UniTask ShowAsync(CancellationToken ct)
         {
             gameObject.SetActive(true);
+            if (draftListView != null)
+            {
+                await draftListView.SetVisible(currentScreenType != GameScreenType.Setting, ct);
+            }
 
             var currentScreen = GetScreenView(currentScreenType);
             await currentScreen.ShowAsync(ct);
@@ -96,6 +105,7 @@ namespace Unity1Week_Ura.Actor
             await screenSemaphore.WaitAsync(ct);
             try
             {
+                var previousScreenType = currentScreenType;
                 var currentScreen = GetScreenView(currentScreenType);
                 var nextScreen = GetScreenView(targetType);
 
@@ -104,13 +114,43 @@ namespace Unity1Week_Ura.Actor
                     return;
                 }
 
-                await currentScreen.HideAsync(ct);
+                NotifySettingScreenTransition(previousScreenType, targetType);
+                UniTask draftListVisibilityTask = UniTask.CompletedTask;
+                if (draftListView != null)
+                {
+                    if (targetType == GameScreenType.Setting)
+                    {
+                        draftListVisibilityTask = draftListView.SetVisible(false, ct);
+                    }
+                    else if (previousScreenType == GameScreenType.Setting)
+                    {
+                        draftListVisibilityTask = draftListView.SetVisible(true, ct);
+                    }
+                }
+
+                await UniTask.WhenAll(
+                    currentScreen.HideAsync(ct),
+                    draftListVisibilityTask);
                 await nextScreen.ShowAsync(ct);
                 currentScreenType = targetType;
             }
             finally
             {
                 screenSemaphore.Release();
+            }
+        }
+
+        void NotifySettingScreenTransition(GameScreenType from, GameScreenType to)
+        {
+            if (from != GameScreenType.Setting && to == GameScreenType.Setting)
+            {
+                onSettingOpened.OnNext(Unit.Default);
+                return;
+            }
+
+            if (from == GameScreenType.Setting && to != GameScreenType.Setting)
+            {
+                onSettingClosed.OnNext(Unit.Default);
             }
         }
 
@@ -221,6 +261,10 @@ namespace Unity1Week_Ura.Actor
         {
             disposables.Dispose();
             screenSemaphore.Dispose();
+            onSettingOpened.OnCompleted();
+            onSettingClosed.OnCompleted();
+            onSettingOpened.Dispose();
+            onSettingClosed.Dispose();
         }
     }
 }
