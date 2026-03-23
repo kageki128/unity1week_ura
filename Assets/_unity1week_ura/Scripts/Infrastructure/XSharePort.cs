@@ -11,6 +11,7 @@ namespace Unity1Week_Ura.Infrastructure
         const string XIntentBaseUrl = "https://x.com/intent/post";
         const string DifficultyPlaceholder = "{difficulty}";
         const string ScorePlaceholder = "{score}";
+        const string ReasonPlaceholder = "{reason}";
         const string UrlPlaceholder = "{url}";
         readonly GameConfigSO gameConfig;
 
@@ -27,10 +28,12 @@ namespace Unity1Week_Ura.Infrastructure
             }
 
             var difficultyName = gameResult.GameRule == null ? "Unknown" : gameResult.GameRule.DifficultyName;
+            var finishReasonText = gameConfig.GetFinishReasonText(gameResult.FinishReason);
             var shareUrl = Application.absoluteURL;
             return gameConfig.ResultText
                 .Replace(DifficultyPlaceholder, difficultyName)
                 .Replace(ScorePlaceholder, gameResult.Score.ToString())
+                .Replace(ReasonPlaceholder, finishReasonText)
                 .Replace(UrlPlaceholder, shareUrl);
         }
 

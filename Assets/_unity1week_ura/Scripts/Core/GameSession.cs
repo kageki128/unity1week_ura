@@ -18,6 +18,8 @@ namespace Unity1Week_Ura.Core
 
         public ReadOnlyReactiveProperty<GameState> CurrentGameState => currentGameState;
         readonly ReactiveProperty<GameState> currentGameState = new(GameState.Preparing);
+        public ReadOnlyReactiveProperty<FinishReason> CurrentFinishReason => finishReason;
+        readonly ReactiveProperty<FinishReason> finishReason = new(FinishReason.None);
 
         public IReadOnlyList<Account> PlayerAccounts => timeline.PlayerAccounts;
         public ReadOnlyReactiveProperty<Account> SelectedPlayerAccount => timeline.SelectedPlayerAccount;
@@ -71,6 +73,7 @@ namespace Unity1Week_Ura.Core
             repostScoredPostIds.Clear();
             remainingTimeSeconds.Value = gameRule.TimeLimitSeconds;
             score.Value = 0;
+            finishReason.Value = FinishReason.None;
             currentGameState.Value = GameState.Pause;
         }
 
@@ -116,13 +119,14 @@ namespace Unity1Week_Ura.Core
             currentGameState.Value = GameState.Finished;
         }
 
-        void FinishGame()
+        void FinishGame(FinishReason reason)
         {
             if (currentGameState.CurrentValue == GameState.Finished)
             {
                 return;
             }
 
+            finishReason.Value = reason;
             currentGameState.Value = GameState.Finished;
             onGameFinished.OnNext(Unit.Default);
         }
@@ -139,7 +143,7 @@ namespace Unity1Week_Ura.Core
             remainingTimeSeconds.Value = Mathf.Max(remainingTimeSeconds.Value - deltaTime, 0);
             if (remainingTimeSeconds.Value <= 0)
             {
-                FinishGame();
+                FinishGame(FinishReason.TimeUp);
             }
         }
 
@@ -152,7 +156,7 @@ namespace Unity1Week_Ura.Core
 
             if (post == null || post.Type != PostType.Normal)
             {
-                FinishGame();
+                FinishGame(FinishReason.InvalidNormalDraftPublish);
                 return;
             }
 
@@ -162,7 +166,7 @@ namespace Unity1Week_Ura.Core
             }
             else
             {
-                FinishGame();
+                FinishGame(FinishReason.WrongAccountNormalPost);
             }
         }
 
@@ -175,20 +179,20 @@ namespace Unity1Week_Ura.Core
 
             if (request == null)
             {
-                FinishGame();
+                FinishGame(FinishReason.InvalidReplyDraftPublish);
                 return;
             }
 
             var replyDraft = request.ReplyDraft;
             if (replyDraft == null || replyDraft.Type != PostType.Reply)
             {
-                FinishGame();
+                FinishGame(FinishReason.InvalidReplyDraftPublish);
                 return;
             }
 
             if (!IsFocusedPostMatchedReplyTarget(replyDraft, request.FocusedPost))
             {
-                FinishGame();
+                FinishGame(FinishReason.WrongReplyTarget);
                 return;
             }
 
@@ -198,7 +202,7 @@ namespace Unity1Week_Ura.Core
             }
             else
             {
-                FinishGame();
+                FinishGame(FinishReason.WrongAccountReplyPost);
             }
         }
 
@@ -218,7 +222,7 @@ namespace Unity1Week_Ura.Core
 
             if (!timeline.IsCurrentPlayerAccountCorrectForAction(post))
             {
-                FinishGame();
+                FinishGame(FinishReason.WrongAccountLike);
                 return;
             }
 
@@ -248,7 +252,7 @@ namespace Unity1Week_Ura.Core
 
             if (!timeline.IsCurrentPlayerAccountCorrectForAction(post))
             {
-                FinishGame();
+                FinishGame(FinishReason.WrongAccountRepost);
                 return;
             }
 
@@ -308,7 +312,8 @@ namespace Unity1Week_Ura.Core
 
             GameResult gameResult = new(
                 score: score.Value,
-                gameRule: gameRule
+                gameRule: gameRule,
+                finishReason: finishReason.CurrentValue
             );
             return socialSharePort.BuildResultShareText(gameResult);
         }
