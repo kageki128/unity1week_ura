@@ -98,7 +98,8 @@ namespace Unity1Week_Ura.Director
             }).AddTo(disposables);
             gameSession.OnGameFinished.Take(1).Subscribe(_ =>
             {
-                sceneModel.ChangeScene(SceneType.Result);
+                gameViewHub.SetGameSubScreenTransitionEnabled(false);
+                HandleGameFinishedAsync(ct).Forget();
             }).AddTo(disposables);
         }
 
@@ -111,6 +112,21 @@ namespace Unity1Week_Ura.Director
         {
             disposables.Clear();
             await gameViewHub.HideAsync(ct);
+        }
+
+        async UniTask HandleGameFinishedAsync(CancellationToken ct)
+        {
+            var finishReason = gameSession.CurrentFinishReason.CurrentValue;
+            try
+            {
+                await gameViewHub.PlayFinishTextAnimationAsync(finishReason, ct);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+
+            sceneModel.ChangeScene(SceneType.Result);
         }
     }
 }

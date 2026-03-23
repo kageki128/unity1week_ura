@@ -284,9 +284,13 @@ namespace Unity1Week_Ura.Actor
                 ct.ThrowIfCancellationRequested();
 
                 var burstCount = DetermineBurstCount(fullText, index);
-                for (var i = 0; i < burstCount && index < textLength; i++, index++)
+                var lastTypedCharacter = '\0';
+                for (var i = 0; i < burstCount && index < textLength; i++)
                 {
-                    builder.Append(fullText[index]);
+                    var textElementLength = GetTextElementLength(fullText, index);
+                    builder.Append(fullText, index, textElementLength);
+                    lastTypedCharacter = fullText[index];
+                    index += textElementLength;
                 }
 
                 shareContentText.text = builder.ToString();
@@ -297,7 +301,7 @@ namespace Unity1Week_Ura.Actor
                     break;
                 }
 
-                var delaySeconds = CalculateTypingDelay(fullText[index - 1]);
+                var delaySeconds = CalculateTypingDelay(lastTypedCharacter);
                 if (delaySeconds <= 0f)
                 {
                     await UniTask.Yield(PlayerLoopTiming.Update, ct);
@@ -310,14 +314,21 @@ namespace Unity1Week_Ura.Actor
 
         int DetermineBurstCount(string fullText, int currentIndex)
         {
-            if (currentIndex >= fullText.Length - 1)
+            if (currentIndex >= fullText.Length)
+            {
+                return 1;
+            }
+
+            var currentTextElementLength = GetTextElementLength(fullText, currentIndex);
+            var nextIndex = currentIndex + currentTextElementLength;
+            if (nextIndex >= fullText.Length)
             {
                 return 1;
             }
 
             var current = fullText[currentIndex];
-            var next = fullText[currentIndex + 1];
-            if (current == '\n' || next == '\n' || char.IsWhiteSpace(current) || char.IsWhiteSpace(next))
+            var next = fullText[nextIndex];
+            if (IsLineBreakOrWhiteSpace(current) || IsLineBreakOrWhiteSpace(next))
             {
                 return 1;
             }
@@ -331,7 +342,7 @@ namespace Unity1Week_Ura.Actor
             var maxDelay = Mathf.Max(minTypingInterval, maxTypingInterval);
             var delay = UnityEngine.Random.Range(minDelay, maxDelay);
 
-            if (lastTypedCharacter == '\n')
+            if (lastTypedCharacter == '\n' || lastTypedCharacter == '\r')
             {
                 delay += lineBreakPause;
             }
@@ -345,6 +356,21 @@ namespace Unity1Week_Ura.Actor
             }
 
             return delay;
+        }
+
+        static int GetTextElementLength(string text, int index)
+        {
+            if (index >= text.Length - 1)
+            {
+                return 1;
+            }
+
+            return char.IsHighSurrogate(text[index]) && char.IsLowSurrogate(text[index + 1]) ? 2 : 1;
+        }
+
+        static bool IsLineBreakOrWhiteSpace(char c)
+        {
+            return c == '\n' || c == '\r' || char.IsWhiteSpace(c);
         }
 
         float CalculateExtraHeight()

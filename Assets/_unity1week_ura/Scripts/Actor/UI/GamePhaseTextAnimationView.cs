@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Unity1Week_Ura.Actor
 {
     [DisallowMultipleComponent]
-    public class GameStartTextAnimationView : MonoBehaviour
+    public class GamePhaseTextAnimationView : MonoBehaviour
     {
         [Header("References")]
         [SerializeField] TMP_Text messageText;
@@ -51,6 +51,31 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] float startCharacterSpacingStart = 12f;
         [SerializeField] float startCharacterSpacingImpact = -3f;
         [SerializeField] float startCharacterSpacingSettle = 0.5f;
+
+        [Header("Finish Phase")]
+        [SerializeField] Color finishSuccessColor = new Color32(0xEE, 0x5A, 0x7F, 0xFF);
+        [SerializeField] Color finishFailureColor = new Color32(0x7F, 0xDB, 0xFF, 0xFF);
+        [SerializeField, Min(0.01f)] float finishChargeDuration = 0.24f;
+        [SerializeField, Min(0.01f)] float finishImpactDuration = 0.26f;
+        [SerializeField, Min(0.01f)] float finishSettleDuration = 0.3f;
+        [SerializeField, Min(0.01f)] float finishRecoverDuration = 0.16f;
+        [SerializeField, Min(0f)] float finishHoldDuration = 0.36f;
+        [SerializeField, Min(0.01f)] float finishFadeOutDuration = 0.3f;
+        [SerializeField, Min(0.1f)] float finishInitialScale = 2.4f;
+        [SerializeField, Min(0.1f)] float finishChargeScale = 2.72f;
+        [SerializeField, Min(0.1f)] float finishImpactScale = 0.84f;
+        [SerializeField, Min(0.1f)] float finishSettleScale = 1.09f;
+        [SerializeField] float finishInitialOffsetX = -120f;
+        [SerializeField] float finishInitialOffsetY = 48f;
+        [SerializeField] float finishImpactOffsetX = 8f;
+        [SerializeField] float finishImpactOffsetY = -8f;
+        [SerializeField] float finishFadeOutOffsetY = 26f;
+        [SerializeField] float finishInitialTiltZ = -11f;
+        [SerializeField] float finishImpactTiltZ = 2f;
+        [SerializeField] float finishCharacterSpacingStart = 14f;
+        [SerializeField] float finishCharacterSpacingCharge = -2f;
+        [SerializeField] float finishCharacterSpacingImpact = -5f;
+        [SerializeField] float finishCharacterSpacingSettle = 0.8f;
 
         [Header("Behavior")]
         [SerializeField] bool hideOnInitialize = true;
@@ -96,6 +121,37 @@ namespace Unity1Week_Ura.Actor
             {
                 await PlayReadyPhaseAsync(ct);
                 await PlayStartPhaseAsync(ct);
+            }
+            finally
+            {
+                SetHiddenInstant();
+                if (deactivateOnComplete)
+                {
+                    gameObject.SetActive(false);
+                }
+            }
+        }
+
+        public async UniTask PlayFinishAsync(string message, bool isSuccess, CancellationToken ct)
+        {
+            EnsureInitialized();
+            if (!CanPlayAnimation())
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return;
+            }
+
+            KillActiveTween();
+            gameObject.SetActive(true);
+
+            try
+            {
+                var color = isSuccess ? finishSuccessColor : finishFailureColor;
+                await PlayFinishPhaseAsync(message, color, ct);
             }
             finally
             {
@@ -163,6 +219,43 @@ namespace Unity1Week_Ura.Actor
                 .Join(DOTween.To(GetCharacterSpacing, SetCharacterSpacing, baseCharacterSpacing, startRecoverDuration).SetEase(Ease.OutQuad))
                 .AppendInterval(startHoldDuration)
                 .Append(DOTween.To(GetAlpha, SetAlpha, 0f, startFadeOutDuration).SetEase(Ease.InCubic));
+
+            await AwaitTweenAsync(sequence, ct);
+        }
+
+        async UniTask PlayFinishPhaseAsync(string message, Color color, CancellationToken ct)
+        {
+            SetMessage(message, color);
+            SetAlpha(0f);
+            ResetTransform();
+
+            textTransform.localPosition = baseLocalPosition + new Vector3(finishInitialOffsetX, finishInitialOffsetY, 0f);
+            textTransform.localScale = baseLocalScale * finishInitialScale;
+            textTransform.localRotation = Quaternion.Euler(0f, 0f, finishInitialTiltZ);
+            SetCharacterSpacing(finishCharacterSpacingStart);
+
+            var impactPosition = baseLocalPosition + new Vector3(finishImpactOffsetX, finishImpactOffsetY, 0f);
+            var fadeOutPosition = baseLocalPosition + Vector3.down * finishFadeOutOffsetY;
+            var sequence = DOTween.Sequence()
+                .Append(DOTween.To(GetAlpha, SetAlpha, 1f, finishChargeDuration * 0.8f).SetEase(Ease.OutQuad))
+                .Join(textTransform.DOScale(baseLocalScale * finishChargeScale, finishChargeDuration).SetEase(Ease.OutCubic))
+                .Join(textTransform.DOLocalMove(baseLocalPosition, finishChargeDuration).SetEase(Ease.OutExpo))
+                .Join(textTransform.DOLocalRotate(Vector3.zero, finishChargeDuration).SetEase(Ease.OutCubic))
+                .Join(DOTween.To(GetCharacterSpacing, SetCharacterSpacing, finishCharacterSpacingCharge, finishChargeDuration).SetEase(Ease.OutCubic))
+                .Append(textTransform.DOScale(baseLocalScale * finishImpactScale, finishImpactDuration).SetEase(Ease.InExpo))
+                .Join(textTransform.DOLocalMove(impactPosition, finishImpactDuration).SetEase(Ease.InExpo))
+                .Join(textTransform.DOLocalRotate(new Vector3(0f, 0f, finishImpactTiltZ), finishImpactDuration).SetEase(Ease.InExpo))
+                .Join(DOTween.To(GetCharacterSpacing, SetCharacterSpacing, finishCharacterSpacingImpact, finishImpactDuration).SetEase(Ease.InExpo))
+                .Append(textTransform.DOScale(baseLocalScale * finishSettleScale, finishSettleDuration).SetEase(Ease.OutBack))
+                .Join(textTransform.DOLocalMove(baseLocalPosition, finishSettleDuration).SetEase(Ease.OutBack))
+                .Join(textTransform.DOLocalRotate(Vector3.zero, finishSettleDuration).SetEase(Ease.OutBack))
+                .Join(DOTween.To(GetCharacterSpacing, SetCharacterSpacing, finishCharacterSpacingSettle, finishSettleDuration).SetEase(Ease.OutBack))
+                .Append(textTransform.DOScale(baseLocalScale, finishRecoverDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(GetCharacterSpacing, SetCharacterSpacing, baseCharacterSpacing, finishRecoverDuration).SetEase(Ease.OutQuad))
+                .AppendInterval(finishHoldDuration)
+                .Append(DOTween.To(GetAlpha, SetAlpha, 0f, finishFadeOutDuration).SetEase(Ease.InCubic))
+                .Join(textTransform.DOLocalMove(fadeOutPosition, finishFadeOutDuration).SetEase(Ease.InCubic))
+                .Join(DOTween.To(GetCharacterSpacing, SetCharacterSpacing, finishCharacterSpacingStart, finishFadeOutDuration).SetEase(Ease.InCubic));
 
             await AwaitTweenAsync(sequence, ct);
         }

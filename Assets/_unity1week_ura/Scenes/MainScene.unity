@@ -14996,6 +14996,29 @@ MonoBehaviour:
   startCharacterSpacingStart: 12
   startCharacterSpacingImpact: -3
   startCharacterSpacingSettle: 0.5
+  finishSuccessColor: {r: 0.93333334, g: 0.3529412, b: 0.49803922, a: 1}
+  finishFailureColor: {r: 0.11372549, g: 0.6313726, b: 0.9490196, a: 1}
+  finishChargeDuration: 0.24
+  finishImpactDuration: 0.26
+  finishSettleDuration: 0.3
+  finishRecoverDuration: 0.16
+  finishHoldDuration: 0.36
+  finishFadeOutDuration: 0.3
+  finishInitialScale: 2.4
+  finishChargeScale: 2.72
+  finishImpactScale: 0.84
+  finishSettleScale: 1.09
+  finishInitialOffsetX: -120
+  finishInitialOffsetY: 48
+  finishImpactOffsetX: 8
+  finishImpactOffsetY: -8
+  finishFadeOutOffsetY: 26
+  finishInitialTiltZ: -11
+  finishImpactTiltZ: 2
+  finishCharacterSpacingStart: 14
+  finishCharacterSpacingCharge: -2
+  finishCharacterSpacingImpact: -5
+  finishCharacterSpacingSettle: 0.8
   hideOnInitialize: 1
   deactivateOnComplete: 1
 --- !u!1 &1886397164

@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using R3;
 using Unity1Week_Ura.Core;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Unity1Week_Ura.Actor
 {
@@ -23,18 +24,19 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] DraftListView draftListView;
         [SerializeField] ScoreView scoreView;
         [SerializeField] RemainingTimeView remainingTimeView;
-        [SerializeField] GameStartTextAnimationView gameStartTextAnimationView;
+        [FormerlySerializedAs("gameStartTextAnimationView")]
+        [SerializeField] GamePhaseTextAnimationView gamePhaseTextAnimationView;
         [SerializeField] TimedViewAnimationPlayer timedViewAnimationPlayer;
 
         public override void Initialize()
         {
             InitializeViews();
             draftListView.Initialize();
-            if (gameStartTextAnimationView == null)
+            if (gamePhaseTextAnimationView == null)
             {
-                gameStartTextAnimationView = GetComponentInChildren<GameStartTextAnimationView>(true);
+                gamePhaseTextAnimationView = GetComponentInChildren<GamePhaseTextAnimationView>(true);
             }
-            gameStartTextAnimationView?.Initialize();
+            gamePhaseTextAnimationView?.Initialize();
             smartPhoneView.SetGameSubScreenTransitionEnabled(false);
             gameObject.SetActive(false);
         }
@@ -57,9 +59,9 @@ namespace Unity1Week_Ura.Actor
                     timedViewAnimationPlayer.PlayShowAsync(ct));
             }
             
-            if (gameStartTextAnimationView != null)
+            if (gamePhaseTextAnimationView != null)
             {
-                await gameStartTextAnimationView.PlayAsync(ct);
+                await gamePhaseTextAnimationView.PlayAsync(ct);
             }
 
             smartPhoneView.SetGameSubScreenTransitionEnabled(true);
@@ -96,6 +98,19 @@ namespace Unity1Week_Ura.Actor
 
         public void SetScore(int score) => scoreView.SetScore(score);
         public void SetRemainingTime(float remainingTime) => remainingTimeView.SetRemainingTime(remainingTime);
+        public void SetGameSubScreenTransitionEnabled(bool isEnabled) => smartPhoneView.SetGameSubScreenTransitionEnabled(isEnabled);
+
+        public async UniTask PlayFinishTextAnimationAsync(FinishReason finishReason, CancellationToken ct)
+        {
+            if (gamePhaseTextAnimationView == null)
+            {
+                return;
+            }
+
+            var isTimeUp = finishReason == FinishReason.TimeUp;
+            var message = isTimeUp ? "FINISH！" : "Oops！";
+            await gamePhaseTextAnimationView.PlayFinishAsync(message, isTimeUp, ct);
+        }
 
         void InitializeViews()
         {
