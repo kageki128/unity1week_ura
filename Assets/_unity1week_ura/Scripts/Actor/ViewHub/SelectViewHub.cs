@@ -12,7 +12,7 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] SmartPhoneView smartPhoneView;
         [SerializeField] TimedViewAnimationPlayer timedViewAnimationPlayer;
 
-        public Observable<GameRuleSO> OnDifficultyButtonClicked => smartPhoneView.OnDifficultyButtonClicked;
+        public Observable<GameRuleSO> OnGameStartButtonClicked => smartPhoneView.OnGameStartButtonClicked;
         public Observable<Unit> OnBackToTitleButtonClicked => smartPhoneView.OnBackToTitleButtonClicked;
 
         public override void Initialize()

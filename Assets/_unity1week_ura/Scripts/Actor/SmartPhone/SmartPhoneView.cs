@@ -15,7 +15,7 @@ namespace Unity1Week_Ura.Actor
         public Observable<Unit> OnStartButtonClicked => titlePhoneScreenView.OnStartButtonClicked;
 
         // Select
-        public Observable<GameRuleSO> OnDifficultyButtonClicked => selectPhoneScreenView.OnDifficultyButtonClicked;
+        public Observable<GameRuleSO> OnGameStartButtonClicked => selectPhoneScreenView.OnGameStartButtonClicked;
         public Observable<Unit> OnBackToTitleButtonClicked => selectPhoneScreenView.OnBackToTitleButtonClicked;
 
         // Game
@@ -57,6 +57,7 @@ namespace Unity1Week_Ura.Actor
         readonly Dictionary<SceneType, Transform> hideSceneTargets = new();
 
         Tween currentTween;
+        bool needsInitialSnapToShowTransform;
 
         public override void Initialize()
         {
@@ -77,6 +78,8 @@ namespace Unity1Week_Ura.Actor
             hideSceneTargets.Add(SceneType.Select, selectHideTransform);
             hideSceneTargets.Add(SceneType.Game, gameHideTransform);
             hideSceneTargets.Add(SceneType.Result, resultHideTransform);
+
+            needsInitialSnapToShowTransform = true;
 
             foreach (var screenView in screenViews.Values)
             {
@@ -102,9 +105,19 @@ namespace Unity1Week_Ura.Actor
             var screenView = GetScreenView(sceneType);
             var targetTransform = GetShowTargetTransform(sceneType);
 
-            var animationTask = targetTransform != null
-                ? AnimateToTargetAsync(targetTransform, AnimationDuration, AnimationEase, ct)
-                : UniTask.CompletedTask;
+            var animationTask = UniTask.CompletedTask;
+            if (targetTransform != null)
+            {
+                if (needsInitialSnapToShowTransform)
+                {
+                    needsInitialSnapToShowTransform = false;
+                    animationTask = AnimateToTargetAsync(targetTransform, 0f, AnimationEase, ct);
+                }
+                else
+                {
+                    animationTask = AnimateToTargetAsync(targetTransform, AnimationDuration, AnimationEase, ct);
+                }
+            }
 
             await UniTask.WhenAll(
                 screenView.ShowAsync(ct),
