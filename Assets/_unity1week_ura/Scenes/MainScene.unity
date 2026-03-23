@@ -1055,13 +1055,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1288088433437582445, guid: 7df618106c4150a46942ef397e8deacb, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 4637012995582181313, guid: 7df618106c4150a46942ef397e8deacb, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7df618106c4150a46942ef397e8deacb, type: 3}
 --- !u!4 &99652767 stripped
 Transform:
@@ -9144,6 +9138,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.DifficultyInfoView
   detailText: {fileID: 1578751540}
+  labelColor: {r: 0.05882353, g: 0.078431375, b: 0.09803922, a: 1}
+  valueColor: {r: 0.3254902, g: 0.39215687, b: 0.44313726, a: 1}
 --- !u!1 &1263922596
 GameObject:
   m_ObjectHideFlags: 0
