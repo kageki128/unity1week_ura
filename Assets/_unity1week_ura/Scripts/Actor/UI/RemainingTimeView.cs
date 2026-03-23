@@ -9,6 +9,7 @@ namespace Unity1Week_Ura.Actor
 {
     public class RemainingTimeView : AnimationViewBase
     {
+        [SerializeField] StandardViewAnimator standardViewAnimator;
         [SerializeField] TMP_Text remainingTimeText;
 
         const string Format = @"mm\:ss";
@@ -38,19 +39,30 @@ namespace Unity1Week_Ura.Actor
 
             displayedTimeText = TimeSpan.Zero.ToString(Format);
             RefreshTimeText();
+            standardViewAnimator?.Initialize();
             gameObject.SetActive(false);
         }
 
         public override UniTask ShowAsync(CancellationToken ct)
         {
-            gameObject.SetActive(true);
             RefreshTimeText();
+            if (standardViewAnimator != null)
+            {
+                return standardViewAnimator.ShowAsync(ct);
+            }
+
+            gameObject.SetActive(true);
             return UniTask.CompletedTask;
         }
 
         public override UniTask HideAsync(CancellationToken ct)
         {
             StopWarningAnimation(resetVisualState: true);
+            if (standardViewAnimator != null)
+            {
+                return standardViewAnimator.HideAsync(ct);
+            }
+
             gameObject.SetActive(false);
             return UniTask.CompletedTask;
         }

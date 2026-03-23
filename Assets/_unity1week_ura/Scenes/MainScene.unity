@@ -9453,8 +9453,8 @@ MonoBehaviour:
   typingTextColor: {r: 0.06666667, g: 0.078431375, b: 0.09803922, a: 1}
   minTypingInterval: 0.03
   maxTypingInterval: 0.1
-  punctuationPause: 0.08
-  lineBreakPause: 0.14
+  punctuationPause: 0.06
+  lineBreakPause: 0.1
   flickBurstChance: 0.2
   shareButtonFadeDuration: 0.8
   shareButtonFadeEase: 9
@@ -11714,6 +11714,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1763245043}
   - component: {fileID: 1763245044}
+  - component: {fileID: 1763245045}
   m_Layer: 0
   m_Name: DraftList
   m_TagString: Untagged
@@ -11759,6 +11760,37 @@ MonoBehaviour:
   scrollBarView: {fileID: 121928761}
   wheelScrollStep: 0.2
   bottomSpacingAtMaxScroll: 1
+--- !u!114 &1763245045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1763245042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e94241fb36db4b8da75af2f1e82f8003, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.StandardViewAnimator
+  moveTarget: {fileID: 1763245043}
+  canvasGroupTarget: {fileID: 0}
+  autoCollectVisualTargets: 1
+  spriteRenderers: []
+  texts: []
+  graphics: []
+  showDirection: 0
+  showMoveDistance: 3
+  showDuration: 0.3
+  showEase: 9
+  hideDirection: 0
+  hideMoveDistance: 3
+  hideDuration: 0.3
+  hideEase: 9
+  deactivateOnHide: 1
+  visibleAlpha: 1
+  hiddenAlpha: 0
+  controlCanvasGroupInteraction: 1
+  hideOnInitialize: 1
 --- !u!1 &1777314645
 GameObject:
   m_ObjectHideFlags: 0
@@ -12358,6 +12390,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1803890733}
   - component: {fileID: 1803890734}
+  - component: {fileID: 1803890735}
   m_Layer: 0
   m_Name: GameScene
   m_TagString: Untagged
@@ -12399,6 +12432,33 @@ MonoBehaviour:
   draftListView: {fileID: 1763245044}
   scoreView: {fileID: 2053070617}
   remainingTimeView: {fileID: 2060989201}
+  timedViewAnimationPlayer: {fileID: 1803890735}
+--- !u!114 &1803890735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1803890732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35217c3bb8924fb4b3b79ebf087899a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.TimedViewAnimationPlayer
+  showAnimations:
+  - view: {fileID: 2053070617}
+    startAtSeconds: 0.2
+  - view: {fileID: 2060989201}
+    startAtSeconds: 0.23
+  - view: {fileID: 1763245045}
+    startAtSeconds: 0.2
+  hideAnimations:
+  - view: {fileID: 2060989201}
+    startAtSeconds: 0
+  - view: {fileID: 2053070617}
+    startAtSeconds: 0
+  - view: {fileID: 1763245045}
+    startAtSeconds: 0
 --- !u!1 &1820942808
 GameObject:
   m_ObjectHideFlags: 0
@@ -12408,7 +12468,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1820942809}
-  - component: {fileID: 1820942810}
   m_Layer: 0
   m_Name: Drafts
   m_TagString: Untagged
@@ -12436,20 +12495,6 @@ RectTransform:
   m_AnchoredPosition: {x: 6.5, y: 4}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1820942810
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1820942808}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
-  m_Padding: {x: 0, y: 0, z: 0, w: 0}
-  m_Softness: {x: 0, y: 0}
 --- !u!1 &1840465816
 GameObject:
   m_ObjectHideFlags: 0
@@ -14267,6 +14312,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2053070616}
   - component: {fileID: 2053070617}
+  - component: {fileID: 2053070618}
   m_Layer: 0
   m_Name: Score
   m_TagString: Untagged
@@ -14304,6 +14350,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e16d2f01ee90ab499009c394e416029, type: 3}
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.ScoreView
+  standardViewAnimator: {fileID: 2053070618}
   scoreText: {fileID: 2035369624}
   scoreDeltaText: {fileID: 213972572}
   scoreGainColor: {r: 0.93333334, g: 0.3529412, b: 0.49803922, a: 1}
@@ -14318,6 +14365,37 @@ MonoBehaviour:
   scoreDeltaEnterDuration: 0.14
   scoreDeltaStayDuration: 0.2
   scoreDeltaExitDuration: 0.2
+--- !u!114 &2053070618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2053070615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e94241fb36db4b8da75af2f1e82f8003, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.StandardViewAnimator
+  moveTarget: {fileID: 2053070616}
+  canvasGroupTarget: {fileID: 0}
+  autoCollectVisualTargets: 1
+  spriteRenderers: []
+  texts: []
+  graphics: []
+  showDirection: 3
+  showMoveDistance: 2
+  showDuration: 0.3
+  showEase: 9
+  hideDirection: 3
+  hideMoveDistance: 2
+  hideDuration: 0.3
+  hideEase: 9
+  deactivateOnHide: 1
+  visibleAlpha: 1
+  hiddenAlpha: 0
+  controlCanvasGroupInteraction: 1
+  hideOnInitialize: 1
 --- !u!1 &2060989199
 GameObject:
   m_ObjectHideFlags: 0
@@ -14328,6 +14406,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2060989200}
   - component: {fileID: 2060989201}
+  - component: {fileID: 2060989202}
   m_Layer: 0
   m_Name: RemainingTime
   m_TagString: Untagged
@@ -14364,11 +14443,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8822714de7f0ea49bc79ee55480acea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.RemainingTimeView
+  standardViewAnimator: {fileID: 2060989202}
   remainingTimeText: {fileID: 2000921572}
   warningThresholdSeconds: 10
   warningColor: {r: 0.93333334, g: 0.3529412, b: 0.49803922, a: 1}
   warningDigitScale: 1.12
   warningAnimationDuration: 0.3
+--- !u!114 &2060989202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2060989199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e94241fb36db4b8da75af2f1e82f8003, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.StandardViewAnimator
+  moveTarget: {fileID: 2060989200}
+  canvasGroupTarget: {fileID: 0}
+  autoCollectVisualTargets: 1
+  spriteRenderers: []
+  texts: []
+  graphics: []
+  showDirection: 3
+  showMoveDistance: 3
+  showDuration: 0.3
+  showEase: 9
+  hideDirection: 3
+  hideMoveDistance: 3
+  hideDuration: 0.3
+  hideEase: 9
+  deactivateOnHide: 1
+  visibleAlpha: 1
+  hiddenAlpha: 0
+  controlCanvasGroupInteraction: 1
+  hideOnInitialize: 1
 --- !u!1 &2102542357
 GameObject:
   m_ObjectHideFlags: 0

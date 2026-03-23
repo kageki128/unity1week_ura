@@ -16,34 +16,35 @@ namespace Unity1Week_Ura.Actor
         public Observable<Post> OnRepostedByPlayer => smartPhoneView.OnRepostedByPlayer;
         public Observable<Unit> OnSelectSceneButtonClicked => smartPhoneView.OnSelectSceneButtonClicked;
         public Observable<Unit> OnRestartButtonClicked => smartPhoneView.OnRestartButtonClicked;
-        
+
         [SerializeField] SmartPhoneView smartPhoneView;
         [SerializeField] DraftListView draftListView;
         [SerializeField] ScoreView scoreView;
         [SerializeField] RemainingTimeView remainingTimeView;
+        [SerializeField] TimedViewAnimationPlayer timedViewAnimationPlayer;
 
         public override void Initialize()
         {
-            smartPhoneView.Initialize();
+            InitializeViews();
             draftListView.Initialize();
-            remainingTimeView.Initialize();
-            scoreView.Initialize();
             gameObject.SetActive(false);
         }
 
         public override async UniTask ShowAsync(CancellationToken ct)
         {
             gameObject.SetActive(true);
-            await smartPhoneView.ShowSceneAsync(SceneType.Game, ct);
-            await scoreView.ShowAsync(ct);
-            await remainingTimeView.ShowAsync(ct);
+
+            await UniTask.WhenAll(
+                smartPhoneView.ShowSceneAsync(SceneType.Game, ct),
+                timedViewAnimationPlayer.PlayShowAsync(ct));
         }
 
         public override async UniTask HideAsync(CancellationToken ct)
         {
-            await smartPhoneView.HideSceneAsync(SceneType.Game, ct);
-            await scoreView.HideAsync(ct);
-            await remainingTimeView.HideAsync(ct);
+            await UniTask.WhenAll(
+                smartPhoneView.HideSceneAsync(SceneType.Game, ct),
+                timedViewAnimationPlayer.PlayHideAsync(ct));
+                
             gameObject.SetActive(false);
         }
 
@@ -58,5 +59,26 @@ namespace Unity1Week_Ura.Actor
 
         public void SetScore(int score) => scoreView.SetScore(score);
         public void SetRemainingTime(float remainingTime) => remainingTimeView.SetRemainingTime(remainingTime);
+
+        void InitializeViews()
+        {
+            var initializedViews = new HashSet<AnimationViewBase>();
+            TryInitializeView(smartPhoneView, initializedViews);
+            TryInitializeView(scoreView, initializedViews);
+            TryInitializeView(remainingTimeView, initializedViews);
+            timedViewAnimationPlayer?.InitializeRegisteredViews(initializedViews);
+        }
+
+        static void TryInitializeView(AnimationViewBase view, ISet<AnimationViewBase> initializedViews)
+        {
+            if (view == null || initializedViews.Contains(view))
+            {
+                return;
+            }
+
+            view.Initialize();
+            initializedViews.Add(view);
+        }
+
     }
 }

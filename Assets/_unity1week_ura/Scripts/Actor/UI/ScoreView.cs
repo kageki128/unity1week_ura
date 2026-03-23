@@ -9,6 +9,7 @@ namespace Unity1Week_Ura.Actor
 {
     public class ScoreView : AnimationViewBase
     {
+        [SerializeField] StandardViewAnimator standardViewAnimator;
         [SerializeField] TMP_Text scoreText;
         [SerializeField] TMP_Text scoreDeltaText;
 
@@ -63,19 +64,30 @@ namespace Unity1Week_Ura.Actor
             isScoreColorAnimating = false;
             isDigitScaleAnimating = false;
             RefreshScoreText();
+            standardViewAnimator?.Initialize();
             gameObject.SetActive(false);
         }
 
         public override UniTask ShowAsync(CancellationToken ct)
         {
-            gameObject.SetActive(true);
             RefreshScoreText();
+            if (standardViewAnimator != null)
+            {
+                return standardViewAnimator.ShowAsync(ct);
+            }
+
+            gameObject.SetActive(true);
             return UniTask.CompletedTask;
         }
 
         public override UniTask HideAsync(CancellationToken ct)
         {
             StopAnimations(resetVisualState: true);
+            if (standardViewAnimator != null)
+            {
+                return standardViewAnimator.HideAsync(ct);
+            }
+
             gameObject.SetActive(false);
             return UniTask.CompletedTask;
         }
