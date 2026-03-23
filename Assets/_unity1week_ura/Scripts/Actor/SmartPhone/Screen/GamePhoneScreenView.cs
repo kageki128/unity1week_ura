@@ -36,6 +36,7 @@ namespace Unity1Week_Ura.Actor
 
         GameScreenType currentScreenType = GameScreenType.Timeline;
         bool isBackFromFocusProcessing;
+        bool isSubScreenTransitionEnabled;
 
         public override void Initialize(ScreenTransitionViewHub screenTransitionViewHub)
         {
@@ -47,11 +48,25 @@ namespace Unity1Week_Ura.Actor
             subScreens.Add(GameScreenType.Setting, settingGameSubScreenView);
             subScreens.Add(GameScreenType.Focus, focusGameSubScreenView);
 
-            timelineGameSubScreenView.OnSettingButtonClicked.Subscribe(_ => ChangeScreenAsync(GameScreenType.Setting, destroyCancellationToken).Forget()).AddTo(disposables);
-            settingGameSubScreenView.OnTimelineButtonClicked.Subscribe(_ => ChangeScreenAsync(GameScreenType.Timeline, destroyCancellationToken).Forget()).AddTo(disposables);
-            timelineGameSubScreenView.OnPostClicked.Subscribe(post => GoToFocusScreenAsync(post, destroyCancellationToken).Forget()).AddTo(disposables);
+            isSubScreenTransitionEnabled = false;
+
+            timelineGameSubScreenView.OnSettingButtonClicked
+                .Where(_ => isSubScreenTransitionEnabled)
+                .Subscribe(_ => ChangeScreenAsync(GameScreenType.Setting, destroyCancellationToken).Forget())
+                .AddTo(disposables);
+            settingGameSubScreenView.OnTimelineButtonClicked
+                .Where(_ => isSubScreenTransitionEnabled)
+                .Subscribe(_ => ChangeScreenAsync(GameScreenType.Timeline, destroyCancellationToken).Forget())
+                .AddTo(disposables);
+            timelineGameSubScreenView.OnPostClicked
+                .Where(_ => isSubScreenTransitionEnabled)
+                .Subscribe(post => GoToFocusScreenAsync(post, destroyCancellationToken).Forget())
+                .AddTo(disposables);
             focusGameSubScreenView.OnPostClicked.Subscribe(post => FocusCurrentPostAsync(post, destroyCancellationToken).Forget()).AddTo(disposables);
-            focusGameSubScreenView.OnTimelineButtonClicked.Subscribe(_ => BackFromFocusAsync(destroyCancellationToken).Forget()).AddTo(disposables);
+            focusGameSubScreenView.OnTimelineButtonClicked
+                .Where(_ => isSubScreenTransitionEnabled)
+                .Subscribe(_ => BackFromFocusAsync(destroyCancellationToken).Forget())
+                .AddTo(disposables);
 
             onNormalDraftDroppedToPublish = timelineGameSubScreenView.OnNormalDraftDroppedToPublish;
             onReplyDraftDroppedToPublish = focusGameSubScreenView.OnReplyDraftDroppedToPublish;
@@ -77,6 +92,7 @@ namespace Unity1Week_Ura.Actor
         public override async UniTask ShowAsync(CancellationToken ct)
         {
             gameObject.SetActive(true);
+            isSubScreenTransitionEnabled = false;
             if (draftListView != null)
             {
                 await draftListView.SetVisible(currentScreenType != GameScreenType.Setting, ct);
@@ -89,6 +105,7 @@ namespace Unity1Week_Ura.Actor
 
         public override async UniTask HideAsync(CancellationToken ct)
         {
+            isSubScreenTransitionEnabled = false;
             await screenTransitionViewHub.ShowAsync(ScreenTransitionType.AppIconLaunchPortrait, ct);
 
             foreach (var screen in subScreens.Values)
@@ -102,6 +119,11 @@ namespace Unity1Week_Ura.Actor
 
         async UniTask ChangeScreenAsync(GameScreenType targetType, CancellationToken ct)
         {
+            if (!isSubScreenTransitionEnabled)
+            {
+                return;
+            }
+
             await screenSemaphore.WaitAsync(ct);
             try
             {
@@ -246,6 +268,7 @@ namespace Unity1Week_Ura.Actor
             timelineGameSubScreenView.SetSelectedPlayerAccount(account);
             focusGameSubScreenView.SetCurrentPlayerAccount(account);
         }
+        public void SetSubScreenTransitionEnabled(bool isEnabled) => isSubScreenTransitionEnabled = isEnabled;
 
         PhoneScreenViewBase GetScreenView(GameScreenType screenType)
         {

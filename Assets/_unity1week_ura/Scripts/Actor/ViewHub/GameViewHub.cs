@@ -23,34 +23,52 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] DraftListView draftListView;
         [SerializeField] ScoreView scoreView;
         [SerializeField] RemainingTimeView remainingTimeView;
+        [SerializeField] GameStartTextAnimationView gameStartTextAnimationView;
         [SerializeField] TimedViewAnimationPlayer timedViewAnimationPlayer;
 
         public override void Initialize()
         {
             InitializeViews();
             draftListView.Initialize();
+            if (gameStartTextAnimationView == null)
+            {
+                gameStartTextAnimationView = GetComponentInChildren<GameStartTextAnimationView>(true);
+            }
+            gameStartTextAnimationView?.Initialize();
+            smartPhoneView.SetGameSubScreenTransitionEnabled(false);
             gameObject.SetActive(false);
         }
 
         public override async UniTask ShowAsync(CancellationToken ct)
         {
             gameObject.SetActive(true);
+            smartPhoneView.SetGameSubScreenTransitionEnabled(false);
 
             if (timedViewAnimationPlayer == null || !timedViewAnimationPlayer.HasShowAnimations)
             {
                 await smartPhoneView.ShowSceneAsync(SceneType.Game, ct);
                 await scoreView.ShowAsync(ct);
                 await remainingTimeView.ShowAsync(ct);
-                return;
+            }
+            else
+            {
+                await UniTask.WhenAll(
+                    smartPhoneView.ShowSceneAsync(SceneType.Game, ct),
+                    timedViewAnimationPlayer.PlayShowAsync(ct));
+            }
+            
+            if (gameStartTextAnimationView != null)
+            {
+                await gameStartTextAnimationView.PlayAsync(ct);
             }
 
-            await UniTask.WhenAll(
-                smartPhoneView.ShowSceneAsync(SceneType.Game, ct),
-                timedViewAnimationPlayer.PlayShowAsync(ct));
+            smartPhoneView.SetGameSubScreenTransitionEnabled(true);
         }
 
         public override async UniTask HideAsync(CancellationToken ct)
         {
+            smartPhoneView.SetGameSubScreenTransitionEnabled(false);
+
             if (timedViewAnimationPlayer == null || !timedViewAnimationPlayer.HasHideAnimations)
             {
                 await smartPhoneView.HideSceneAsync(SceneType.Game, ct);

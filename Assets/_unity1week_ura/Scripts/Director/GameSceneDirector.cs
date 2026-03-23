@@ -49,6 +49,8 @@ namespace Unity1Week_Ura.Director
             gameViewHub.SetRemainingTime(gameSession.RemainingTimeSeconds.CurrentValue);
             await gameViewHub.ShowAsync(ct);
 
+            gameSession.Play();
+
             // 投稿されたポストを購読
             gameSession.PublishedPosts.ObserveAdd().Subscribe(addEvent =>
             {
@@ -98,8 +100,6 @@ namespace Unity1Week_Ura.Director
             {
                 sceneModel.ChangeScene(SceneType.Result);
             }).AddTo(disposables);
-
-            gameSession.Play();
         }
 
         public void Tick()
