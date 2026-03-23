@@ -204,18 +204,26 @@ namespace Unity1Week_Ura.Core
                 return;
             }
 
-            if (!IsFocusedPostMatchedReplyTarget(replyDraft, request.FocusedPost))
-            {
-                FinishGame(FinishReason.WrongReplyTarget);
-                return;
-            }
+            bool isReplyTargetMatched = IsFocusedPostMatchedReplyTarget(replyDraft, request.FocusedPost);
 
-            if (timeline.TryPublishDraft(replyDraft))
+            if (timeline.TryPublishDraft(replyDraft, request.FocusedPost))
             {
+                if (!isReplyTargetMatched)
+                {
+                    FinishGame(FinishReason.WrongReplyTarget);
+                    return;
+                }
+
                 AddScore(GetActionScoreDelta(request.FocusedPost, gameConfig.ReplyPoint));
             }
             else
             {
+                if (!isReplyTargetMatched)
+                {
+                    FinishGame(FinishReason.WrongReplyTarget);
+                    return;
+                }
+
                 FinishGame(FinishReason.WrongAccountReplyPost);
             }
         }

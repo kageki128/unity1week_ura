@@ -185,20 +185,26 @@ namespace Unity1Week_Ura.Core
             publishedPosts.Add(appearedPost);
         }
 
-        public bool TryPublishDraft(Post post)
+        public bool TryPublishDraft(Post post, Post focusedPost = null)
         {
             if (!draftPosts.Contains(post))
             {
                 throw new System.ArgumentException("指定されたPostはドラフトの中に存在しません。", nameof(post));   
             }
 
-            draftPosts.Remove(post);
-            post.ChangeState(PostState.Published);
-            publishedPosts.Add(post);
-
-            // 正誤判定
             Account currentAccount = selectedPlayerAccount.CurrentValue;
-            return IsPlayerAccountCorrectForPost(currentAccount, post);
+            bool isPlayerAccountCorrect = IsPlayerAccountCorrectForPost(currentAccount, post);
+            bool shouldOverrideReplyTarget = CanOverrideReplyTarget(post, focusedPost);
+            bool isCorrectAction = isPlayerAccountCorrect && !shouldOverrideReplyTarget;
+
+            draftPosts.Remove(post);
+            var postToPublish = isCorrectAction
+                ? post
+                : BuildPublishedPostForCurrentAction(post, currentAccount, focusedPost);
+            postToPublish.ChangeState(PostState.Published);
+            publishedPosts.Add(postToPublish);
+
+            return isCorrectAction;
         }
 
         public void SetCurrentPlayerAccount(Account account)
@@ -285,6 +291,58 @@ namespace Unity1Week_Ura.Core
             }
 
             return string.IsNullOrEmpty(post.Property.Author.RelatedPlayerAccountId);
+        }
+
+        static bool CanOverrideReplyTarget(Post post, Post focusedPost)
+        {
+            if (post?.Type != PostType.Reply)
+            {
+                return false;
+            }
+
+            var focusedPostId = focusedPost?.Property?.Id;
+            if (string.IsNullOrEmpty(focusedPostId))
+            {
+                return false;
+            }
+
+            return !string.Equals(post.Property.ParentPostId, focusedPostId, System.StringComparison.Ordinal);
+        }
+
+        static Post BuildPublishedPostForCurrentAction(Post draftPost, Account currentAccount, Post focusedPost)
+        {
+            if (draftPost == null)
+            {
+                throw new System.ArgumentNullException(nameof(draftPost));
+            }
+
+            var originalProperty = draftPost.Property;
+            var publishedAuthor = currentAccount ?? originalProperty.Author;
+
+            var parentPostId = originalProperty.ParentPostId;
+            var parentPostAuthor = originalProperty.ParentPostAuthor;
+            if (CanOverrideReplyTarget(draftPost, focusedPost))
+            {
+                parentPostId = focusedPost.Property.Id;
+                parentPostAuthor = focusedPost.Property.Author;
+            }
+
+            var publishedProperty = new PostProperty(
+                originalProperty.CorrectPlayerAccount,
+                originalProperty.Id,
+                publishedAuthor,
+                originalProperty.Text,
+                originalProperty.AttachedImage,
+                parentPostId,
+                parentPostAuthor
+            );
+
+            return new Post(
+                publishedProperty,
+                draftPost.LikeCount,
+                draftPost.RepostCount,
+                draftPost.ReplyCount
+            );
         }
     }
 }
