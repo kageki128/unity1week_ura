@@ -11159,8 +11159,8 @@ MonoBehaviour:
   m_text: "\u6642\u9593: \u3000{time}\u5206\n\u6D41\u901F: \u3000{speed}\n\u5E83\u544A:
     \u3000{ads}\n\u64CD\u4F5C\u57A2: {account}\u3064"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 71d6fd871d58c8443ab99c4e7a842777, type: 2}
-  m_sharedMaterial: {fileID: 3828834242860937529, guid: 71d6fd871d58c8443ab99c4e7a842777, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 17913da7bb7391b4f81eda08099754c2, type: 2}
+  m_sharedMaterial: {fileID: -4025094489301157427, guid: 17913da7bb7391b4f81eda08099754c2, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -11257,7 +11257,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 3828834242860937529, guid: 71d6fd871d58c8443ab99c4e7a842777, type: 2}
+  - {fileID: -4025094489301157427, guid: 17913da7bb7391b4f81eda08099754c2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

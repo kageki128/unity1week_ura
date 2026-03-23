@@ -95,6 +95,12 @@ namespace Unity1Week_Ura.Actor
         public void SetScore(int score)
         {
             var clampedScore = Mathf.Max(score, 0);
+            if (!gameObject.activeInHierarchy)
+            {
+                ApplyScoreWithoutAnimation(clampedScore);
+                return;
+            }
+
             var previousTargetScore = targetScore;
             var scoreDelta = clampedScore - previousTargetScore;
             targetScore = clampedScore;
@@ -355,6 +361,19 @@ namespace Unity1Week_Ura.Actor
         Color GetChangedScoreColor(int scoreDelta)
         {
             return scoreDelta >= 0 ? scoreGainColor : scoreLossColor;
+        }
+
+        void ApplyScoreWithoutAnimation(int score)
+        {
+            StopAnimations(resetVisualState: false);
+            targetScore = score;
+            displayedScore = score;
+            isScoreColorAnimating = false;
+            isDigitScaleAnimating = false;
+            animatedScoreColor = baseScoreColor;
+            animatedEffectiveDigitScale = 1f;
+            RefreshScoreText();
+            ResetScoreDeltaText();
         }
 
         void StopAnimations(bool resetVisualState)

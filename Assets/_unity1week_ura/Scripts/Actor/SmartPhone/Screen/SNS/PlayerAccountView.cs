@@ -62,7 +62,7 @@ namespace Unity1Week_Ura.Actor
                 iconImage.sprite = account.Icon;
             }
             
-            nameText.text = account.Name;
+            nameText.text = account.PlayerAccountLabel;
             transform.localScale = Vector3.one * UnselectedIconScale;
             baseWidth = viewArranger.Width;
             SetSelected(false);

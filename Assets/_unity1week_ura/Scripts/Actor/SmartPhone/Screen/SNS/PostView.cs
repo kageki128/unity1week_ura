@@ -72,7 +72,8 @@ namespace Unity1Week_Ura.Actor
             var repltTextColorHex = $"#{ColorUtility.ToHtmlStringRGBA(repltTextColor)}";
 
             iconImage.sprite = property.Author.Icon;
-            headerText.text = $"{property.Author.Name}<size={subTextFontSizeOffset}><color={subTextColorHex}>　@{property.Author.Id}　{post.PublishDateTime:yyyy/MM/dd HH:mm}</color></size>";
+            var publishDateText = post.PublishDateTime.ToString("M月d日");
+            headerText.text = $"{property.Author.Name}<size={subTextFontSizeOffset}><color={subTextColorHex}>　@{property.Author.Id}　{publishDateText}</color></size>";
 
             advertisementText.gameObject.SetActive(property.Author.Type == AccountType.Advertise);
 

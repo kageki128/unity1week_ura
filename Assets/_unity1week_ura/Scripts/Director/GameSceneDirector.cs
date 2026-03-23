@@ -45,6 +45,8 @@ namespace Unity1Week_Ura.Director
             await gameSession.LoadNewGame(ct);
             
             gameViewHub.SetPlayerAccounts(gameSession.PlayerAccounts);
+            gameViewHub.SetScore(gameSession.Score.CurrentValue);
+            gameViewHub.SetRemainingTime(gameSession.RemainingTimeSeconds.CurrentValue);
             await gameViewHub.ShowAsync(ct);
 
             // 投稿されたポストを購読
