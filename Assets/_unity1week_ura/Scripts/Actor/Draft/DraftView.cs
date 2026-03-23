@@ -26,7 +26,7 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] PointerEventObserver pointerEventObserver;
         [SerializeField] Collider2D dragCollider;
 
-        Vector3 originalLocalPosition;
+        Vector3 returnLocalPosition;
         bool droppedOnPublishField = false;
         Vector2 frameImageBaseSize;
         Vector2 subFrameImageBaseSize;
@@ -52,6 +52,7 @@ namespace Unity1Week_Ura.Actor
 
             contentText.text = BuildContentText(post.Property);
             this.post = post;
+            returnLocalPosition = transform.localPosition;
             AdjustLayout();
             SetDraggingSortingOrder(false);
 
@@ -90,7 +91,7 @@ namespace Unity1Week_Ura.Actor
 
         public void SetReturnPosition(float x, float y)
         {
-            originalLocalPosition = new Vector3(x, y, transform.localPosition.z);
+            returnLocalPosition = new Vector3(x, y, transform.localPosition.z);
         }
 
         public void MarkAsDroppedOnPublishField()
@@ -214,7 +215,6 @@ namespace Unity1Week_Ura.Actor
         {
             viewArranger.StopAnimations();
             IsDragging = true;
-            originalLocalPosition = transform.localPosition;
             droppedOnPublishField = false;
             SetDraggingSortingOrder(true);
             // ドラッグ中はColliderを無効化して、PublishFieldViewへのレイキャストを遮蔽しない
@@ -237,7 +237,7 @@ namespace Unity1Week_Ura.Actor
             if (!droppedOnPublishField)
             {
                 // PublishFieldView以外にドロップされた場合は元の位置に戻す
-                SetPosition(originalLocalPosition.x, originalLocalPosition.y);
+                SetPosition(returnLocalPosition.x, returnLocalPosition.y);
             }
         }
 

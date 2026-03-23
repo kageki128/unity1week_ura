@@ -130,6 +130,7 @@ namespace Unity1Week_Ura.Actor
         public void SetPlayerAccounts(IReadOnlyList<Account> accounts) => gamePhoneScreenView.SetPlayerAccounts(accounts);
         public void SetSelectedPlayerAccount(Account account) => gamePhoneScreenView.SetSelectedPlayerAccount(account);
         public UniTask PlayResultShareComposeAsync(string shareText, CancellationToken ct) => resultPhoneScreenView.PlayShareComposeAsync(shareText, ct);
+        public void SetResultCharacterSprite(bool isSuccess) => resultPhoneScreenView.SetResultCharacterSprite(isSuccess);
 
         PhoneScreenViewBase GetScreenView(SceneType sceneType)
         {

@@ -39,6 +39,9 @@ namespace Unity1Week_Ura.Director
         {
             disposables.Clear();
 
+            var isSuccess = gameSession.CurrentFinishReason.CurrentValue == FinishReason.TimeUp;
+            resultViewHub.SetResultCharacterSprite(isSuccess);
+
             await resultViewHub.ShowAsync(ct);
 
             var shareText = gameSession.GetResultShareText();

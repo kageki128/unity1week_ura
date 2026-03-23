@@ -60,6 +60,11 @@ namespace Unity1Week_Ura.Actor
             return smartPhoneView.PlayResultShareComposeAsync(shareText, ct);
         }
 
+        public void SetResultCharacterSprite(bool isSuccess)
+        {
+            smartPhoneView.SetResultCharacterSprite(isSuccess);
+        }
+
         static void TryInitializeView(AnimationViewBase view, ISet<AnimationViewBase> initializedViews)
         {
             if (view == null || initializedViews.Contains(view))

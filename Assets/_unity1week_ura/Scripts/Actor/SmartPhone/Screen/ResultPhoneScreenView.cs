@@ -6,6 +6,7 @@ using DG.Tweening;
 using R3;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Unity1Week_Ura.Actor
 {
@@ -44,6 +45,11 @@ namespace Unity1Week_Ura.Actor
         [Header("Share Button Fade")]
         [SerializeField, Min(0f)] float shareButtonFadeDuration = 0.25f;
         [SerializeField] Ease shareButtonFadeEase = Ease.OutCubic;
+
+        [Header("Result Character")]
+        [SerializeField] SpriteRenderer resultCharacterSpriteRenderer;
+        [SerializeField] Sprite successCharacterSprite;
+        [SerializeField] Sprite failedCharacterSprite;
 
         SpriteRenderer[] shareButtonSpriteRenderers = Array.Empty<SpriteRenderer>();
         TMP_Text[] shareButtonTexts = Array.Empty<TMP_Text>();
@@ -106,6 +112,16 @@ namespace Unity1Week_Ura.Actor
 
             await PlayTypingAsync(shareText ?? string.Empty, linkedToken);
             await FadeInShareButtonAsync(linkedToken);
+        }
+
+        public void SetResultCharacterSprite(bool isSuccess)
+        {
+            var targetSprite = isSuccess ? successCharacterSprite : failedCharacterSprite;
+
+            if (resultCharacterSpriteRenderer != null)
+            {
+                resultCharacterSpriteRenderer.sprite = targetSprite;
+            }
         }
 
         void ResolveReferencesIfNeeded()
