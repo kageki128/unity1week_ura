@@ -34,6 +34,14 @@ namespace Unity1Week_Ura.Actor
         {
             gameObject.SetActive(true);
 
+            if (timedViewAnimationPlayer == null || !timedViewAnimationPlayer.HasShowAnimations)
+            {
+                await smartPhoneView.ShowSceneAsync(SceneType.Game, ct);
+                await scoreView.ShowAsync(ct);
+                await remainingTimeView.ShowAsync(ct);
+                return;
+            }
+
             await UniTask.WhenAll(
                 smartPhoneView.ShowSceneAsync(SceneType.Game, ct),
                 timedViewAnimationPlayer.PlayShowAsync(ct));
@@ -41,6 +49,15 @@ namespace Unity1Week_Ura.Actor
 
         public override async UniTask HideAsync(CancellationToken ct)
         {
+            if (timedViewAnimationPlayer == null || !timedViewAnimationPlayer.HasHideAnimations)
+            {
+                await smartPhoneView.HideSceneAsync(SceneType.Game, ct);
+                await scoreView.HideAsync(ct);
+                await remainingTimeView.HideAsync(ct);
+                gameObject.SetActive(false);
+                return;
+            }
+
             await UniTask.WhenAll(
                 smartPhoneView.HideSceneAsync(SceneType.Game, ct),
                 timedViewAnimationPlayer.PlayHideAsync(ct));
