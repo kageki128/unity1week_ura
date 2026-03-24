@@ -16389,6 +16389,7 @@ MonoBehaviour:
   draftListView: {fileID: 1763245044}
   scoreView: {fileID: 2053070617}
   remainingTimeView: {fileID: 2060989201}
+  howToPlayOverlayView: {fileID: 2025344802}
   gamePhaseTextAnimationView: {fileID: 1856654222}
   timedViewAnimationPlayer: {fileID: 1803890735}
 --- !u!114 &1803890735

@@ -16,6 +16,7 @@ namespace Unity1Week_Ura.Director
         readonly GameViewHub gameViewHub;
         readonly GameSession gameSession;
         readonly IHighScoreRepository highScoreRepository;
+        readonly IPlayerProgressRepository playerProgressRepository;
         readonly IUnityroomScoreboardRepository unityroomScoreboardRepository;
         readonly SceneModel sceneModel;
 
@@ -25,12 +26,14 @@ namespace Unity1Week_Ura.Director
             GameViewHub gameViewHub,
             GameSession gameSession,
             IHighScoreRepository highScoreRepository,
+            IPlayerProgressRepository playerProgressRepository,
             IUnityroomScoreboardRepository unityroomScoreboardRepository,
             SceneModel sceneModel)
         {
             this.gameViewHub = gameViewHub;
             this.gameSession = gameSession;
             this.highScoreRepository = highScoreRepository;
+            this.playerProgressRepository = playerProgressRepository;
             this.unityroomScoreboardRepository = unityroomScoreboardRepository;
             this.sceneModel = sceneModel;
         }
@@ -42,6 +45,7 @@ namespace Unity1Week_Ura.Director
 
         public void Initialize()
         {
+            gameViewHub.SetPlayerProgressRepository(playerProgressRepository);
             gameViewHub.Initialize();
         }
 

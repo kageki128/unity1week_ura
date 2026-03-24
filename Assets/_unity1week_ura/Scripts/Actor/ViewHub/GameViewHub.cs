@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -24,9 +25,11 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] DraftListView draftListView;
         [SerializeField] ScoreView scoreView;
         [SerializeField] RemainingTimeView remainingTimeView;
+        [SerializeField] HowToPlayOverlayView howToPlayOverlayView;
         [FormerlySerializedAs("gameStartTextAnimationView")]
         [SerializeField] GamePhaseTextAnimationView gamePhaseTextAnimationView;
         [SerializeField] TimedViewAnimationPlayer timedViewAnimationPlayer;
+        IPlayerProgressRepository playerProgressRepository;
 
         public override void Initialize()
         {
@@ -41,10 +44,15 @@ namespace Unity1Week_Ura.Actor
             gameObject.SetActive(false);
         }
 
+        public void SetPlayerProgressRepository(IPlayerProgressRepository repository)
+        {
+            playerProgressRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+        }
+
         public override async UniTask ShowAsync(CancellationToken ct)
         {
             gameObject.SetActive(true);
-            AudioPlayer.Current?.PlayBGM(BGMType.Game);
+            
             smartPhoneView.SetGameSubScreenTransitionEnabled(false);
 
             if (timedViewAnimationPlayer == null || !timedViewAnimationPlayer.HasShowAnimations)
@@ -59,7 +67,22 @@ namespace Unity1Week_Ura.Actor
                     smartPhoneView.ShowSceneAsync(SceneType.Game, ct),
                     timedViewAnimationPlayer.PlayShowAsync(ct));
             }
+
             
+            if (playerProgressRepository == null)
+            {
+                throw new InvalidOperationException($"{nameof(IPlayerProgressRepository)} is not set.");
+            }
+
+            var shouldShowHowToPlay = !await playerProgressRepository.HasSeenHowToPlayAsync(ct);
+            if (shouldShowHowToPlay)
+            {
+                await ShowHowToPlayOverlayAndWaitUntilClosedAsync(ct);
+                await playerProgressRepository.MarkHowToPlayAsSeenAsync(ct);
+            }
+
+            AudioPlayer.Current?.PlayBGM(BGMType.Game);
+
             if (gamePhaseTextAnimationView != null)
             {
                 await gamePhaseTextAnimationView.PlayAsync(ct);
@@ -140,6 +163,17 @@ namespace Unity1Week_Ura.Actor
 
             view.Initialize();
             initializedViews.Add(view);
+        }
+
+        async UniTask ShowHowToPlayOverlayAndWaitUntilClosedAsync(CancellationToken ct)
+        {
+            if (howToPlayOverlayView == null)
+            {
+                throw new InvalidOperationException($"{nameof(howToPlayOverlayView)} is not set.");
+            }
+
+            await howToPlayOverlayView.ShowAsync(ct);
+            await howToPlayOverlayView.OnHidden.FirstAsync(ct);
         }
 
     }
