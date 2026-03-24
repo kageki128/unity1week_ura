@@ -19,10 +19,22 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] Color selectedTextColor = new(0.93333334f, 0.3529412f, 0.49803922f, 1f);
         [SerializeField] ButtonAnimator buttonAnimator;
 
+        readonly CompositeDisposable disposables = new();
         Color[] defaultSpriteColors;
         Color[] defaultTextColors;
         bool isSelected;
         bool isInitialized;
+
+        void Awake()
+        {
+            if (buttonCollider == null)
+            {
+                return;
+            }
+
+            buttonCollider.OnPointerEntered.Subscribe(_ => PlaySE(SEType.ButtonHover)).AddTo(disposables);
+            buttonCollider.OnClicked.Subscribe(_ => PlaySE(SEType.ButtonClick)).AddTo(disposables);
+        }
 
         public void Initialize()
         {
@@ -110,6 +122,16 @@ namespace Unity1Week_Ura.Actor
             }
 
             buttonAnimator?.RefreshBaseColorsFromCurrent();
+        }
+
+        void OnDestroy()
+        {
+            disposables.Dispose();
+        }
+
+        void PlaySE(SEType seType)
+        {
+            AudioPlayer.Current?.PlaySE(seType);
         }
     }
 }

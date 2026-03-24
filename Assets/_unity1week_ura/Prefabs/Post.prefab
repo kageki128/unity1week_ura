@@ -565,6 +565,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.ButtonView
   buttonCollider: {fileID: 6521324175058938580}
+  playHoverSE: 1
+  playClickSE: 1
 --- !u!1 &2106437735986692502
 GameObject:
   m_ObjectHideFlags: 0
@@ -1793,6 +1795,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.ButtonView
   buttonCollider: {fileID: 2463752795543243690}
+  playHoverSE: 0
+  playClickSE: 1
 --- !u!1 &6295354420079820310
 GameObject:
   m_ObjectHideFlags: 0
@@ -2357,6 +2361,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.ButtonView
   buttonCollider: {fileID: 9192338083927957905}
+  playHoverSE: 1
+  playClickSE: 1
 --- !u!1 &9165004587644074129
 GameObject:
   m_ObjectHideFlags: 0

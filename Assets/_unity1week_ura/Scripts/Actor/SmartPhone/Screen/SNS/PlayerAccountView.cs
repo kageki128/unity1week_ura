@@ -49,6 +49,7 @@ namespace Unity1Week_Ura.Actor
         {
             pointerEventObserver.OnPointerEntered.Subscribe(_ => OnPointerEnter()).AddTo(disposables);
             pointerEventObserver.OnPointerExited.Subscribe(_ => OnPointerExit()).AddTo(disposables);
+            pointerEventObserver.OnClicked.Subscribe(_ => PlaySE(SEType.ButtonClick)).AddTo(disposables);
         }
 
         public void Initialize(Account account)
@@ -111,6 +112,7 @@ namespace Unity1Week_Ura.Actor
             }
 
             isHovered = true;
+            PlaySE(SEType.ButtonHover);
             PlayHoverScaleAnimation();
         }
 
@@ -180,6 +182,11 @@ namespace Unity1Week_Ura.Actor
             scaleTween?.Kill();
             colorTween?.Kill();
             disposables.Dispose();
+        }
+
+        void PlaySE(SEType seType)
+        {
+            AudioPlayer.Current?.PlaySE(seType);
         }
     }
 }

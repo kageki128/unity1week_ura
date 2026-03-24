@@ -3,6 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
+using Unity1Week_Ura.Core;
 using UnityEngine;
 
 namespace Unity1Week_Ura.Actor
@@ -23,7 +24,7 @@ namespace Unity1Week_Ura.Actor
         [Header("Ready Phase")]
         [SerializeField, Min(0.01f)] float readyIntroDuration = 0.56f;
         [SerializeField, Min(0.01f)] float readyPulseDuration = 0.3f;
-        [SerializeField, Min(0f)] float readyHoldDuration = 0.32f;
+        [SerializeField, Min(0f)] float readyHoldDuration = 0.24f;
         [SerializeField, Min(0.01f)] float readyFadeOutDuration = 0.4f;
         [SerializeField, Min(0.1f)] float readyStartScale = 1.42f;
         [SerializeField, Min(0.1f)] float readyPulseScale = 1.045f;
@@ -38,7 +39,7 @@ namespace Unity1Week_Ura.Actor
         [SerializeField, Min(0.01f)] float startImpactDuration = 0.28f;
         [SerializeField, Min(0.01f)] float startSettleDuration = 0.3f;
         [SerializeField, Min(0.01f)] float startRecoverDuration = 0.18f;
-        [SerializeField, Min(0f)] float startHoldDuration = 0.32f;
+        [SerializeField, Min(0f)] float startHoldDuration = 0.1f;
         [SerializeField, Min(0.01f)] float startFadeOutDuration = 0.28f;
         [SerializeField, Min(0.1f)] float startInitialScale = 3.05f;
         [SerializeField, Min(0.1f)] float startChargeScale = 3.22f;
@@ -53,6 +54,8 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] float startCharacterSpacingSettle = 0.5f;
 
         [Header("Finish Phase")]
+        [SerializeField] string finishSuccessText = "FINISH！";
+        [SerializeField] string finishFailureText = "Oops！";
         [SerializeField] Color finishSuccessColor = new Color32(0xEE, 0x5A, 0x7F, 0xFF);
         [SerializeField] Color finishFailureColor = new Color32(0x7F, 0xDB, 0xFF, 0xFF);
         [SerializeField, Min(0.01f)] float finishChargeDuration = 0.24f;
@@ -132,7 +135,7 @@ namespace Unity1Week_Ura.Actor
             }
         }
 
-        public async UniTask PlayFinishAsync(string message, bool isSuccess, CancellationToken ct)
+        public async UniTask PlayFinishAsync(FinishReason finishReason, CancellationToken ct)
         {
             EnsureInitialized();
             if (!CanPlayAnimation())
@@ -140,6 +143,8 @@ namespace Unity1Week_Ura.Actor
                 return;
             }
 
+            var isSuccess = finishReason == FinishReason.TimeUp;
+            var message = isSuccess ? finishSuccessText : finishFailureText;
             if (string.IsNullOrWhiteSpace(message))
             {
                 return;

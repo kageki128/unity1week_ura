@@ -10,6 +10,28 @@ namespace Unity1Week_Ura.Actor
         public Observable<PointerEventData> OnScrolled => buttonCollider.OnScrolled;
 
         [SerializeField] PointerEventObserver buttonCollider;
+        [SerializeField] bool playHoverSE = true;
+        [SerializeField] bool playClickSE = true;
+
+        readonly CompositeDisposable disposables = new();
+
+        void Awake()
+        {
+            if (buttonCollider == null)
+            {
+                return;
+            }
+
+            if (playHoverSE)
+            {
+                buttonCollider.OnPointerEntered.Subscribe(_ => PlaySE(SEType.ButtonHover)).AddTo(disposables);
+            }
+
+            if (playClickSE)
+            {
+                buttonCollider.OnClicked.Subscribe(_ => PlaySE(SEType.ButtonClick)).AddTo(disposables);
+            }
+        }
 
         public void SetInteractable(bool isInteractable)
         {
@@ -23,6 +45,16 @@ namespace Unity1Week_Ura.Actor
             {
                 collider.enabled = isInteractable;
             }
+        }
+
+        void OnDestroy()
+        {
+            disposables.Dispose();
+        }
+
+        void PlaySE(SEType seType)
+        {
+            AudioPlayer.Current?.PlaySE(seType);
         }
     }
 }

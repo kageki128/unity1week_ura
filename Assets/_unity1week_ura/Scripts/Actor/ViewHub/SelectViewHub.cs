@@ -26,6 +26,7 @@ namespace Unity1Week_Ura.Actor
         public override async UniTask ShowAsync(CancellationToken ct)
         {
             gameObject.SetActive(true);
+            AudioPlayer.Current?.PlayBGM(BGMType.Select);
 
             if (timedViewAnimationPlayer == null || !timedViewAnimationPlayer.HasShowAnimations)
             {
@@ -40,6 +41,8 @@ namespace Unity1Week_Ura.Actor
 
         public override async UniTask HideAsync(CancellationToken ct)
         {
+            AudioPlayer.Current?.StopBGM();
+
             if (timedViewAnimationPlayer == null || !timedViewAnimationPlayer.HasHideAnimations)
             {
                 await smartPhoneView.HideSceneAsync(SceneType.Select, ct);

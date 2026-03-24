@@ -81,10 +81,12 @@ namespace Unity1Week_Ura.Director
             gameViewHub.OnSettingOpened.Subscribe(_ =>
             {
                 gameSession.Pause();
+                AudioPlayer.Current?.PauseBGM();
             }).AddTo(disposables);
             gameViewHub.OnSettingClosed.Subscribe(_ =>
             {
                 gameSession.Play();
+                AudioPlayer.Current?.ResumeBGM();
             }).AddTo(disposables);
             
             gameViewHub.OnSelectSceneButtonClicked.Subscribe(_ => gameSession.CancelGame()).AddTo(disposables);
@@ -145,7 +147,7 @@ namespace Unity1Week_Ura.Director
 
             try
             {
-                await gameViewHub.PlayFinishTextAnimationAsync(finishReason, ct);
+                await gameViewHub.PlayGameFinishedAnimationAsync(finishReason, ct);
             }
             catch (OperationCanceledException)
             {

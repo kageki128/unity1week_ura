@@ -111,6 +111,7 @@ namespace Unity1Week_Ura.Actor
                 return;
             }
 
+            PlayScoreChangeSE(scoreDelta);
             PlayCountTween(clampedScore);
             PlayScaleAnimation();
             PlayScoreColorAnimation(scoreDelta);
@@ -361,6 +362,20 @@ namespace Unity1Week_Ura.Actor
         Color GetChangedScoreColor(int scoreDelta)
         {
             return scoreDelta >= 0 ? scoreGainColor : scoreLossColor;
+        }
+
+        void PlayScoreChangeSE(int scoreDelta)
+        {
+            if (scoreDelta > 0)
+            {
+                AudioPlayer.Current?.PlaySE(SEType.Success);
+                return;
+            }
+
+            if (scoreDelta < 0)
+            {
+                AudioPlayer.Current?.PlaySE(SEType.Ads);
+            }
         }
 
         void ApplyScoreWithoutAnimation(int score)

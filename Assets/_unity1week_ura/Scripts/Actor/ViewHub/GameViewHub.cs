@@ -44,6 +44,7 @@ namespace Unity1Week_Ura.Actor
         public override async UniTask ShowAsync(CancellationToken ct)
         {
             gameObject.SetActive(true);
+            AudioPlayer.Current?.PlayBGM(BGMType.Game);
             smartPhoneView.SetGameSubScreenTransitionEnabled(false);
 
             if (timedViewAnimationPlayer == null || !timedViewAnimationPlayer.HasShowAnimations)
@@ -63,12 +64,13 @@ namespace Unity1Week_Ura.Actor
             {
                 await gamePhaseTextAnimationView.PlayAsync(ct);
             }
-
+            
             smartPhoneView.SetGameSubScreenTransitionEnabled(true);
         }
 
         public override async UniTask HideAsync(CancellationToken ct)
         {
+            AudioPlayer.Current?.StopBGM();
             smartPhoneView.SetGameSubScreenTransitionEnabled(false);
 
             if (timedViewAnimationPlayer == null || !timedViewAnimationPlayer.HasHideAnimations)
@@ -99,17 +101,25 @@ namespace Unity1Week_Ura.Actor
         public void SetScore(int score) => scoreView.SetScore(score);
         public void SetRemainingTime(float remainingTime) => remainingTimeView.SetRemainingTime(remainingTime);
         public void SetGameSubScreenTransitionEnabled(bool isEnabled) => smartPhoneView.SetGameSubScreenTransitionEnabled(isEnabled);
-
-        public async UniTask PlayFinishTextAnimationAsync(FinishReason finishReason, CancellationToken ct)
+        public async UniTask PlayGameFinishedAnimationAsync(FinishReason finishReason, CancellationToken ct)
         {
+            var isTimeUp = finishReason == FinishReason.TimeUp;
+            if (!isTimeUp)
+            {
+                var audioPlayer = AudioPlayer.Current;
+                if (audioPlayer != null)
+                {
+                    audioPlayer.StopBGM(true);
+                    audioPlayer.PlaySE(SEType.Failure);
+                }
+            }
+
             if (gamePhaseTextAnimationView == null)
             {
                 return;
             }
 
-            var isTimeUp = finishReason == FinishReason.TimeUp;
-            var message = isTimeUp ? "FINISH！" : "Oops！";
-            await gamePhaseTextAnimationView.PlayFinishAsync(message, isTimeUp, ct);
+            await gamePhaseTextAnimationView.PlayFinishAsync(finishReason, ct);
         }
 
         void InitializeViews()

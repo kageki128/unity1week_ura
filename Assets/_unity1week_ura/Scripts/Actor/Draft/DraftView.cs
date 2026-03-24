@@ -59,6 +59,8 @@ namespace Unity1Week_Ura.Actor
             disposables.Clear();
             if (pointerEventObserver != null)
             {
+                pointerEventObserver.OnPointerEntered.Subscribe(_ => PlaySE(SEType.ButtonHover)).AddTo(disposables);
+                pointerEventObserver.OnPointerDowned.Subscribe(_ => PlaySE(SEType.ButtonClick)).AddTo(disposables);
                 pointerEventObserver.OnScrolled.Subscribe(onScrolled.OnNext).AddTo(disposables);
                 pointerEventObserver.OnBeginDragged.Subscribe(OnBeginDrag).AddTo(disposables);
                 pointerEventObserver.OnDragged.Subscribe(OnDrag).AddTo(disposables);
@@ -286,6 +288,11 @@ namespace Unity1Week_Ura.Actor
             disposables.Dispose();
             onScrolled.OnCompleted();
             onScrolled.Dispose();
+        }
+
+        void PlaySE(SEType seType)
+        {
+            AudioPlayer.Current?.PlaySE(seType);
         }
     }
 }
