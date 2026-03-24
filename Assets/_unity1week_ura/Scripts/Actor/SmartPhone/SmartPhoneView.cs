@@ -147,6 +147,8 @@ namespace Unity1Week_Ura.Actor
         public void SetGameSubScreenTransitionEnabled(bool isEnabled) => gamePhoneScreenView.SetSubScreenTransitionEnabled(isEnabled);
         public UniTask PlayResultShareComposeAsync(string shareText, CancellationToken ct) => resultPhoneScreenView.PlayShareComposeAsync(shareText, ct);
         public void SetResultCharacterSprite(bool isSuccess) => resultPhoneScreenView.SetResultCharacterSprite(isSuccess);
+        public UniTask LoadSelectHighScoresAsync(IHighScoreRepository highScoreRepository, CancellationToken ct)
+            => selectPhoneScreenView.LoadHighScoresAsync(highScoreRepository, ct);
 
         PhoneScreenViewBase GetScreenView(SceneType sceneType)
         {

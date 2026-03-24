@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -18,6 +19,7 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] ButtonView gameStartButton;
         [SerializeField] ButtonView backToTitleButton;
         [SerializeField] DifficultyInfoView difficultyInfoView;
+        [SerializeField] List<HighScoreTextView> highScoreTextViews;
         [SerializeField] TimedViewAnimationPlayer timedViewAnimationPlayer;
 
         readonly Subject<GameRuleSO> gameStartButtonClickedSubject = new();
@@ -32,6 +34,7 @@ namespace Unity1Week_Ura.Actor
             selectedDifficultyButton = null;
             onGameStartButtonClicked = gameStartButtonClickedSubject;
             difficultyInfoView?.SetGameRule(null);
+            SetAllHighScoreTexts(0);
 
             var availableButtons = difficultyButtons == null
                 ? System.Array.Empty<DifficultyButtonView>()
@@ -119,6 +122,56 @@ namespace Unity1Week_Ura.Actor
         void UpdateGameStartButtonInteractable()
         {
             gameStartButton?.SetInteractable(selectedDifficultyButton != null);
+        }
+
+        public async UniTask LoadHighScoresAsync(IHighScoreRepository highScoreRepository, CancellationToken ct)
+        {
+            if (highScoreRepository == null)
+            {
+                throw new ArgumentNullException(nameof(highScoreRepository));
+            }
+
+            if (highScoreTextViews == null || highScoreTextViews.Count == 0)
+            {
+                return;
+            }
+
+            for (var i = 0; i < highScoreTextViews.Count; i++)
+            {
+                ct.ThrowIfCancellationRequested();
+
+                var highScoreTextView = highScoreTextViews[i];
+                if (highScoreTextView == null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    await highScoreTextView.LoadHighScoreAsync(highScoreRepository, ct);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                    highScoreTextView.SetScore(0);
+                }
+            }
+        }
+
+        void SetAllHighScoreTexts(int score)
+        {
+            if (highScoreTextViews != null)
+            {
+                for (var i = 0; i < highScoreTextViews.Count; i++)
+                {
+                    var highScoreTextView = highScoreTextViews[i];
+                    highScoreTextView?.SetScore(score);
+                }
+            }
         }
 
         void OnDestroy()

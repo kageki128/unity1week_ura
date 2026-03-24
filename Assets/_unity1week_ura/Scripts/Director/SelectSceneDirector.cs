@@ -12,14 +12,20 @@ namespace Unity1Week_Ura.Director
     {
         readonly SelectViewHub selectViewHub;
         readonly GameSession gameSession;
+        readonly IHighScoreRepository highScoreRepository;
         readonly SceneModel sceneModel;
 
         readonly CompositeDisposable disposables = new();
 
-        public SelectSceneDirector(SelectViewHub selectViewHub, GameSession gameSession, SceneModel sceneModel)
+        public SelectSceneDirector(
+            SelectViewHub selectViewHub,
+            GameSession gameSession,
+            IHighScoreRepository highScoreRepository,
+            SceneModel sceneModel)
         {
             this.selectViewHub = selectViewHub;
             this.gameSession = gameSession;
+            this.highScoreRepository = highScoreRepository;
             this.sceneModel = sceneModel;
         }
 
@@ -37,6 +43,7 @@ namespace Unity1Week_Ura.Director
         {
             disposables.Clear();
             
+            await selectViewHub.LoadHighScoresAsync(highScoreRepository, ct);
             await selectViewHub.ShowAsync(ct);
 
             selectViewHub.OnGameStartButtonClicked.Subscribe(StartButtonHandler).AddTo(disposables);

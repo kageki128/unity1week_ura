@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using unityroom.Api;
@@ -47,7 +48,7 @@ namespace Unity1Week_Ura.Infrastructure
             }
 
             var totalScore = 0;
-            HashSet<string> registeredDifficultyIds = new(System.StringComparer.Ordinal);
+            HashSet<string> registeredDifficultyIds = new(StringComparer.Ordinal);
 
             for (var i = 0; i < gameRules.Count; i++)
             {
@@ -59,18 +60,8 @@ namespace Unity1Week_Ura.Infrastructure
                     continue;
                 }
 
-                var difficultyId = gameRule.DifficultyId;
-                if (string.IsNullOrWhiteSpace(difficultyId))
-                {
-                    difficultyId = gameRule.name;
-                }
-
-                if (string.IsNullOrWhiteSpace(difficultyId))
-                {
-                    continue;
-                }
-
-                if (!registeredDifficultyIds.Add(difficultyId.Trim()))
+                var difficultyId = ResolveDifficultyId(gameRule);
+                if (!registeredDifficultyIds.Add(difficultyId))
                 {
                     continue;
                 }
@@ -80,6 +71,22 @@ namespace Unity1Week_Ura.Infrastructure
             }
 
             return Mathf.Max(totalScore, 0);
+        }
+
+        static string ResolveDifficultyId(GameRuleSO gameRule)
+        {
+            if (gameRule == null)
+            {
+                throw new ArgumentNullException(nameof(gameRule));
+            }
+
+            var difficultyId = gameRule.DifficultyId;
+            if (string.IsNullOrWhiteSpace(difficultyId))
+            {
+                throw new InvalidOperationException($"Difficulty id is empty. GameRuleSO: {gameRule.name}");
+            }
+
+            return difficultyId.Trim();
         }
     }
 }

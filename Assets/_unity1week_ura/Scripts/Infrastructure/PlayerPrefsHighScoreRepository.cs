@@ -43,12 +43,7 @@ namespace Unity1Week_Ura.Infrastructure
             var difficultyId = gameRule.DifficultyId;
             if (string.IsNullOrWhiteSpace(difficultyId))
             {
-                difficultyId = gameRule.name;
-            }
-
-            if (string.IsNullOrWhiteSpace(difficultyId))
-            {
-                throw new InvalidOperationException("Difficulty id is empty.");
+                throw new InvalidOperationException($"Difficulty id is empty. GameRuleSO: {gameRule.name}");
             }
 
             return BuildPlayerPrefsKey(difficultyId);

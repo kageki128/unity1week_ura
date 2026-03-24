@@ -54,6 +54,11 @@ namespace Unity1Week_Ura.Actor
             gameObject.SetActive(false);
         }
 
+        public UniTask LoadHighScoresAsync(IHighScoreRepository highScoreRepository, CancellationToken ct)
+        {
+            return smartPhoneView.LoadSelectHighScoresAsync(highScoreRepository, ct);
+        }
+
         static void TryInitializeView(AnimationViewBase view, ISet<AnimationViewBase> initializedViews)
         {
             if (view == null || initializedViews.Contains(view))
