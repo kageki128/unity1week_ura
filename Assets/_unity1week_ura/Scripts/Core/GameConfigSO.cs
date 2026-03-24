@@ -25,6 +25,12 @@ namespace Unity1Week_Ura.Core
         public string ResultText => resultText;
         [SerializeField, TextArea(3, 10)] string resultText = "『裏垢まねじめんと！』の {difficulty} に挑戦したよ〜📱✨\nスコアは {score} ！{reason}\n{url}\n#unity1week #裏垢まねじめんと";
 
+        public IReadOnlyList<GameRuleSO> Scoreboard1GameRules => scoreboard1GameRules;
+        [SerializeField] List<GameRuleSO> scoreboard1GameRules = new();
+
+        public IReadOnlyList<GameRuleSO> Scoreboard2GameRules => scoreboard2GameRules;
+        [SerializeField] List<GameRuleSO> scoreboard2GameRules = new();
+
         [SerializeField] List<FinishReasonTextEntry> finishReasonTexts = new();
 
         public int PostPoint => postPoint;

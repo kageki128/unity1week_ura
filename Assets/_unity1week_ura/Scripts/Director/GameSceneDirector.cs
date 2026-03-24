@@ -16,15 +16,22 @@ namespace Unity1Week_Ura.Director
         readonly GameViewHub gameViewHub;
         readonly GameSession gameSession;
         readonly IHighScoreRepository highScoreRepository;
+        readonly IUnityroomScoreboardRepository unityroomScoreboardRepository;
         readonly SceneModel sceneModel;
 
         readonly CompositeDisposable disposables = new();
 
-        public GameSceneDirector(GameViewHub gameViewHub, GameSession gameSession, IHighScoreRepository highScoreRepository, SceneModel sceneModel)
+        public GameSceneDirector(
+            GameViewHub gameViewHub,
+            GameSession gameSession,
+            IHighScoreRepository highScoreRepository,
+            IUnityroomScoreboardRepository unityroomScoreboardRepository,
+            SceneModel sceneModel)
         {
             this.gameViewHub = gameViewHub;
             this.gameSession = gameSession;
             this.highScoreRepository = highScoreRepository;
+            this.unityroomScoreboardRepository = unityroomScoreboardRepository;
             this.sceneModel = sceneModel;
         }
 
@@ -125,6 +132,7 @@ namespace Unity1Week_Ura.Director
                     gameSession.CurrentGameRule,
                     gameSession.Score.CurrentValue,
                     ct);
+                await unityroomScoreboardRepository.SendScoreboardsAsync(ct);
             }
             catch (OperationCanceledException)
             {

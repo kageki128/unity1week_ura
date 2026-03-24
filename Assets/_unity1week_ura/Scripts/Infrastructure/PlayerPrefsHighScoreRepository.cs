@@ -13,8 +13,7 @@ namespace Unity1Week_Ura.Infrastructure
         public UniTask<int> GetHighScoreAsync(GameRuleSO gameRule, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
-            var key = BuildPlayerPrefsKey(gameRule);
-            return UniTask.FromResult(PlayerPrefs.GetInt(key, 0));
+            return LoadHighScoreAsync(BuildPlayerPrefsKey(gameRule), ct);
         }
 
         public UniTask<int> SaveHighScoreIfHigherAsync(GameRuleSO gameRule, int score, CancellationToken ct)
@@ -52,7 +51,23 @@ namespace Unity1Week_Ura.Infrastructure
                 throw new InvalidOperationException("Difficulty id is empty.");
             }
 
+            return BuildPlayerPrefsKey(difficultyId);
+        }
+
+        static string BuildPlayerPrefsKey(string difficultyId)
+        {
+            if (string.IsNullOrWhiteSpace(difficultyId))
+            {
+                throw new ArgumentException("Difficulty id is empty.", nameof(difficultyId));
+            }
+
             return $"{KeyPrefix}:{difficultyId.Trim()}";
+        }
+
+        static UniTask<int> LoadHighScoreAsync(string playerPrefsKey, CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+            return UniTask.FromResult(PlayerPrefs.GetInt(playerPrefsKey, 0));
         }
     }
 }

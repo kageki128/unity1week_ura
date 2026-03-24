@@ -39,6 +39,7 @@ namespace Unity1Week_Ura.CompositionRoot
             builder.Register<IAccountRepository, AccountRepository>(Lifetime.Singleton);
             builder.Register<IPostRepository, PostRepository>(Lifetime.Singleton);
             builder.Register<IHighScoreRepository, PlayerPrefsHighScoreRepository>(Lifetime.Singleton);
+            builder.Register<IUnityroomScoreboardRepository, UnityroomScoreboardRepository>(Lifetime.Singleton);
             builder.Register<ISocialSharePort, XSharePort>(Lifetime.Singleton);
             builder.RegisterInstance(gameConfig);
             builder.RegisterInstance(addressableConfig);
