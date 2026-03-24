@@ -4718,6 +4718,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.TimelineView
   postViewFactory: {fileID: 1280382854}
   timelinePostParent: {fileID: 372057065}
+  publishFieldView: {fileID: 0}
   pointerEventObserver: {fileID: 1840996769}
   viewportCollider: {fileID: 1840996768}
   scrollBarView: {fileID: 1409970495}
@@ -5075,7 +5076,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &476038671
 Transform:
   m_ObjectHideFlags: 0
@@ -10510,7 +10511,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1242472293
 Transform:
   m_ObjectHideFlags: 0
@@ -20303,7 +20304,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1288088433437582445, guid: 7df618106c4150a46942ef397e8deacb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 4637012995582181313, guid: 7df618106c4150a46942ef397e8deacb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 7df618106c4150a46942ef397e8deacb, type: 3}
 --- !u!212 &6871682791262161856
 SpriteRenderer:

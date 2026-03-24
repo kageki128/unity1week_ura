@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DG.Tweening;
 using R3;
 using TMPro;
@@ -66,10 +67,21 @@ namespace Unity1Week_Ura.Actor
         readonly Subject<Post> onLikedByPlayer = new();
         readonly Subject<Post> onRepostedByPlayer = new();
         readonly Subject<UnityEngine.EventSystems.PointerEventData> onScrolled = new();
+        readonly List<ButtonColliderClipTarget> buttonColliderClipTargets = new();
         bool hasAttachedImage;
         float currentAttachedImageHeight;
         Vector3 attachedImageBaseLocalScale = Vector3.one;
         bool hasAttachedImageBaseLocalScale;
+        bool isInteractable = true;
+        float interactionClipTopY = float.PositiveInfinity;
+        float interactionClipBottomY = float.NegativeInfinity;
+
+        struct ButtonColliderClipTarget
+        {
+            public BoxCollider2D Collider;
+            public Vector2 BaseSize;
+            public Vector2 BaseOffset;
+        }
 
         public void Initialize(Post post)
         {
@@ -107,6 +119,8 @@ namespace Unity1Week_Ura.Actor
             SubscribeActions();
 
             AdjustLayout();
+            InitializeButtonColliderClipTargets();
+            ApplyButtonInteractionState();
         }
 
         public void SetPosition(float x, float y, bool useAnimation = true)
@@ -116,9 +130,15 @@ namespace Unity1Week_Ura.Actor
 
         public void SetInteractable(bool isInteractable)
         {
-            postButtonView?.SetInteractable(isInteractable);
-            repostButtonView?.SetInteractable(isInteractable);
-            likeButtonView?.SetInteractable(isInteractable);
+            this.isInteractable = isInteractable;
+            ApplyButtonInteractionState();
+        }
+
+        public void SetInteractionClip(float topY, float bottomY)
+        {
+            interactionClipTopY = topY;
+            interactionClipBottomY = bottomY;
+            ApplyButtonInteractionState();
         }
 
         public void StopAnimations()
@@ -397,6 +417,106 @@ namespace Unity1Week_Ura.Actor
             }
         }
 
+        void InitializeButtonColliderClipTargets()
+        {
+            buttonColliderClipTargets.Clear();
+            AddButtonColliderClipTarget(postButtonView);
+            AddButtonColliderClipTarget(repostButtonView);
+            AddButtonColliderClipTarget(likeButtonView);
+        }
+
+        void AddButtonColliderClipTarget(ButtonView buttonView)
+        {
+            if (buttonView == null)
+            {
+                return;
+            }
+
+            if (!buttonView.TryGetComponent<BoxCollider2D>(out var boxCollider) || boxCollider == null)
+            {
+                return;
+            }
+
+            buttonColliderClipTargets.Add(new ButtonColliderClipTarget
+            {
+                Collider = boxCollider,
+                BaseSize = boxCollider.size,
+                BaseOffset = boxCollider.offset
+            });
+        }
+
+        void ApplyButtonInteractionState()
+        {
+            postButtonView?.SetInteractable(isInteractable);
+            repostButtonView?.SetInteractable(isInteractable);
+            likeButtonView?.SetInteractable(isInteractable);
+
+            if (!isInteractable)
+            {
+                return;
+            }
+
+            for (int i = 0; i < buttonColliderClipTargets.Count; i++)
+            {
+                var target = buttonColliderClipTargets[i];
+                if (target.Collider == null)
+                {
+                    continue;
+                }
+
+                // 毎回基準形状に戻してから可視範囲で再クリップし、ドリフトを防ぐ。
+                target.Collider.size = target.BaseSize;
+                target.Collider.offset = target.BaseOffset;
+                target.Collider.enabled = true;
+
+                ClipButtonColliderVertically(target);
+            }
+        }
+
+        void ClipButtonColliderVertically(ButtonColliderClipTarget target)
+        {
+            if (target.Collider == null || !target.Collider.enabled)
+            {
+                return;
+            }
+
+            var bounds = target.Collider.bounds;
+            float visibleTopY = Mathf.Min(bounds.max.y, interactionClipTopY);
+            float visibleBottomY = Mathf.Max(bounds.min.y, interactionClipBottomY);
+            float visibleHeightWorld = visibleTopY - visibleBottomY;
+
+            if (visibleHeightWorld <= Mathf.Epsilon)
+            {
+                target.Collider.enabled = false;
+                return;
+            }
+
+            if (visibleHeightWorld >= bounds.size.y - Mathf.Epsilon)
+            {
+                return;
+            }
+
+            var baseCenter = bounds.center;
+            var visibleCenterWorld = new Vector3(baseCenter.x, (visibleTopY + visibleBottomY) * 0.5f, baseCenter.z);
+            var visibleTopWorld = new Vector3(baseCenter.x, visibleTopY, baseCenter.z);
+            var visibleBottomWorld = new Vector3(baseCenter.x, visibleBottomY, baseCenter.z);
+
+            var targetTransform = target.Collider.transform;
+            var visibleCenterLocal = targetTransform.InverseTransformPoint(visibleCenterWorld);
+            var visibleTopLocal = targetTransform.InverseTransformPoint(visibleTopWorld);
+            var visibleBottomLocal = targetTransform.InverseTransformPoint(visibleBottomWorld);
+            float visibleHeightLocal = Mathf.Abs(visibleTopLocal.y - visibleBottomLocal.y);
+
+            var size = target.BaseSize;
+            size.y = Mathf.Max(0f, visibleHeightLocal);
+
+            var offset = target.BaseOffset;
+            offset.y = visibleCenterLocal.y;
+
+            target.Collider.size = size;
+            target.Collider.offset = offset;
+        }
+
         void OnPostClickedEvent()
         {
             onPostClicked.OnNext(post);
@@ -465,6 +585,34 @@ namespace Unity1Week_Ura.Actor
             if (icon.TryGetComponent<ButtonAnimator>(out var buttonAnimator))
             {
                 buttonAnimator.RefreshBaseColorsFromCurrent();
+            }
+        }
+
+        void LateUpdate()
+        {
+            if (!isInteractable || buttonColliderClipTargets.Count == 0)
+            {
+                return;
+            }
+
+            // クリップ範囲が無制限なら毎フレーム更新は不要。
+            if (float.IsPositiveInfinity(interactionClipTopY) && float.IsNegativeInfinity(interactionClipBottomY))
+            {
+                return;
+            }
+
+            for (int i = 0; i < buttonColliderClipTargets.Count; i++)
+            {
+                var target = buttonColliderClipTargets[i];
+                if (target.Collider == null)
+                {
+                    continue;
+                }
+
+                target.Collider.size = target.BaseSize;
+                target.Collider.offset = target.BaseOffset;
+                target.Collider.enabled = true;
+                ClipButtonColliderVertically(target);
             }
         }
 

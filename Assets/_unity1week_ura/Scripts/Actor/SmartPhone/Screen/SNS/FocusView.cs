@@ -339,6 +339,13 @@ namespace Unity1Week_Ura.Actor
                 return;
             }
 
+            if (viewportCollider == null)
+            {
+                postView.SetInteractable(true);
+                postView.SetInteractionClip(float.PositiveInfinity, float.NegativeInfinity);
+                return;
+            }
+
             float halfHeight = postView.Height * 0.5f;
             float postTopY = centerY + halfHeight;
             float postBottomY = centerY - halfHeight;
@@ -346,6 +353,10 @@ namespace Unity1Week_Ura.Actor
 
             bool isWithinViewport = postBottomY < viewportTopY && postTopY > viewportBottomY;
             postView.SetInteractable(isWithinViewport);
+            if (isWithinViewport)
+            {
+                postView.SetInteractionClip(viewportTopY, viewportBottomY);
+            }
         }
 
         bool CanDisplayAsReplyForCurrentFocus(Post post)

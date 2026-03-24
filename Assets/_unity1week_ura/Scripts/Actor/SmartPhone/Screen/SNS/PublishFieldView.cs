@@ -71,6 +71,23 @@ namespace Unity1Week_Ura.Actor
             accountIcon.sprite = account?.Icon;
         }
 
+        public bool TryGetColliderWorldBounds(out Bounds bounds)
+        {
+            bounds = default;
+            if (pointerEventObserver == null)
+            {
+                return false;
+            }
+
+            if (!pointerEventObserver.TryGetComponent<Collider2D>(out var collider) || collider == null)
+            {
+                return false;
+            }
+
+            bounds = collider.bounds;
+            return true;
+        }
+
         public void SetPosition(float x, float y, bool useAnimation = true) => viewArranger.SetPosition(x, y, useAnimation);
 
         void OnDestroy()

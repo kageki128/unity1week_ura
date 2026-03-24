@@ -14,6 +14,7 @@ namespace Unity1Week_Ura.Actor
 
         [SerializeField] PostViewFactory postViewFactory;
         [SerializeField] Transform timelinePostParent;
+        [SerializeField] PublishFieldView publishFieldView;
         [SerializeField] PointerEventObserver pointerEventObserver;
         [SerializeField] Collider2D viewportCollider;
         [SerializeField] ScrollBarView scrollBarView;
@@ -33,6 +34,11 @@ namespace Unity1Week_Ura.Actor
         {
             disposables.Clear();
             scrollBarView?.Initialize();
+
+            if (publishFieldView == null && transform.parent != null)
+            {
+                publishFieldView = transform.parent.GetComponentInChildren<PublishFieldView>(true);
+            }
 
             if (pointerEventObserver == null)
             {
@@ -106,13 +112,14 @@ namespace Unity1Week_Ura.Actor
             float clampedOffsetY = GetClampedScrollOffsetY();
             float viewportTopY = GetViewportTopY();
             float viewportBottomY = GetViewportBottomY();
+            float interactionTopY = GetInteractionTopY(viewportTopY);
 
             for (int i = 0; i < postViews.Count; i++)
             {
                 var postView = postViews[i];
                 float y = topY - postView.Height * 0.5f + clampedOffsetY;
                 postView.SetPosition(0, y, useAnimation);
-                UpdatePostInteractability(postView, y, viewportTopY, viewportBottomY);
+                UpdatePostInteractability(postView, y, interactionTopY, viewportBottomY);
                 topY -= postView.Height;
             }
 
@@ -227,7 +234,30 @@ namespace Unity1Week_Ura.Actor
             scrollBarView.UpdateVisual(visualContentHeight, viewportHeight, clampedOffsetY);
         }
 
-        void UpdatePostInteractability(PostView postView, float centerY, float viewportTopY, float viewportBottomY)
+        float GetInteractionTopY(float viewportTopY)
+        {
+            if (publishFieldView == null || !publishFieldView.isActiveAndEnabled || !publishFieldView.gameObject.activeInHierarchy)
+            {
+                return viewportTopY;
+            }
+
+            if (!publishFieldView.TryGetColliderWorldBounds(out var bounds))
+            {
+                return viewportTopY;
+            }
+
+            if (timelinePostParent == null)
+            {
+                return Mathf.Min(viewportTopY, bounds.min.y);
+            }
+
+            var parentPosition = timelinePostParent.position;
+            var publishFieldBottomWorldPosition = new Vector3(parentPosition.x, bounds.min.y, parentPosition.z);
+            float publishFieldBottomY = timelinePostParent.InverseTransformPoint(publishFieldBottomWorldPosition).y;
+            return Mathf.Min(viewportTopY, publishFieldBottomY);
+        }
+
+        void UpdatePostInteractability(PostView postView, float centerY, float interactionTopY, float viewportBottomY)
         {
             if (postView == null)
             {
@@ -237,14 +267,19 @@ namespace Unity1Week_Ura.Actor
             if (viewportCollider == null)
             {
                 postView.SetInteractable(true);
+                postView.SetInteractionClip(float.PositiveInfinity, float.NegativeInfinity);
                 return;
             }
 
             float halfHeight = postView.Height * 0.5f;
             float postTopY = centerY + halfHeight;
             float postBottomY = centerY - halfHeight;
-            bool isWithinViewport = postBottomY < viewportTopY && postTopY > viewportBottomY;
+            bool isWithinViewport = postBottomY < interactionTopY && postTopY > viewportBottomY;
             postView.SetInteractable(isWithinViewport);
+            if (isWithinViewport)
+            {
+                postView.SetInteractionClip(interactionTopY, viewportBottomY);
+            }
         }
 
         void OnDestroy()
