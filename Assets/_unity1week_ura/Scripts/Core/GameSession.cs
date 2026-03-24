@@ -294,7 +294,7 @@ namespace Unity1Week_Ura.Core
 
         void AddScore(int delta)
         {
-            score.Value = Mathf.Max(score.Value + delta, 0);
+            score.Value = ScoreFormatter.Clamp(score.Value + delta);
         }
 
         public async UniTask ShareResultAsync(CancellationToken ct)

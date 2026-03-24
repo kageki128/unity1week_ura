@@ -66,11 +66,11 @@ namespace Unity1Week_Ura.Infrastructure
                     continue;
                 }
 
-                var highScore = await highScoreRepository.GetHighScoreAsync(gameRule, ct);
-                totalScore += Mathf.Max(highScore, 0);
+                var highScore = ScoreFormatter.Clamp(await highScoreRepository.GetHighScoreAsync(gameRule, ct));
+                totalScore = ScoreFormatter.Clamp(totalScore + highScore);
             }
 
-            return Mathf.Max(totalScore, 0);
+            return ScoreFormatter.Clamp(totalScore);
         }
 
         static string ResolveDifficultyId(GameRuleSO gameRule)

@@ -94,7 +94,7 @@ namespace Unity1Week_Ura.Actor
 
         public void SetScore(int score)
         {
-            var clampedScore = Mathf.Max(score, 0);
+            var clampedScore = ScoreFormatter.Clamp(score);
             if (!gameObject.activeInHierarchy)
             {
                 ApplyScoreWithoutAnimation(clampedScore);

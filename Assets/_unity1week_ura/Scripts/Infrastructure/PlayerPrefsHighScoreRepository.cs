@@ -20,8 +20,15 @@ namespace Unity1Week_Ura.Infrastructure
         {
             ct.ThrowIfCancellationRequested();
             var key = BuildPlayerPrefsKey(gameRule);
-            var currentHighScore = PlayerPrefs.GetInt(key, 0);
-            var clampedScore = Mathf.Max(score, 0);
+            var loadedHighScore = PlayerPrefs.GetInt(key, 0);
+            var currentHighScore = ScoreFormatter.Clamp(loadedHighScore);
+            var clampedScore = ScoreFormatter.Clamp(score);
+
+            if (loadedHighScore != currentHighScore)
+            {
+                PlayerPrefs.SetInt(key, currentHighScore);
+                PlayerPrefs.Save();
+            }
 
             if (clampedScore <= currentHighScore)
             {
@@ -62,7 +69,7 @@ namespace Unity1Week_Ura.Infrastructure
         static UniTask<int> LoadHighScoreAsync(string playerPrefsKey, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
-            return UniTask.FromResult(PlayerPrefs.GetInt(playerPrefsKey, 0));
+            return UniTask.FromResult(ScoreFormatter.Clamp(PlayerPrefs.GetInt(playerPrefsKey, 0)));
         }
     }
 }

@@ -48,8 +48,8 @@ namespace Unity1Week_Ura.Actor
                     continue;
                 }
 
-                var highScore = Mathf.Max(await highScoreRepository.GetHighScoreAsync(gameRule, ct), 0);
-                totalScore += highScore;
+                var highScore = ScoreFormatter.Clamp(await highScoreRepository.GetHighScoreAsync(gameRule, ct));
+                totalScore = ScoreFormatter.Clamp(totalScore + highScore);
             }
 
             SetScore(totalScore);
@@ -63,7 +63,7 @@ namespace Unity1Week_Ura.Actor
                 return;
             }
 
-            var formattedScore = ScoreFormatter.Format(Mathf.Max(score, 0));
+            var formattedScore = ScoreFormatter.Format(score);
             if (string.IsNullOrEmpty(scoreTemplate))
             {
                 scoreText.text = formattedScore;
