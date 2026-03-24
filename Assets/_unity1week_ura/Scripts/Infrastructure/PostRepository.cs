@@ -211,6 +211,10 @@ namespace Unity1Week_Ura.Infrastructure
                 {
                     throw new InvalidOperationException("AddressableConfigSO.PostDatas is not assigned.");
                 }
+                if (addressableConfig.AttachedImageLabel == null || !addressableConfig.AttachedImageLabel.RuntimeKeyIsValid())
+                {
+                    throw new InvalidOperationException("AddressableConfigSO.AttachedImageLabel is not assigned.");
+                }
 
                 var assetReference = addressableConfig.PostDatas;
                 try
@@ -222,7 +226,7 @@ namespace Unity1Week_Ura.Infrastructure
                     var csvText = csvAsset.text;
                     ct.ThrowIfCancellationRequested();
                     var rows = await Task.Run(() => ParsePostRows(csvText), ct);
-                    var spritesByFileName = await spriteLabelLoader.LoadAllByLabelAsync(addressableConfig.IconLabel, ct);
+                    var attachedImagesByFileName = await spriteLabelLoader.LoadAllByLabelAsync(addressableConfig.AttachedImageLabel, ct);
                     var accountCache = new Dictionary<string, Account>(StringComparer.Ordinal);
                     var resolvedRows = new List<ResolvedPostRow>(rows.Count);
 
@@ -262,7 +266,7 @@ namespace Unity1Week_Ura.Infrastructure
                             correctPlayerAccount = await GetAccountCachedAsync(correctPlayerAccountId);
                         }
 
-                        var attachedImage = AddressableSpriteLabelLoader.ResolveSprite(row.AttachedImageFileName, spritesByFileName);
+                        var attachedImage = AddressableSpriteLabelLoader.ResolveSprite(row.AttachedImageFileName, attachedImagesByFileName);
                         authorByPostId.TryGetValue(row.ParentPostId, out var parentPostAuthor);
 
                         var property = new PostProperty(

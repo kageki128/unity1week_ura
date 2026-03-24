@@ -6,6 +6,9 @@ namespace Unity1Week_Ura.Core
     [CreateAssetMenu(fileName = "GameRule", menuName = "Unity1Week_Ura/GameRule")]
     public class GameRuleSO : ScriptableObject
     {
+        public string DifficultyId => difficultyId;
+        [SerializeField] string difficultyId;
+
         public string DifficultyName => difficultyName;
         [SerializeField] string difficultyName = "難易度の名前";
 

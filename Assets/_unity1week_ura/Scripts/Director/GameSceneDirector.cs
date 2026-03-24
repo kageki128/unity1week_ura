@@ -15,14 +15,16 @@ namespace Unity1Week_Ura.Director
     {
         readonly GameViewHub gameViewHub;
         readonly GameSession gameSession;
+        readonly IHighScoreRepository highScoreRepository;
         readonly SceneModel sceneModel;
 
         readonly CompositeDisposable disposables = new();
 
-        public GameSceneDirector(GameViewHub gameViewHub, GameSession gameSession, SceneModel sceneModel)
+        public GameSceneDirector(GameViewHub gameViewHub, GameSession gameSession, IHighScoreRepository highScoreRepository, SceneModel sceneModel)
         {
             this.gameViewHub = gameViewHub;
             this.gameSession = gameSession;
+            this.highScoreRepository = highScoreRepository;
             this.sceneModel = sceneModel;
         }
 
@@ -117,6 +119,22 @@ namespace Unity1Week_Ura.Director
         async UniTask HandleGameFinishedAsync(CancellationToken ct)
         {
             var finishReason = gameSession.CurrentFinishReason.CurrentValue;
+            try
+            {
+                await highScoreRepository.SaveHighScoreIfHigherAsync(
+                    gameSession.CurrentGameRule,
+                    gameSession.Score.CurrentValue,
+                    ct);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+            }
+
             try
             {
                 await gameViewHub.PlayFinishTextAnimationAsync(finishReason, ct);

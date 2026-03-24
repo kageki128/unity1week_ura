@@ -39,6 +39,11 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] TMP_Text repostCountText;
         [SerializeField] TMP_Text likeCountText;
 
+        [Header("Attached Image")]
+        [SerializeField] SpriteRenderer attachedImageRenderer;
+        [SerializeField] float attachedImageMaxWidth = 8.5f;
+        [SerializeField] float attachedImageTopMargin = 0.2f;
+
         [Header("Text Style")]
         [SerializeField] Color subTextColor;
         [SerializeField] int subTextFontSizeOffset = 3;
@@ -61,6 +66,10 @@ namespace Unity1Week_Ura.Actor
         readonly Subject<Post> onLikedByPlayer = new();
         readonly Subject<Post> onRepostedByPlayer = new();
         readonly Subject<UnityEngine.EventSystems.PointerEventData> onScrolled = new();
+        bool hasAttachedImage;
+        float currentAttachedImageHeight;
+        Vector3 attachedImageBaseLocalScale = Vector3.one;
+        bool hasAttachedImageBaseLocalScale;
 
         public void Initialize(Post post)
         {
@@ -92,6 +101,7 @@ namespace Unity1Week_Ura.Actor
                 var replyText = $"返信先: @{parentAccountId} さん";
                 contentText.text = $"<color={repltTextColorHex}>{replyText}</color>\n{property.Text}";
             }
+            SetupAttachedImage(property.AttachedImage);
             RefreshRepostedByText();
             SubscribePostState();
             SubscribeActions();
@@ -181,6 +191,10 @@ namespace Unity1Week_Ura.Actor
 
             // 1行時のデフォルト高さとの差分を計算
             float extraHeight = Mathf.Max(0f, renderedHeight - defaultContentHeight);
+            if (hasAttachedImage)
+            {
+                extraHeight += attachedImageTopMargin + currentAttachedImageHeight;
+            }
             
             float topExtraHeight = 0f;
             if (repostedByText.gameObject.activeSelf)
@@ -192,15 +206,19 @@ namespace Unity1Week_Ura.Actor
                 if (topExtraHeight < 0f) topExtraHeight = 0f;
             }
 
-            if (extraHeight <= 0f && topExtraHeight <= 0f) return;
+            if (extraHeight <= 0f && topExtraHeight <= 0f)
+            {
+                return;
+            }
 
             float halfExtra = extraHeight * 0.5f;
             float halfTopExtra = topExtraHeight * 0.5f;
+            var attachedImageTransform = attachedImageRenderer != null ? attachedImageRenderer.transform : null;
 
             // 全ての子オブジェクトを自動的に判別してオフセット
             foreach (Transform child in transform)
             {
-                if (child == frameImage.transform)
+                if (child == frameImage.transform || child == attachedImageTransform)
                 {
                     continue; // Frameはスケール変更で対応するため除外
                 }
@@ -243,6 +261,119 @@ namespace Unity1Week_Ura.Actor
             var frameScale = frameTransform.localScale;
             frameScale.y += (extraHeight + topExtraHeight);
             frameTransform.localScale = frameScale;
+
+            LayoutAttachedImage(renderedHeight);
+        }
+
+        void SetupAttachedImage(Sprite attachedImage)
+        {
+            hasAttachedImage = attachedImage != null;
+            currentAttachedImageHeight = 0f;
+
+            if (!hasAttachedImage)
+            {
+                if (attachedImageRenderer != null)
+                {
+                    attachedImageRenderer.sprite = null;
+                    attachedImageRenderer.gameObject.SetActive(false);
+                }
+
+                return;
+            }
+
+            var renderer = EnsureAttachedImageRenderer();
+            if (renderer == null)
+            {
+                hasAttachedImage = false;
+                return;
+            }
+
+            renderer.gameObject.SetActive(true);
+            renderer.sprite = attachedImage;
+            CacheAttachedImageBaseScale();
+
+            var spriteBounds = attachedImage.bounds.size;
+            float sourceWidth = spriteBounds.x * Mathf.Abs(attachedImageBaseLocalScale.x);
+            if (sourceWidth <= Mathf.Epsilon)
+            {
+                renderer.transform.localScale = attachedImageBaseLocalScale;
+                return;
+            }
+
+            float targetWidth = attachedImageMaxWidth;
+            if (targetWidth <= Mathf.Epsilon && contentText != null)
+            {
+                targetWidth = contentText.rectTransform.rect.width;
+            }
+
+            if (targetWidth <= Mathf.Epsilon)
+            {
+                targetWidth = sourceWidth;
+            }
+
+            float fitScale = targetWidth / sourceWidth;
+            if (float.IsNaN(fitScale) || float.IsInfinity(fitScale) || fitScale <= Mathf.Epsilon)
+            {
+                fitScale = 1f;
+            }
+
+            renderer.transform.localScale = new Vector3(
+                attachedImageBaseLocalScale.x * fitScale,
+                attachedImageBaseLocalScale.y * fitScale,
+                attachedImageBaseLocalScale.z);
+            currentAttachedImageHeight = spriteBounds.y * Mathf.Abs(renderer.transform.localScale.y);
+        }
+
+        SpriteRenderer EnsureAttachedImageRenderer()
+        {
+            if (attachedImageRenderer != null)
+            {
+                return attachedImageRenderer;
+            }
+
+            var attachedImageObject = new GameObject("AttachedImage");
+            attachedImageObject.transform.SetParent(transform, false);
+            attachedImageRenderer = attachedImageObject.AddComponent<SpriteRenderer>();
+
+            if (frameImage != null)
+            {
+                attachedImageRenderer.sharedMaterial = frameImage.sharedMaterial;
+                attachedImageRenderer.sortingLayerID = frameImage.sortingLayerID;
+                attachedImageRenderer.sortingOrder = frameImage.sortingOrder + 1;
+                attachedImageRenderer.maskInteraction = frameImage.maskInteraction;
+            }
+
+            return attachedImageRenderer;
+        }
+
+        void CacheAttachedImageBaseScale()
+        {
+            if (hasAttachedImageBaseLocalScale || attachedImageRenderer == null)
+            {
+                return;
+            }
+
+            attachedImageBaseLocalScale = attachedImageRenderer.transform.localScale;
+            hasAttachedImageBaseLocalScale = true;
+        }
+
+        void LayoutAttachedImage(float renderedTextHeight)
+        {
+            if (!hasAttachedImage || attachedImageRenderer == null || contentText == null)
+            {
+                return;
+            }
+
+            var contentRectTransform = contentText.rectTransform;
+            float contentTopY = contentRectTransform.localPosition.y;
+            float contentBottomY = contentTopY - renderedTextHeight;
+            float imageY = contentBottomY - attachedImageTopMargin - currentAttachedImageHeight * 0.5f;
+            float imageX = frameImage != null ? frameImage.transform.localPosition.x : 0f;
+
+            var position = attachedImageRenderer.transform.localPosition;
+            position.x = imageX;
+            position.y = imageY;
+            attachedImageRenderer.transform.localPosition = position;
         }
 
         void SubscribeActions()

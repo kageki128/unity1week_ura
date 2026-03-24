@@ -117,11 +117,6 @@ namespace Unity1Week_Ura.Core
                 return false;
             }
 
-            if (!beforeAppearingNormalPosts.Any(CanAppear))
-            {
-                return false;
-            }
-
             bool useAdvertisePost = advertisePosts.Count > 0
                 && Random.value < Mathf.Clamp01(gameRule.AdvertisePostProbability);
             if (useAdvertisePost)

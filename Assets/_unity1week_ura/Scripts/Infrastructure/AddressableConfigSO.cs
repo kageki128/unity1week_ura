@@ -14,5 +14,8 @@ namespace Unity1Week_Ura.Infrastructure
 
         public AssetLabelReference IconLabel => iconLabel;
         [SerializeField] AssetLabelReference iconLabel;
+
+        public AssetLabelReference AttachedImageLabel => attachedImageLabel;
+        [SerializeField] AssetLabelReference attachedImageLabel;
     }
 }

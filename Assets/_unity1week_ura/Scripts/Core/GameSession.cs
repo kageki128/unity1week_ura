@@ -15,6 +15,7 @@ namespace Unity1Week_Ura.Core
 
         public ReadOnlyReactiveProperty<int> Score => score;
         readonly ReactiveProperty<int> score = new(0);
+        public GameRuleSO CurrentGameRule => gameRule;
 
         public ReadOnlyReactiveProperty<GameState> CurrentGameState => currentGameState;
         readonly ReactiveProperty<GameState> currentGameState = new(GameState.Preparing);
