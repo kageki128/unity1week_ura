@@ -3825,8 +3825,8 @@ Transform:
   m_GameObject: {fileID: 348563437}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.5, z: 0}
-  m_LocalScale: {x: 6, y: 6, z: 6}
+  m_LocalPosition: {x: 0, y: -0.55, z: 0}
+  m_LocalScale: {x: 9, y: 9, z: 9}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1910856022}
@@ -4165,6 +4165,7 @@ GameObject:
   m_Component:
   - component: {fileID: 382959335}
   - component: {fileID: 382959336}
+  - component: {fileID: 382959337}
   m_Layer: 0
   m_Name: Character
   m_TagString: Untagged
@@ -4181,7 +4182,7 @@ Transform:
   m_GameObject: {fileID: 382959334}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -6.15, y: -1.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4218,6 +4219,26 @@ MonoBehaviour:
   visibleAlpha: 1
   hiddenAlpha: 0
   hideOnInitialize: 1
+--- !u!114 &382959337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 382959334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ef8c3c1a5234de99a2c216652dcb470, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: unity1week_ura_Actor::Unity1Week_Ura.Actor.GameCharacterView
+  playerAccountCharacterSprites: {fileID: 11400000, guid: 07fcaee226deced4e9b15038ae547f30, type: 2}
+  targetSpriteRenderer: {fileID: 1551545046}
+  targetImage: {fileID: 0}
+  scorePenaltySprite: {fileID: 21300000, guid: bf8cab760cab22f4eb0c10211ba2cb75, type: 3}
+  failureSprite: {fileID: 21300000, guid: 7bfce9570b403fe4dbcc02eba537e579, type: 3}
+  penaltyDisplaySeconds: 1
+  randomSwitchIntervalMinSeconds: 1
+  randomSwitchIntervalMaxSeconds: 2
 --- !u!1 &403459555
 GameObject:
   m_ObjectHideFlags: 0
@@ -8518,14 +8539,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 957248758}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: -0.08715578, w: 0.9961947}
-  m_LocalPosition: {x: 5, y: -1.5, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -7.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2132196074}
   m_Father: {fileID: 765416127}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -10}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &957248760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8570,7 +8591,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &974505754
 Transform:
   m_ObjectHideFlags: 0
@@ -10511,7 +10532,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1242472293
 Transform:
   m_ObjectHideFlags: 0
@@ -12454,7 +12475,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1490677657
 Transform:
   m_ObjectHideFlags: 0
@@ -13153,7 +13174,7 @@ Transform:
   m_GameObject: {fileID: 1551545044}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.15, y: -2.45, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 8, y: 8, z: 8}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -16390,6 +16411,7 @@ MonoBehaviour:
   draftListView: {fileID: 1763245044}
   scoreView: {fileID: 2053070617}
   remainingTimeView: {fileID: 2060989201}
+  gameCharacterView: {fileID: 382959337}
   howToPlayOverlayView: {fileID: 2025344802}
   gamePhaseTextAnimationView: {fileID: 1856654222}
   timedViewAnimationPlayer: {fileID: 1803890735}
@@ -17368,7 +17390,7 @@ Transform:
   m_GameObject: {fileID: 1910856021}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 7.3, z: 0}
+  m_LocalPosition: {x: 0, y: 6.3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -20304,13 +20326,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1288088433437582445, guid: 7df618106c4150a46942ef397e8deacb, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 4637012995582181313, guid: 7df618106c4150a46942ef397e8deacb, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7df618106c4150a46942ef397e8deacb, type: 3}
 --- !u!212 &6871682791262161856
 SpriteRenderer:

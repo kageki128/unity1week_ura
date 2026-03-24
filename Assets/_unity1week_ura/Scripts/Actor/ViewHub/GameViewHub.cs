@@ -25,6 +25,7 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] DraftListView draftListView;
         [SerializeField] ScoreView scoreView;
         [SerializeField] RemainingTimeView remainingTimeView;
+        [SerializeField] GameCharacterView gameCharacterView;
         [SerializeField] HowToPlayOverlayView howToPlayOverlayView;
         [FormerlySerializedAs("gameStartTextAnimationView")]
         [SerializeField] GamePhaseTextAnimationView gamePhaseTextAnimationView;
@@ -34,6 +35,7 @@ namespace Unity1Week_Ura.Actor
         public override void Initialize()
         {
             InitializeViews();
+            gameCharacterView?.Initialize();
             draftListView.Initialize();
             if (gamePhaseTextAnimationView == null)
             {
@@ -115,17 +117,28 @@ namespace Unity1Week_Ura.Actor
         public void AddPostToTimeline(Post post) => smartPhoneView.AddPostToTimeline(post);
         public void ClearTimeline() => smartPhoneView.ClearTimeline();
         public void SetPlayerAccounts(IReadOnlyList<Account> accounts) => smartPhoneView.SetPlayerAccounts(accounts);
-        public void SetSelectedPlayerAccount(Account account) => smartPhoneView.SetSelectedPlayerAccount(account);
+        public void SetSelectedPlayerAccount(Account account)
+        {
+            smartPhoneView.SetSelectedPlayerAccount(account);
+            gameCharacterView?.SetSelectedPlayerAccount(account);
+        }
 
         public void AddDraft(Post post) => draftListView.AddDraft(post);
         public void RemoveDraft(Post post) => draftListView.RemoveDraft(post);
         public void ClearDrafts() => draftListView.ClearDrafts();
 
-        public void SetScore(int score) => scoreView.SetScore(score);
+        public void SetScore(int score)
+        {
+            scoreView.SetScore(score);
+            gameCharacterView?.SetScore(score);
+        }
         public void SetRemainingTime(float remainingTime) => remainingTimeView.SetRemainingTime(remainingTime);
         public void SetGameSubScreenTransitionEnabled(bool isEnabled) => smartPhoneView.SetGameSubScreenTransitionEnabled(isEnabled);
+        public void PrepareForNewGame() => gameCharacterView?.PrepareForNewGame();
         public async UniTask PlayGameFinishedAnimationAsync(FinishReason finishReason, CancellationToken ct)
         {
+            gameCharacterView?.SetFinishReason(finishReason);
+
             var isTimeUp = finishReason == FinishReason.TimeUp;
             if (!isTimeUp)
             {
