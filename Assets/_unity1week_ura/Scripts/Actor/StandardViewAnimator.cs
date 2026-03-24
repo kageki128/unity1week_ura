@@ -84,9 +84,6 @@ namespace Unity1Week_Ura.Actor
         // 非表示状態での目標アルファ値。
         [Tooltip("非表示状態での目標アルファ値です。")]
         [SerializeField, Range(0f, 1f)] float hiddenAlpha = 0f;
-        // CanvasGroup 利用時に alpha に連動して interactable/blocksRaycasts も切り替えるか。
-        [Tooltip("CanvasGroup 利用時に alpha に連動して interactable / blocksRaycasts も切り替えるかを指定します。")]
-        [SerializeField] bool controlCanvasGroupInteraction = true;
 
         [Header("Initialize")]
         // Initialize 時に hiddenAlpha を適用して非表示開始にするか。
@@ -392,13 +389,6 @@ namespace Unity1Week_Ura.Actor
             if (canvasGroupTarget != null)
             {
                 canvasGroupTarget.alpha = clampedAlpha;
-                if (controlCanvasGroupInteraction)
-                {
-                    var isVisible = clampedAlpha >= 0.999f;
-                    canvasGroupTarget.interactable = isVisible;
-                    canvasGroupTarget.blocksRaycasts = isVisible;
-                }
-
                 return;
             }
 

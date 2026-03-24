@@ -14,10 +14,21 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] ButtonView timelineButtonView;
         [SerializeField] ButtonView selectSceneButtonView;
         [SerializeField] ButtonView restartButtonView;
+        [SerializeField] ButtonView howToPlayButtonView;
+        [SerializeField] HowToPlayOverlayView howToPlayOverlayView;
+
+        readonly CompositeDisposable disposables = new();
 
         public override void Initialize(ScreenTransitionViewHub screenTransitionViewHub)
         {
             base.Initialize(screenTransitionViewHub);
+            disposables.Clear();
+
+            howToPlayOverlayView?.Initialize();
+
+            howToPlayButtonView.OnClicked
+                .Subscribe(_ => howToPlayOverlayView.ShowAsync(howToPlayOverlayView.destroyCancellationToken).Forget())
+                .AddTo(disposables);
             gameObject.SetActive(false);
         }
 
@@ -31,6 +42,11 @@ namespace Unity1Week_Ura.Actor
         {
             await screenTransitionViewHub.ShowAsync(ScreenTransitionType.WhiteFade, ct);
             gameObject.SetActive(false);
+        }
+
+        void OnDestroy()
+        {
+            disposables.Dispose();
         }
     }
 }

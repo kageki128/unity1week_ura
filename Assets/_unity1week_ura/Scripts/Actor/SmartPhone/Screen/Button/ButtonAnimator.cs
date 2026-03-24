@@ -1,7 +1,9 @@
+using System;
 using DG.Tweening;
 using R3;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Unity1Week_Ura.Actor
 {
@@ -17,6 +19,7 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] PointerEventObserver pointerEventObserver;
         [SerializeField] SpriteRenderer[] spriteRenderers;
         [SerializeField] TMP_Text[] texts;
+        [SerializeField] Graphic[] graphics;
 
         [Header("Idle")]
         [SerializeField] bool playIdleAnimation = true;
@@ -54,6 +57,7 @@ namespace Unity1Week_Ura.Actor
         Vector3 baseLocalPosition;
         Color[] baseSpriteColors;
         Color[] baseTextColors;
+        Color[] baseGraphicColors;
         bool isHovered;
         bool isPressed;
         Tween idleTween;
@@ -61,18 +65,28 @@ namespace Unity1Week_Ura.Actor
         Tween moveTween;
         Tween[] spriteColorTweens;
         Tween[] textColorTweens;
+        Tween[] graphicColorTweens;
         int suspendCount;
 
         void Awake()
         {
+            EnsureTargets();
             baseLocalScale = transform.localScale;
             baseLocalPosition = transform.localPosition;
             CacheBaseColors();
 
-            pointerEventObserver.OnPointerEntered.Subscribe(_ => OnPointerEnter()).AddTo(disposables);
-            pointerEventObserver.OnPointerExited.Subscribe(_ => OnPointerExit()).AddTo(disposables);
-            pointerEventObserver.OnPointerDowned.Subscribe(_ => OnPointerDown()).AddTo(disposables);
-            pointerEventObserver.OnPointerUpped.Subscribe(_ => OnPointerUp()).AddTo(disposables);
+            if (pointerEventObserver == null)
+            {
+                pointerEventObserver = GetComponent<PointerEventObserver>();
+            }
+
+            if (pointerEventObserver != null)
+            {
+                pointerEventObserver.OnPointerEntered.Subscribe(_ => OnPointerEnter()).AddTo(disposables);
+                pointerEventObserver.OnPointerExited.Subscribe(_ => OnPointerExit()).AddTo(disposables);
+                pointerEventObserver.OnPointerDowned.Subscribe(_ => OnPointerDown()).AddTo(disposables);
+                pointerEventObserver.OnPointerUpped.Subscribe(_ => OnPointerUp()).AddTo(disposables);
+            }
 
             PlayIdleAnimationIfNeeded();
         }
@@ -214,10 +228,21 @@ namespace Unity1Week_Ura.Actor
                 var text = texts[i];
                 baseTextColors[i] = text == null ? Color.white : text.color;
             }
+
+            baseGraphicColors = new Color[graphics.Length];
+            graphicColorTweens = new Tween[graphics.Length];
+
+            for (var i = 0; i < graphics.Length; i++)
+            {
+                var graphic = graphics[i];
+                baseGraphicColors[i] = graphic == null ? Color.white : graphic.color;
+            }
         }
 
         public void RefreshBaseColorsFromCurrent()
         {
+            EnsureTargets();
+
             if (baseSpriteColors == null || baseSpriteColors.Length != spriteRenderers.Length)
             {
                 baseSpriteColors = new Color[spriteRenderers.Length];
@@ -226,6 +251,11 @@ namespace Unity1Week_Ura.Actor
             if (baseTextColors == null || baseTextColors.Length != texts.Length)
             {
                 baseTextColors = new Color[texts.Length];
+            }
+
+            if (baseGraphicColors == null || baseGraphicColors.Length != graphics.Length)
+            {
+                baseGraphicColors = new Color[graphics.Length];
             }
 
             for (var i = 0; i < spriteRenderers.Length; i++)
@@ -243,6 +273,15 @@ namespace Unity1Week_Ura.Actor
                 if (text != null)
                 {
                     baseTextColors[i] = text.color;
+                }
+            }
+
+            for (var i = 0; i < graphics.Length; i++)
+            {
+                var graphic = graphics[i];
+                if (graphic != null)
+                {
+                    baseGraphicColors[i] = graphic.color;
                 }
             }
         }
@@ -313,6 +352,19 @@ namespace Unity1Week_Ura.Actor
                 textColorTweens[i]?.Kill();
                 textColorTweens[i] = text.DOColor(targetColor, colorDuration).SetEase(Ease.OutQuad);
             }
+
+            for (var i = 0; i < graphics.Length; i++)
+            {
+                var graphic = graphics[i];
+                if (graphic == null)
+                {
+                    continue;
+                }
+
+                var targetColor = GetHoverColor(baseGraphicColors[i], textHoverColorMode, textHoverColor, textHoverDarkenAmount, textHoverBrightenAmount);
+                graphicColorTweens[i]?.Kill();
+                graphicColorTweens[i] = graphic.DOColor(targetColor, colorDuration).SetEase(Ease.OutQuad);
+            }
         }
 
         void TweenToBaseColors()
@@ -339,6 +391,18 @@ namespace Unity1Week_Ura.Actor
 
                 textColorTweens[i]?.Kill();
                 textColorTweens[i] = text.DOColor(baseTextColors[i], colorDuration).SetEase(Ease.OutQuad);
+            }
+
+            for (var i = 0; i < graphics.Length; i++)
+            {
+                var graphic = graphics[i];
+                if (graphic == null)
+                {
+                    continue;
+                }
+
+                graphicColorTweens[i]?.Kill();
+                graphicColorTweens[i] = graphic.DOColor(baseGraphicColors[i], colorDuration).SetEase(Ease.OutQuad);
             }
         }
 
@@ -368,6 +432,19 @@ namespace Unity1Week_Ura.Actor
                 var targetColor = GetDarkenedColor(baseTextColors[i], pressedDarkenAmount);
                 textColorTweens[i]?.Kill();
                 textColorTweens[i] = text.DOColor(targetColor, colorDuration).SetEase(Ease.OutQuad);
+            }
+
+            for (var i = 0; i < graphics.Length; i++)
+            {
+                var graphic = graphics[i];
+                if (graphic == null)
+                {
+                    continue;
+                }
+
+                var targetColor = GetDarkenedColor(baseGraphicColors[i], pressedDarkenAmount);
+                graphicColorTweens[i]?.Kill();
+                graphicColorTweens[i] = graphic.DOColor(targetColor, colorDuration).SetEase(Ease.OutQuad);
             }
         }
 
@@ -453,6 +530,22 @@ namespace Unity1Week_Ura.Actor
 
                 text.color = baseTextColors[i];
             }
+
+            for (var i = 0; i < graphics.Length; i++)
+            {
+                var graphic = graphics[i];
+                if (graphic == null)
+                {
+                    continue;
+                }
+
+                if (baseGraphicColors == null || i >= baseGraphicColors.Length)
+                {
+                    continue;
+                }
+
+                graphic.color = baseGraphicColors[i];
+            }
         }
 
         public void StopAnimations()
@@ -482,6 +575,33 @@ namespace Unity1Week_Ura.Actor
                     textColorTweens[i]?.Kill();
                     textColorTweens[i] = null;
                 }
+            }
+
+            if (graphicColorTweens != null)
+            {
+                for (var i = 0; i < graphicColorTweens.Length; i++)
+                {
+                    graphicColorTweens[i]?.Kill();
+                    graphicColorTweens[i] = null;
+                }
+            }
+        }
+
+        void EnsureTargets()
+        {
+            if (spriteRenderers == null)
+            {
+                spriteRenderers = Array.Empty<SpriteRenderer>();
+            }
+
+            if (texts == null)
+            {
+                texts = Array.Empty<TMP_Text>();
+            }
+
+            if (graphics == null)
+            {
+                graphics = Array.Empty<Graphic>();
             }
         }
 
