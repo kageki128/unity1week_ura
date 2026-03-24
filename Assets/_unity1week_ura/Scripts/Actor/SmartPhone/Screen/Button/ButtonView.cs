@@ -12,6 +12,8 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] PointerEventObserver buttonCollider;
         [SerializeField] bool playHoverSE = true;
         [SerializeField] bool playClickSE = true;
+        [SerializeField] SEType hoverSEType = SEType.ButtonHover;
+        [SerializeField] SEType clickSEType = SEType.ButtonClick;
 
         readonly CompositeDisposable disposables = new();
 
@@ -24,12 +26,12 @@ namespace Unity1Week_Ura.Actor
 
             if (playHoverSE)
             {
-                buttonCollider.OnPointerEntered.Subscribe(_ => PlaySE(SEType.ButtonHover)).AddTo(disposables);
+                buttonCollider.OnPointerEntered.Subscribe(_ => PlaySE(hoverSEType)).AddTo(disposables);
             }
 
             if (playClickSE)
             {
-                buttonCollider.OnClicked.Subscribe(_ => PlaySE(SEType.ButtonClick)).AddTo(disposables);
+                buttonCollider.OnClicked.Subscribe(_ => PlaySE(clickSEType)).AddTo(disposables);
             }
         }
 

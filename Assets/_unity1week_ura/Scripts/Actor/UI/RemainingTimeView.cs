@@ -70,9 +70,9 @@ namespace Unity1Week_Ura.Actor
         public void SetRemainingTime(float remainingTime)
         {
             var clampedRemainingTime = Mathf.Max(remainingTime, 0f);
-            var timeSpan = TimeSpan.FromSeconds(clampedRemainingTime);
+            var displayedRemainingSeconds = Mathf.CeilToInt(clampedRemainingTime);
+            var timeSpan = TimeSpan.FromSeconds(displayedRemainingSeconds);
             var nextDisplayedText = timeSpan.ToString(Format);
-            var displayedRemainingSeconds = Mathf.FloorToInt(clampedRemainingTime);
             var warningThresholdDisplaySeconds = Mathf.FloorToInt(warningThresholdSeconds);
             var isTextChanged = !string.Equals(displayedTimeText, nextDisplayedText, StringComparison.Ordinal);
 
@@ -85,6 +85,7 @@ namespace Unity1Week_Ura.Actor
             if (displayedRemainingSeconds <= warningThresholdDisplaySeconds)
             {
                 PlayWarningAnimation();
+                PlayTimerSE(displayedRemainingSeconds);
                 return;
             }
 
@@ -154,6 +155,16 @@ namespace Unity1Week_Ura.Actor
                     RefreshTimeText();
                 })
                 .OnKill(() => warningSequence = null);
+        }
+
+        void PlayTimerSE(int displayedRemainingSeconds)
+        {
+            if (displayedRemainingSeconds <= 0)
+            {
+                return;
+            }
+
+            AudioPlayer.Current?.PlaySE(SEType.Timer);
         }
 
         void RefreshTimeText()

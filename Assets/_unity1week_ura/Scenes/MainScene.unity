@@ -387,6 +387,8 @@ MonoBehaviour:
   buttonCollider: {fileID: 35628390}
   playHoverSE: 1
   playClickSE: 1
+  hoverSEType: 1
+  clickSEType: 2
 --- !u!114 &35628390
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6883,6 +6885,8 @@ MonoBehaviour:
   buttonCollider: {fileID: 763153854}
   playHoverSE: 1
   playClickSE: 1
+  hoverSEType: 1
+  clickSEType: 2
 --- !u!114 &763153854
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7777,6 +7781,8 @@ MonoBehaviour:
   buttonCollider: {fileID: 954386748}
   playHoverSE: 1
   playClickSE: 1
+  hoverSEType: 1
+  clickSEType: 0
 --- !u!114 &954386748
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8915,15 +8921,19 @@ MonoBehaviour:
     isLoop: 1
   seClips:
   - seType: 0
-    clip: {fileID: 8300000, guid: ae693b84f805aec49927c39cec9e21e3, type: 3}
+    clip: {fileID: 8300000, guid: 9728a08a6a9745e4c99b9e75a4a12e38, type: 3}
   - seType: 1
-    clip: {fileID: 8300000, guid: 86f4754389f8a234b8f5667bcf213283, type: 3}
+    clip: {fileID: 8300000, guid: ae693b84f805aec49927c39cec9e21e3, type: 3}
   - seType: 2
-    clip: {fileID: 8300000, guid: db921c301d9fedc4596632c5ade2326e, type: 3}
+    clip: {fileID: 8300000, guid: 86f4754389f8a234b8f5667bcf213283, type: 3}
   - seType: 3
-    clip: {fileID: 8300000, guid: 64aa05b0e8b62dd4d968d2d6bbbd9d70, type: 3}
+    clip: {fileID: 8300000, guid: db921c301d9fedc4596632c5ade2326e, type: 3}
   - seType: 4
+    clip: {fileID: 8300000, guid: 64aa05b0e8b62dd4d968d2d6bbbd9d70, type: 3}
+  - seType: 5
     clip: {fileID: 8300000, guid: 64abfb297c58fd24f903fbd58c59ffbd, type: 3}
+  - seType: 6
+    clip: {fileID: 8300000, guid: d2fbd4f6562e2eb46829f722dbf2a246, type: 3}
 --- !u!1 &1141057196
 GameObject:
   m_ObjectHideFlags: 0
@@ -9439,6 +9449,8 @@ MonoBehaviour:
   buttonCollider: {fileID: 1199328994}
   playHoverSE: 1
   playClickSE: 1
+  hoverSEType: 1
+  clickSEType: 0
 --- !u!114 &1199328994
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13256,6 +13268,8 @@ MonoBehaviour:
   buttonCollider: {fileID: 1643051023}
   playHoverSE: 1
   playClickSE: 1
+  hoverSEType: 1
+  clickSEType: 2
 --- !u!114 &1643051023
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13876,6 +13890,8 @@ MonoBehaviour:
   buttonCollider: {fileID: 1690122933}
   playHoverSE: 1
   playClickSE: 1
+  hoverSEType: 1
+  clickSEType: 2
 --- !u!1 &1697393323
 GameObject:
   m_ObjectHideFlags: 0
@@ -14175,6 +14191,8 @@ MonoBehaviour:
   buttonCollider: {fileID: 1728129677}
   playHoverSE: 1
   playClickSE: 1
+  hoverSEType: 1
+  clickSEType: 2
 --- !u!114 &1728129677
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14421,6 +14439,8 @@ MonoBehaviour:
   buttonCollider: {fileID: 1754281215}
   playHoverSE: 1
   playClickSE: 1
+  hoverSEType: 1
+  clickSEType: 2
 --- !u!114 &1754281215
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14812,6 +14832,8 @@ MonoBehaviour:
   buttonCollider: {fileID: 1777295252}
   playHoverSE: 1
   playClickSE: 1
+  hoverSEType: 1
+  clickSEType: 2
 --- !u!114 &1777295251
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16500,6 +16522,8 @@ MonoBehaviour:
   buttonCollider: {fileID: 1917696402}
   playHoverSE: 1
   playClickSE: 1
+  hoverSEType: 1
+  clickSEType: 2
 --- !u!1 &1938765267
 GameObject:
   m_ObjectHideFlags: 0
@@ -17096,6 +17120,8 @@ MonoBehaviour:
   buttonCollider: {fileID: 1994767960}
   playHoverSE: 1
   playClickSE: 1
+  hoverSEType: 1
+  clickSEType: 2
 --- !u!1 &2000921570
 GameObject:
   m_ObjectHideFlags: 0
@@ -19618,6 +19644,8 @@ MonoBehaviour:
   buttonCollider: {fileID: 8843899376194745846}
   playHoverSE: 1
   playClickSE: 1
+  hoverSEType: 1
+  clickSEType: 2
 --- !u!114 &8843899376194745846
 MonoBehaviour:
   m_ObjectHideFlags: 0
