@@ -146,12 +146,15 @@ namespace Unity1Week_Ura.Core
                 return;
             }
 
-            if (!hasSuppliedInitialPost)
+            bool hasNoPosts = timeline.DraftPosts.Count == 0 && timeline.PublishedPosts.Count == 0;
+            if (hasNoPosts)
             {
-                hasSuppliedInitialPost = timeline.TrySupplyPostGuaranteed(gameRule);
+                bool supplied = timeline.TrySupplyPostGuaranteed(gameRule);
+                hasSuppliedInitialPost = hasSuppliedInitialPost || supplied;
             }
             else
             {
+                hasSuppliedInitialPost = true;
                 timeline.TrySupplyPost(gameRule, deltaTime);
             }
 
