@@ -69,9 +69,9 @@ namespace Unity1Week_Ura.Actor
             SetSelected(false);
         }
 
-        public void SetPosition(float x, float y)
+        public void SetPosition(float x, float y, bool useAnimation = true)
         {
-            viewArranger.SetPosition(x, y);
+            viewArranger.SetPosition(x, y, useAnimation);
         }
 
         public void SetSelected(bool isSelected, Action onScaleAnimationCompleted = null)

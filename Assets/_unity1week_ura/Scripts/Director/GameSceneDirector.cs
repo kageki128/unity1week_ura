@@ -57,9 +57,9 @@ namespace Unity1Week_Ura.Director
 
             await gameSession.LoadNewGame(ct);
             gameViewHub.PrepareForNewGame();
-            
-            gameViewHub.SetPlayerAccounts(gameSession.PlayerAccounts);
-            gameViewHub.SetSelectedPlayerAccount(gameSession.SelectedPlayerAccount.CurrentValue);
+
+            var initialSelectedPlayerAccount = gameSession.SelectedPlayerAccount.CurrentValue;
+            gameViewHub.SetPlayerAccounts(gameSession.PlayerAccounts, initialSelectedPlayerAccount);
             gameViewHub.SetScore(gameSession.Score.CurrentValue);
             gameViewHub.SetRemainingTime(gameSession.RemainingTimeSeconds.CurrentValue);
             await gameViewHub.ShowAsync(ct);

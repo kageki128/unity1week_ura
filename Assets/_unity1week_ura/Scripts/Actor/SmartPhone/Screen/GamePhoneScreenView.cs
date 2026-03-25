@@ -257,10 +257,15 @@ namespace Unity1Week_Ura.Actor
         }
 
         public void ClearPosts() => timelineGameSubScreenView.ClearPosts();
-        public void SetPlayerAccounts(IReadOnlyList<Account> accounts)
+        public void SetPlayerAccounts(IReadOnlyList<Account> accounts, Account selectedAccount = null)
         {
-            timelineGameSubScreenView.SetPlayerAccounts(accounts);
-            Account initialAccount = accounts != null && accounts.Count > 0 ? accounts[0] : null;
+            Account initialAccount = selectedAccount;
+            if (initialAccount == null && accounts != null && accounts.Count > 0)
+            {
+                initialAccount = accounts[0];
+            }
+
+            timelineGameSubScreenView.SetPlayerAccounts(accounts, initialAccount);
             focusGameSubScreenView.SetCurrentPlayerAccount(initialAccount);
         }
         public void SetSelectedPlayerAccount(Account account)

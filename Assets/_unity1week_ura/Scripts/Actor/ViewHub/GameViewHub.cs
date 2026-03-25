@@ -116,7 +116,11 @@ namespace Unity1Week_Ura.Actor
 
         public void AddPostToTimeline(Post post) => smartPhoneView.AddPostToTimeline(post);
         public void ClearTimeline() => smartPhoneView.ClearTimeline();
-        public void SetPlayerAccounts(IReadOnlyList<Account> accounts) => smartPhoneView.SetPlayerAccounts(accounts);
+        public void SetPlayerAccounts(IReadOnlyList<Account> accounts, Account selectedAccount = null)
+        {
+            smartPhoneView.SetPlayerAccounts(accounts, selectedAccount);
+            gameCharacterView?.SetSelectedPlayerAccount(selectedAccount);
+        }
         public void SetSelectedPlayerAccount(Account account)
         {
             smartPhoneView.SetSelectedPlayerAccount(account);

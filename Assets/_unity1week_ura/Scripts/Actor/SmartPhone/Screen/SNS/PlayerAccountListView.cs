@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using R3;
@@ -16,17 +17,33 @@ namespace Unity1Week_Ura.Actor
 
         readonly List<PlayerAccountView> playerAccountViews = new();
 
-        public void SetPlayerAccounts(IReadOnlyList<Account> accounts)
+        public void SetPlayerAccounts(IReadOnlyList<Account> accounts, Account selectedAccount = null)
         {
+            accounts ??= Array.Empty<Account>();
+
             ClearPlayerAccounts();
             foreach (var account in accounts)
             {
                 var playerAccountView = CreatePlayerAccountView(account);
                 playerAccountViews.Add(playerAccountView);
             }
-            ArrangePlayerAccounts(null);
 
-            OnClicked = Observable.Merge(playerAccountViews.Select(view => view.OnClicked).ToArray());
+            var effectiveSelectedAccount = selectedAccount;
+            if (effectiveSelectedAccount == null && accounts.Count > 0)
+            {
+                effectiveSelectedAccount = accounts[0];
+            }
+
+            foreach (var playerAccountView in playerAccountViews)
+            {
+                bool isSelected = playerAccountView.Account == effectiveSelectedAccount;
+                playerAccountView.SetSelected(isSelected);
+            }
+            ArrangePlayerAccounts(effectiveSelectedAccount, useAnimation: false);
+
+            OnClicked = playerAccountViews.Count == 0
+                ? Observable.Empty<Account>()
+                : Observable.Merge(playerAccountViews.Select(view => view.OnClicked).ToArray());
         }
 
         public void SetSelectedPlayerAccount(Account selectedAccount)
@@ -49,7 +66,7 @@ namespace Unity1Week_Ura.Actor
             playerAccountViews.Clear();
         }
         
-        void ArrangePlayerAccounts(Account selectedAccount)
+        void ArrangePlayerAccounts(Account selectedAccount, bool useAnimation = true)
         {
             float left = 0f;
             for (int i = 0; i < playerAccountViews.Count; i++)
@@ -60,7 +77,7 @@ namespace Unity1Week_Ura.Actor
 
                 // positionTarget は中心座標として扱うため、左端から半幅ぶん進めた地点に配置する
                 float centerX = left + (width * 0.5f);
-                playerAccountView.SetPosition(centerX, 0f);
+                playerAccountView.SetPosition(centerX, 0f, useAnimation);
 
                 left += width + accountSpacing;
             }

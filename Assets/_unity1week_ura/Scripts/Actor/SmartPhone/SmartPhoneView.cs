@@ -142,7 +142,8 @@ namespace Unity1Week_Ura.Actor
 
         public void AddPostToTimeline(Post post) => gamePhoneScreenView.AddPost(post);
         public void ClearTimeline() => gamePhoneScreenView.ClearPosts();
-        public void SetPlayerAccounts(IReadOnlyList<Account> accounts) => gamePhoneScreenView.SetPlayerAccounts(accounts);
+        public void SetPlayerAccounts(IReadOnlyList<Account> accounts, Account selectedAccount = null)
+            => gamePhoneScreenView.SetPlayerAccounts(accounts, selectedAccount);
         public void SetSelectedPlayerAccount(Account account) => gamePhoneScreenView.SetSelectedPlayerAccount(account);
         public void SetGameSubScreenTransitionEnabled(bool isEnabled) => gamePhoneScreenView.SetSubScreenTransitionEnabled(isEnabled);
         public UniTask PlayResultShareComposeAsync(string shareText, CancellationToken ct) => resultPhoneScreenView.PlayShareComposeAsync(shareText, ct);
