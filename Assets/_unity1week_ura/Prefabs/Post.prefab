@@ -502,7 +502,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 0.8984375}
+  m_Size: {x: 2, y: 2}
   m_EdgeRadius: 0
 --- !u!114 &6521324175058938580
 MonoBehaviour:
@@ -532,6 +532,7 @@ MonoBehaviour:
   spriteRenderers:
   - {fileID: 2955658971774359099}
   texts: []
+  graphics: []
   playIdleAnimation: 1
   idleScaleAmplitude: 0.05
   idleDuration: 1.1
@@ -567,6 +568,8 @@ MonoBehaviour:
   buttonCollider: {fileID: 6521324175058938580}
   playHoverSE: 1
   playClickSE: 1
+  hoverSEType: 1
+  clickSEType: 2
 --- !u!1 &2106437735986692502
 GameObject:
   m_ObjectHideFlags: 0
@@ -1797,6 +1800,8 @@ MonoBehaviour:
   buttonCollider: {fileID: 2463752795543243690}
   playHoverSE: 0
   playClickSE: 1
+  hoverSEType: 1
+  clickSEType: 2
 --- !u!1 &6295354420079820310
 GameObject:
   m_ObjectHideFlags: 0
@@ -2298,7 +2303,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 2, y: 2}
   m_EdgeRadius: 0
 --- !u!114 &9192338083927957905
 MonoBehaviour:
@@ -2328,6 +2333,7 @@ MonoBehaviour:
   spriteRenderers:
   - {fileID: 885274973740110299}
   texts: []
+  graphics: []
   playIdleAnimation: 1
   idleScaleAmplitude: 0.05
   idleDuration: 1.1
@@ -2363,6 +2369,8 @@ MonoBehaviour:
   buttonCollider: {fileID: 9192338083927957905}
   playHoverSE: 1
   playClickSE: 1
+  hoverSEType: 1
+  clickSEType: 2
 --- !u!1 &9165004587644074129
 GameObject:
   m_ObjectHideFlags: 0
