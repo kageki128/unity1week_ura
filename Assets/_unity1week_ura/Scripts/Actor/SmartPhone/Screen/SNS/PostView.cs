@@ -480,8 +480,10 @@ namespace Unity1Week_Ura.Actor
             }
 
             var bounds = target.Collider.bounds;
-            float visibleTopY = Mathf.Min(bounds.max.y, interactionClipTopY);
-            float visibleBottomY = Mathf.Max(bounds.min.y, interactionClipBottomY);
+            float interactionClipTopWorldY = ConvertClipLocalYToWorldY(interactionClipTopY);
+            float interactionClipBottomWorldY = ConvertClipLocalYToWorldY(interactionClipBottomY);
+            float visibleTopY = Mathf.Min(bounds.max.y, interactionClipTopWorldY);
+            float visibleBottomY = Mathf.Max(bounds.min.y, interactionClipBottomWorldY);
             float visibleHeightWorld = visibleTopY - visibleBottomY;
 
             if (visibleHeightWorld <= Mathf.Epsilon)
@@ -514,6 +516,23 @@ namespace Unity1Week_Ura.Actor
 
             target.Collider.size = size;
             target.Collider.offset = offset;
+        }
+
+        float ConvertClipLocalYToWorldY(float localY)
+        {
+            if (float.IsPositiveInfinity(localY) || float.IsNegativeInfinity(localY))
+            {
+                return localY;
+            }
+
+            var parent = transform.parent;
+            if (parent == null)
+            {
+                return localY;
+            }
+
+            var localPoint = new Vector3(0f, localY, 0f);
+            return parent.TransformPoint(localPoint).y;
         }
 
         void OnPostClickedEvent()

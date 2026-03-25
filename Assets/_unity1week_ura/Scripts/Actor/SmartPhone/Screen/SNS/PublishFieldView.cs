@@ -39,26 +39,38 @@ namespace Unity1Week_Ura.Actor
                 return;
             }
 
-            if (!draggedObject.TryGetComponent<DraftView>(out var draftView))
+            var draftView = draggedObject.GetComponent<DraftView>() ?? draggedObject.GetComponentInParent<DraftView>();
+            if (draftView == null)
             {
                 // ドロップされたオブジェクトがDraftViewでない場合は無視
                 return;
             }
 
+            TryHandleDraftDrop(draftView);
+        }
+
+        public bool TryHandleDraftDrop(DraftView draftView)
+        {
+            if (draftView == null)
+            {
+                return false;
+            }
+
             var post = draftView.post;
             if (post == null || post.Type != acceptedPostType)
             {
-                return;
+                return false;
             }
 
             draftView.MarkAsDroppedOnPublishField();
             if (post.Type == PostType.Reply)
             {
                 onReplyDraftDropped.OnNext(post);
-                return;
+                return true;
             }
 
             onNormalDraftDropped.OnNext(post);
+            return true;
         }
 
         public void SetCurrentPlayerAccount(Account account)

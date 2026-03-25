@@ -67,10 +67,10 @@ namespace Unity1Week_Ura.Infrastructure
                 }
 
                 var highScore = ScoreFormatter.Clamp(await highScoreRepository.GetHighScoreAsync(gameRule, ct));
-                totalScore = ScoreFormatter.Clamp(totalScore + highScore);
+                totalScore = ScoreFormatter.ClampTotal(totalScore + highScore);
             }
 
-            return ScoreFormatter.Clamp(totalScore);
+            return ScoreFormatter.ClampTotal(totalScore);
         }
 
         static string ResolveDifficultyId(GameRuleSO gameRule)

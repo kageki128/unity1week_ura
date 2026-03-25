@@ -234,12 +234,48 @@ namespace Unity1Week_Ura.Actor
 
         void OnEndDrag(PointerEventData eventData)
         {
+            if (!droppedOnPublishField)
+            {
+                TryDropOnPublishField(eventData);
+            }
+
             RestoreDragState();
 
             if (!droppedOnPublishField)
             {
                 // PublishFieldView以外にドロップされた場合は元の位置に戻す
                 SetPosition(returnLocalPosition.x, returnLocalPosition.y);
+            }
+        }
+
+        void TryDropOnPublishField(PointerEventData eventData)
+        {
+            var camera = eventData.pressEventCamera ?? eventData.enterEventCamera ?? Camera.main;
+            if (camera == null)
+            {
+                return;
+            }
+
+            var worldPosition = camera.ScreenToWorldPoint(eventData.position);
+            var hitColliders = Physics2D.OverlapPointAll(new Vector2(worldPosition.x, worldPosition.y));
+            for (int i = 0; i < hitColliders.Length; i++)
+            {
+                var hitCollider = hitColliders[i];
+                if (hitCollider == null)
+                {
+                    continue;
+                }
+
+                var publishFieldView = hitCollider.GetComponentInParent<PublishFieldView>();
+                if (publishFieldView == null || !publishFieldView.isActiveAndEnabled || !publishFieldView.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                if (publishFieldView.TryHandleDraftDrop(this))
+                {
+                    return;
+                }
             }
         }
 

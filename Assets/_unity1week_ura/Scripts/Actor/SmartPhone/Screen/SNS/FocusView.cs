@@ -31,6 +31,7 @@ namespace Unity1Week_Ura.Actor
         [Header("Settings")]
         [SerializeField] float wheelScrollStep = 0.45f;
         [SerializeField] float bottomSpacingAtMaxScroll = 1f;
+        [SerializeField] float publishFieldInteractionPadding = 0.05f;
 
         readonly List<PostView> ancestorPostViews = new();
         readonly List<PostView> replyPostViews = new();
@@ -205,29 +206,53 @@ namespace Unity1Week_Ura.Actor
             float contentHeight = GetContentHeight();
             float viewportHeight = GetViewportHeight();
             float clampedOffsetY = GetClampedScrollOffsetY();
+            float viewportBottomY = viewportTopY - viewportHeight;
+            float upperSectionInteractionBottomY = viewportBottomY;
+            float replyInteractionTopY = viewportTopY;
+            float upperTopY = viewportTopY;
 
             for (int i = 0; i < ancestorPostViews.Count; i++)
             {
                 var ancestorView = ancestorPostViews[i];
-                float y = topY - ancestorView.Height * 0.5f + clampedOffsetY;
+                float y = upperTopY - ancestorView.Height * 0.5f + clampedOffsetY;
                 ancestorView.SetPosition(0, y, useAnimation);
-                UpdatePostClickability(ancestorView, y, viewportTopY, viewportHeight);
-                topY -= ancestorView.Height;
+                upperTopY -= ancestorView.Height;
             }
 
             if (mainPostView != null)
             {
-                float y = topY - mainPostView.Height * 0.5f + clampedOffsetY;
+                float y = upperTopY - mainPostView.Height * 0.5f + clampedOffsetY;
                 mainPostView.SetPosition(0, y, useAnimation);
-                UpdatePostClickability(mainPostView, y, viewportTopY, viewportHeight);
-                topY -= mainPostView.Height;
+                upperTopY -= mainPostView.Height;
             }
+
+            topY = upperTopY;
 
             if (publishFieldView != null && publishFieldView.gameObject.activeSelf)
             {
                 float y = topY - publishFieldView.Height * 0.5f + clampedOffsetY;
                 publishFieldView.SetPosition(0, y, useAnimation);
+                if (TryGetPublishFieldBoundsLocalY(out float publishFieldTopY, out float publishFieldBottomY))
+                {
+                    upperSectionInteractionBottomY = Mathf.Max(viewportBottomY, publishFieldTopY + publishFieldInteractionPadding);
+                    replyInteractionTopY = Mathf.Min(viewportTopY, publishFieldBottomY - publishFieldInteractionPadding);
+                }
                 topY -= publishFieldView.Height;
+            }
+
+            float upperClickTopY = viewportTopY;
+            for (int i = 0; i < ancestorPostViews.Count; i++)
+            {
+                var ancestorView = ancestorPostViews[i];
+                float y = upperClickTopY - ancestorView.Height * 0.5f + clampedOffsetY;
+                UpdatePostClickability(ancestorView, y, viewportTopY, upperSectionInteractionBottomY);
+                upperClickTopY -= ancestorView.Height;
+            }
+
+            if (mainPostView != null)
+            {
+                float y = upperClickTopY - mainPostView.Height * 0.5f + clampedOffsetY;
+                UpdatePostClickability(mainPostView, y, viewportTopY, upperSectionInteractionBottomY);
             }
 
             for (int i = 0; i < replyPostViews.Count; i++)
@@ -235,7 +260,7 @@ namespace Unity1Week_Ura.Actor
                 var replyView = replyPostViews[i];
                 float y = topY - replyView.Height * 0.5f + clampedOffsetY;
                 replyView.SetPosition(0, y, useAnimation);
-                UpdatePostClickability(replyView, y, viewportTopY, viewportHeight);
+                UpdatePostClickability(replyView, y, replyInteractionTopY, viewportBottomY);
                 topY -= replyView.Height;
             }
 
@@ -285,6 +310,28 @@ namespace Unity1Week_Ura.Actor
             return worldHeight / localScaleY;
         }
 
+        bool TryGetPublishFieldBoundsLocalY(out float topY, out float bottomY)
+        {
+            topY = 0f;
+            bottomY = 0f;
+            if (publishFieldView == null || !publishFieldView.isActiveAndEnabled || !publishFieldView.gameObject.activeInHierarchy)
+            {
+                return false;
+            }
+
+            if (!publishFieldView.TryGetColliderWorldBounds(out var bounds))
+            {
+                return false;
+            }
+
+            var worldPosition = transform.position;
+            var publishFieldTopWorldPosition = new Vector3(worldPosition.x, bounds.max.y, worldPosition.z);
+            var publishFieldBottomWorldPosition = new Vector3(worldPosition.x, bounds.min.y, worldPosition.z);
+            topY = transform.InverseTransformPoint(publishFieldTopWorldPosition).y;
+            bottomY = transform.InverseTransformPoint(publishFieldBottomWorldPosition).y;
+            return true;
+        }
+
         float GetContentHeight()
         {
             float total = 0f;
@@ -332,7 +379,7 @@ namespace Unity1Week_Ura.Actor
             scrollBarView.UpdateVisual(visualContentHeight, viewportHeight, clampedOffsetY);
         }
 
-        void UpdatePostClickability(PostView postView, float centerY, float viewportTopY, float viewportHeight)
+        void UpdatePostClickability(PostView postView, float centerY, float interactionTopY, float viewportBottomY)
         {
             if (postView == null)
             {
@@ -349,13 +396,12 @@ namespace Unity1Week_Ura.Actor
             float halfHeight = postView.Height * 0.5f;
             float postTopY = centerY + halfHeight;
             float postBottomY = centerY - halfHeight;
-            float viewportBottomY = viewportTopY - viewportHeight;
 
-            bool isWithinViewport = postBottomY < viewportTopY && postTopY > viewportBottomY;
+            bool isWithinViewport = postBottomY < interactionTopY && postTopY > viewportBottomY;
             postView.SetInteractable(isWithinViewport);
             if (isWithinViewport)
             {
-                postView.SetInteractionClip(viewportTopY, viewportBottomY);
+                postView.SetInteractionClip(interactionTopY, viewportBottomY);
             }
         }
 

@@ -49,21 +49,28 @@ namespace Unity1Week_Ura.Actor
                 }
 
                 var highScore = ScoreFormatter.Clamp(await highScoreRepository.GetHighScoreAsync(gameRule, ct));
-                totalScore = ScoreFormatter.Clamp(totalScore + highScore);
+                totalScore = ScoreFormatter.ClampTotal(totalScore + highScore);
             }
 
-            SetScore(totalScore);
+            SetScore(totalScore, registeredDifficultyIds.Count > 1);
             return totalScore;
         }
 
         public void SetScore(int score)
+        {
+            SetScore(score, ShouldUseTotalScoreFormat(gameRules));
+        }
+
+        void SetScore(int score, bool useTotalScoreFormat)
         {
             if (scoreText == null)
             {
                 return;
             }
 
-            var formattedScore = ScoreFormatter.Format(score);
+            var formattedScore = useTotalScoreFormat
+                ? ScoreFormatter.FormatTotal(score)
+                : ScoreFormatter.Format(score);
             if (string.IsNullOrEmpty(scoreTemplate))
             {
                 scoreText.text = formattedScore;
@@ -95,6 +102,32 @@ namespace Unity1Week_Ura.Actor
             }
 
             return difficultyId.Trim();
+        }
+
+        static bool ShouldUseTotalScoreFormat(IReadOnlyList<GameRuleSO> rules)
+        {
+            if (rules == null || rules.Count <= 1)
+            {
+                return false;
+            }
+
+            HashSet<string> registeredDifficultyIds = new(StringComparer.Ordinal);
+            for (var i = 0; i < rules.Count; i++)
+            {
+                var gameRule = rules[i];
+                if (gameRule == null || string.IsNullOrWhiteSpace(gameRule.DifficultyId))
+                {
+                    continue;
+                }
+
+                registeredDifficultyIds.Add(gameRule.DifficultyId.Trim());
+                if (registeredDifficultyIds.Count > 1)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
