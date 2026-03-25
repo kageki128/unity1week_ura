@@ -29,7 +29,7 @@ namespace Unity1Week_Ura.Infrastructure
 
             var difficultyName = gameResult.GameRule == null ? "Unknown" : gameResult.GameRule.DifficultyName;
             var finishReasonText = gameConfig.GetFinishReasonText(gameResult.FinishReason);
-            var shareUrl = Application.absoluteURL;
+            var shareUrl = string.IsNullOrEmpty(gameConfig.GameUrl) ? "https://your-game-url.example.com" : gameConfig.GameUrl;
             return gameConfig.ResultText
                 .Replace(DifficultyPlaceholder, difficultyName)
                 .Replace(ScorePlaceholder, gameResult.Score.ToString())
