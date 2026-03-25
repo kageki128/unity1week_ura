@@ -77,10 +77,14 @@ namespace Unity1Week_Ura.Actor
             }
 
             var shouldShowHowToPlay = !await playerProgressRepository.HasSeenHowToPlayAsync(ct);
+            Debug.Log($"[U1W-DIAG][GV-010] ShouldShowHowToPlay={shouldShowHowToPlay}");
             if (shouldShowHowToPlay)
             {
+                Debug.Log("[U1W-DIAG][GV-011] HowToPlay overlay show/wait start");
                 await ShowHowToPlayOverlayAndWaitUntilClosedAsync(ct);
+                Debug.Log("[U1W-DIAG][GV-012] HowToPlay overlay closed");
                 await playerProgressRepository.MarkHowToPlayAsSeenAsync(ct);
+                Debug.Log("[U1W-DIAG][GV-013] HowToPlay seen flag saved");
             }
 
             AudioPlayer.Current?.PlayBGM(BGMType.Game);
@@ -192,8 +196,12 @@ namespace Unity1Week_Ura.Actor
                 throw new InvalidOperationException($"{nameof(howToPlayOverlayView)} is not set.");
             }
 
+            Debug.Log("[U1W-DIAG][GV-100] HowToPlayOverlayView.ShowAsync start");
             await howToPlayOverlayView.ShowAsync(ct);
+            Debug.Log("[U1W-DIAG][GV-101] HowToPlayOverlayView.ShowAsync complete");
+            Debug.Log("[U1W-DIAG][GV-102] Waiting OnHidden.FirstAsync");
             await howToPlayOverlayView.OnHidden.FirstAsync(ct);
+            Debug.Log("[U1W-DIAG][GV-103] OnHidden.FirstAsync complete");
         }
 
     }

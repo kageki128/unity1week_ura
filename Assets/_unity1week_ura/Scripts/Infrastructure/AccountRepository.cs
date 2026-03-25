@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Unity1Week_Ura.Core;
@@ -20,8 +19,9 @@ namespace Unity1Week_Ura.Infrastructure
         readonly AddressableConfigSO addressableConfig;
         readonly AddressableSpriteLabelLoader spriteLabelLoader;
         readonly Dictionary<string, Account> accountsById = new();
-        readonly SemaphoreSlim loadGate = new(1, 1);
         bool isLoaded;
+        bool isLoading;
+        UniTask loadingTask = UniTask.CompletedTask;
 
         sealed class AccountCsvRow
         {
@@ -80,14 +80,26 @@ namespace Unity1Week_Ura.Infrastructure
         {
             if (isLoaded)
             {
+                Debug.Log("[U1W-DIAG][AR-000] EnsureAccountsLoadedAsync cache hit");
                 return;
             }
 
-            await loadGate.WaitAsync(ct).AsUniTask();
+            if (!isLoading)
+            {
+                isLoading = true;
+                loadingTask = LoadAccountsCoreAsync(ct);
+            }
+
+            await loadingTask.AttachExternalCancellation(ct);
+        }
+
+        async UniTask LoadAccountsCoreAsync(CancellationToken ct)
+        {
             try
             {
                 if (isLoaded)
                 {
+                    Debug.Log("[U1W-DIAG][AR-001] EnsureAccountsLoadedAsync cache hit after lock");
                     return;
                 }
 
@@ -99,12 +111,16 @@ namespace Unity1Week_Ura.Infrastructure
                 var assetReference = addressableConfig.AccountDatas;
                 try
                 {
+                    Debug.Log("[U1W-DIAG][AR-010] Account csv load start");
                     var loadedAccountsById = new Dictionary<string, Account>(StringComparer.Ordinal);
                     TextAsset csvAsset = await AddressableAssetLoader.LoadAsync<TextAsset>(assetReference, ct);
                     var csvText = csvAsset.text;
+                    Debug.Log($"[U1W-DIAG][AR-011] Account csv load complete textLength={csvText?.Length ?? 0}");
                     ct.ThrowIfCancellationRequested();
-                    var rows = await Task.Run(() => ParseAccountRows(csvText), ct);
+                    var rows = ParseAccountRows(csvText);
+                    Debug.Log($"[U1W-DIAG][AR-020] Account csv parse complete rowCount={rows.Count}");
                     var iconsByFileName = await spriteLabelLoader.LoadAllByLabelAsync(addressableConfig.IconLabel, ct);
+                    Debug.Log($"[U1W-DIAG][AR-030] Icon load complete count={iconsByFileName.Count}");
 
                     foreach (var row in rows)
                     {
@@ -120,15 +136,17 @@ namespace Unity1Week_Ura.Infrastructure
                     }
 
                     isLoaded = true;
+                    Debug.Log($"[U1W-DIAG][AR-040] Account repository load complete accountCount={accountsById.Count}");
                 }
                 finally
                 {
                     assetReference.ReleaseAsset();
+                    Debug.Log("[U1W-DIAG][AR-050] Account csv asset released");
                 }
             }
             finally
             {
-                loadGate.Release();
+                isLoading = false;
             }
         }
 

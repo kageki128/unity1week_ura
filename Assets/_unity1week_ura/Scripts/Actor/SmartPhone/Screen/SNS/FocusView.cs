@@ -196,7 +196,18 @@ namespace Unity1Week_Ura.Actor
             var replyView = postViewFactory.Create(post, timelinePostParent);
             RegisterPostView(replyView);
             replyPostViews.Insert(0, replyView);
+            CompensateScrollOffsetForPrependedContent(replyView.Height);
             ArrangeElements();
+        }
+
+        void CompensateScrollOffsetForPrependedContent(float prependedHeight)
+        {
+            if (prependedHeight <= 0f || scrollOffsetY <= Mathf.Epsilon)
+            {
+                return;
+            }
+
+            scrollOffsetY += prependedHeight;
         }
 
         void ArrangeElements(bool useAnimation = true)

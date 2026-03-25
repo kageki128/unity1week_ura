@@ -62,18 +62,25 @@ namespace Unity1Week_Ura.Actor
                 return;
             }
 
-            AddPostInternal(post);
+            var addedPostView = AddPostInternal(post);
+            CompensateScrollOffsetForPrependedContent(addedPostView?.Height ?? 0f);
             ArrangePosts();
         }
 
         public void FlushPendingPosts(bool useAnimation = true)
         {
+            float prependedHeight = 0f;
             for (int i = 0; i < pendingPosts.Count; i++)
             {
-                AddPostInternal(pendingPosts[i]);
+                var addedPostView = AddPostInternal(pendingPosts[i]);
+                if (addedPostView != null)
+                {
+                    prependedHeight += addedPostView.Height;
+                }
             }
 
             pendingPosts.Clear();
+            CompensateScrollOffsetForPrependedContent(prependedHeight);
             ArrangePosts(useAnimation);
         }
 
@@ -98,10 +105,21 @@ namespace Unity1Week_Ura.Actor
             UpdateScrollBar(0f, GetViewportHeight(), 0f);
         }
 
-        void AddPostInternal(Post post)
+        PostView AddPostInternal(Post post)
         {
             var postView = CreatePostView(post);
             postViews.Insert(0, postView);
+            return postView;
+        }
+
+        void CompensateScrollOffsetForPrependedContent(float prependedHeight)
+        {
+            if (prependedHeight <= 0f || scrollOffsetY <= Mathf.Epsilon)
+            {
+                return;
+            }
+
+            scrollOffsetY += prependedHeight;
         }
 
         void ArrangePosts(bool useAnimation = true)

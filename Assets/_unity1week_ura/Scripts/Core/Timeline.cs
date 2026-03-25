@@ -36,21 +36,34 @@ namespace Unity1Week_Ura.Core
 
         public async UniTask LoadAsync(GameRuleSO gameRule, CancellationToken ct)
         {
+            Debug.Log("[U1W-DIAG][TL-001] Timeline.LoadAsync start");
             publishedPosts.Clear();
             draftPosts.Clear();
 
             // プレイヤーのアカウントをロード
             List<string> playerAccountIds = gameRule.UsedAccounts.Select(accountSO => accountSO.Id).ToList();
-            Account[] loadedAccounts = await UniTask.WhenAll(
-                playerAccountIds.Select(accountId => accountRepository.GetAccount(accountId, ct))
-            );
+            Debug.Log($"[U1W-DIAG][TL-010] Player account load start count={playerAccountIds.Count}");
+            var loadedAccounts = new List<Account>(playerAccountIds.Count);
+            foreach (var accountId in playerAccountIds)
+            {
+                ct.ThrowIfCancellationRequested();
+                loadedAccounts.Add(await accountRepository.GetAccount(accountId, ct));
+            }
+
+            Debug.Log($"[U1W-DIAG][TL-011] Player account load complete count={loadedAccounts.Count}");
             playerAccounts = loadedAccounts;
             selectedPlayerAccount.Value = playerAccounts.FirstOrDefault();
 
             // ポストをロード
-            List<Post>[] loadedPostsByAccount = await UniTask.WhenAll(
-                playerAccounts.Select(account => postRepository.GetPostsByCorrectPlayerAccountAsync(account, ct))
-            );
+            Debug.Log($"[U1W-DIAG][TL-020] Post load start accountCount={playerAccounts.Count}");
+            var loadedPostsByAccount = new List<List<Post>>(playerAccounts.Count);
+            foreach (var account in playerAccounts)
+            {
+                ct.ThrowIfCancellationRequested();
+                loadedPostsByAccount.Add(await postRepository.GetPostsByCorrectPlayerAccountAsync(account, ct));
+            }
+
+            Debug.Log($"[U1W-DIAG][TL-021] Post load complete bucketCount={loadedPostsByAccount.Count}");
             var loadedPostIds = new HashSet<string>(System.StringComparer.Ordinal);
             var mergedPosts = new List<Post>();
             foreach (var posts in loadedPostsByAccount)
@@ -73,6 +86,8 @@ namespace Unity1Week_Ura.Core
                 .Where(post => post.Property.Author.Type == AccountType.Advertise)
                 .ToList();
 
+            Debug.Log($"[U1W-DIAG][TL-030] Post split complete normal={beforeAppearingNormalPosts.Count} advertise={advertisePosts.Count}");
+
             foreach (var post in beforeAppearingNormalPosts)
             {
                 post.ResetPlayerAction();
@@ -82,6 +97,8 @@ namespace Unity1Week_Ura.Core
             {
                 post.ResetPlayerAction();
             }
+
+            Debug.Log("[U1W-DIAG][TL-040] Timeline.LoadAsync complete");
         }
 
         public void TrySupplyPost(GameRuleSO gameRule, float deltaTime)

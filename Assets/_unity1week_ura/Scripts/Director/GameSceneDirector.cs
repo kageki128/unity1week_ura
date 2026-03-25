@@ -51,18 +51,27 @@ namespace Unity1Week_Ura.Director
 
         public async UniTask EnterAsync(CancellationToken ct)
         {
+            Debug.Log("[U1W-DIAG][GS-001] GameSceneDirector.EnterAsync start");
             disposables.Clear();
             gameViewHub.ClearTimeline();
             gameViewHub.ClearDrafts();
 
+            Debug.Log("[U1W-DIAG][GS-010] LoadNewGame start");
             await gameSession.LoadNewGame(ct);
+            Debug.Log("[U1W-DIAG][GS-011] LoadNewGame complete");
+
+            Debug.Log("[U1W-DIAG][GS-020] PrepareForNewGame start");
             gameViewHub.PrepareForNewGame();
+            Debug.Log("[U1W-DIAG][GS-021] PrepareForNewGame complete");
 
             var initialSelectedPlayerAccount = gameSession.SelectedPlayerAccount.CurrentValue;
             gameViewHub.SetPlayerAccounts(gameSession.PlayerAccounts, initialSelectedPlayerAccount);
             gameViewHub.SetScore(gameSession.Score.CurrentValue);
             gameViewHub.SetRemainingTime(gameSession.RemainingTimeSeconds.CurrentValue);
+
+            Debug.Log("[U1W-DIAG][GS-030] GameViewHub.ShowAsync start");
             await gameViewHub.ShowAsync(ct);
+            Debug.Log("[U1W-DIAG][GS-031] GameViewHub.ShowAsync complete");
 
             // 投稿されたポストを購読
             gameSession.PublishedPosts.ObserveAdd().Subscribe(addEvent =>
@@ -102,7 +111,7 @@ namespace Unity1Week_Ura.Director
             gameSession.RemainingTimeSeconds.Subscribe(gameViewHub.SetRemainingTime).AddTo(disposables);
             gameSession.CurrentGameState.Subscribe(state =>
             {
-                gameViewHub.SetGamePaused(state == GameState.Pause);
+                gameViewHub.SetGamePaused(state != GameState.Playing);
             }).AddTo(disposables);
             
             // ゲーム終了を購読
@@ -122,6 +131,7 @@ namespace Unity1Week_Ura.Director
             }).AddTo(disposables);
 
             gameSession.Play();
+            Debug.Log("[U1W-DIAG][GS-040] GameSceneDirector.EnterAsync complete");
         }
 
         public void Tick()

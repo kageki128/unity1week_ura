@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -36,33 +35,42 @@ namespace Unity1Week_Ura.Infrastructure
                 throw new InvalidOperationException($"Failed to start Addressable load operation for {typeof(T).Name}.");
             }
 
-            var taskProperty = operation.GetType().GetProperty("Task");
-            if (taskProperty == null)
-            {
-                throw new InvalidOperationException("Addressable operation does not provide Task property.");
-            }
+            Debug.Log($"[U1W-DIAG][AA-010] AddressableAssetLoader start type={typeof(T).Name} key={assetReference.RuntimeKey}");
 
-            var loadTask = taskProperty.GetValue(operation) as Task;
-            if (loadTask == null)
-            {
-                throw new InvalidOperationException("Addressable load task is null.");
-            }
+            await WaitForOperationAsync(operation, ct);
+            Debug.Log($"[U1W-DIAG][AA-011] AddressableAssetLoader operation done type={typeof(T).Name}");
 
-            await loadTask.AsUniTask().AttachExternalCancellation(ct);
-
-            var resultProperty = loadTask.GetType().GetProperty("Result");
+            var resultProperty = operation.GetType().GetProperty("Result");
             if (resultProperty == null)
             {
-                throw new InvalidOperationException("Addressable load task does not have Result property.");
+                throw new InvalidOperationException("Addressable operation does not have Result property.");
             }
 
-            var result = resultProperty.GetValue(loadTask) as T;
+            var result = resultProperty.GetValue(operation) as T;
             if (result == null)
             {
                 throw new InvalidOperationException($"Addressable returned null {typeof(T).Name}.");
             }
 
+            Debug.Log($"[U1W-DIAG][AA-012] AddressableAssetLoader result ready type={typeof(T).Name}");
+
             return result;
+        }
+
+        static async UniTask WaitForOperationAsync(object operation, CancellationToken ct)
+        {
+            var operationType = operation.GetType();
+            var isDoneProperty = operationType.GetProperty("IsDone");
+            if (isDoneProperty == null)
+            {
+                throw new InvalidOperationException("Addressable operation does not have IsDone property.");
+            }
+
+            while (!(bool)isDoneProperty.GetValue(operation))
+            {
+                ct.ThrowIfCancellationRequested();
+                await UniTask.Yield(PlayerLoopTiming.Update, ct);
+            }
         }
     }
 }

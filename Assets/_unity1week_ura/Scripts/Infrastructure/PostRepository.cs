@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Unity1Week_Ura.Core;
@@ -24,9 +23,10 @@ namespace Unity1Week_Ura.Infrastructure
         readonly Dictionary<string, List<Post>> postsByCorrectAccountId = new(StringComparer.Ordinal);
         readonly List<Post> postsForAnyPlayer = new();
         readonly Dictionary<string, Post> postsById = new(StringComparer.Ordinal);
-        readonly SemaphoreSlim loadGate = new(1, 1);
 
         bool isLoaded;
+        bool isLoading;
+        UniTask loadingTask = UniTask.CompletedTask;
 
         sealed class PostCsvRow
         {
@@ -196,14 +196,26 @@ namespace Unity1Week_Ura.Infrastructure
         {
             if (isLoaded)
             {
+                Debug.Log("[U1W-DIAG][PR-000] EnsurePostsLoadedAsync cache hit");
                 return;
             }
 
-            await loadGate.WaitAsync(ct).AsUniTask();
+            if (!isLoading)
+            {
+                isLoading = true;
+                loadingTask = LoadPostsCoreAsync(ct);
+            }
+
+            await loadingTask.AttachExternalCancellation(ct);
+        }
+
+        async UniTask LoadPostsCoreAsync(CancellationToken ct)
+        {
             try
             {
                 if (isLoaded)
                 {
+                    Debug.Log("[U1W-DIAG][PR-001] EnsurePostsLoadedAsync cache hit after lock");
                     return;
                 }
 
@@ -219,14 +231,18 @@ namespace Unity1Week_Ura.Infrastructure
                 var assetReference = addressableConfig.PostDatas;
                 try
                 {
+                    Debug.Log("[U1W-DIAG][PR-010] Post csv load start");
                     var loadedPostsByCorrectAccountId = new Dictionary<string, List<Post>>(StringComparer.Ordinal);
                     var loadedPostsForAnyPlayer = new List<Post>();
                     var loadedPostsById = new Dictionary<string, Post>(StringComparer.Ordinal);
                     TextAsset csvAsset = await AddressableAssetLoader.LoadAsync<TextAsset>(assetReference, ct);
                     var csvText = csvAsset.text;
+                    Debug.Log($"[U1W-DIAG][PR-011] Post csv load complete textLength={csvText?.Length ?? 0}");
                     ct.ThrowIfCancellationRequested();
-                    var rows = await Task.Run(() => ParsePostRows(csvText), ct);
+                    var rows = ParsePostRows(csvText);
+                    Debug.Log($"[U1W-DIAG][PR-020] Post csv parse complete rowCount={rows.Count}");
                     var attachedImagesByFileName = await spriteLabelLoader.LoadAllByLabelAsync(addressableConfig.AttachedImageLabel, ct);
+                    Debug.Log($"[U1W-DIAG][PR-030] Attached image load complete count={attachedImagesByFileName.Count}");
                     var accountCache = new Dictionary<string, Account>(StringComparer.Ordinal);
                     var resolvedRows = new List<ResolvedPostRow>(rows.Count);
 
@@ -297,6 +313,8 @@ namespace Unity1Week_Ura.Infrastructure
                         loadedPostsById[row.Id] = post;
                     }
 
+                    Debug.Log($"[U1W-DIAG][PR-040] Post build complete resolvedRowCount={resolvedRows.Count}");
+
                     postsByCorrectAccountId.Clear();
                     foreach (var postsPair in loadedPostsByCorrectAccountId)
                     {
@@ -313,15 +331,17 @@ namespace Unity1Week_Ura.Infrastructure
                     }
 
                     isLoaded = true;
+                    Debug.Log($"[U1W-DIAG][PR-050] Post repository load complete postCount={postsById.Count}");
                 }
                 finally
                 {
                     assetReference.ReleaseAsset();
+                    Debug.Log("[U1W-DIAG][PR-060] Post csv asset released");
                 }
             }
             finally
             {
-                loadGate.Release();
+                isLoading = false;
             }
         }
 

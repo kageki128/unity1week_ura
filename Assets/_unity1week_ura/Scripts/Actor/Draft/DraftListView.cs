@@ -97,8 +97,19 @@ namespace Unity1Week_Ura.Actor
         {
             var draftView = CreateDraftView(post);
             draftViews.Insert(0, draftView);
+            CompensateScrollOffsetForPrependedContent(draftView.Height);
             RegisterDraftViewScroll(draftView);
             ArrangeDrafts();
+        }
+
+        void CompensateScrollOffsetForPrependedContent(float prependedHeight)
+        {
+            if (prependedHeight <= 0f || scrollOffsetY <= Mathf.Epsilon)
+            {
+                return;
+            }
+
+            scrollOffsetY += prependedHeight;
         }
 
         public void RemoveDraft(Post post)

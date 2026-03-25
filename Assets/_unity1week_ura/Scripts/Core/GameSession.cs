@@ -69,7 +69,10 @@ namespace Unity1Week_Ura.Core
                 throw new InvalidOperationException("Cannot load a new game while the current game is running.");
             }
 
+            Debug.Log($"[U1W-DIAG][GM-001] LoadNewGame start rule={(gameRule != null ? gameRule.name : "null")}");
+            Debug.Log("[U1W-DIAG][GM-010] Timeline.LoadAsync start");
             await timeline.LoadAsync(gameRule, ct);
+            Debug.Log("[U1W-DIAG][GM-011] Timeline.LoadAsync complete");
 
             likeScoredPostIds.Clear();
             repostScoredPostIds.Clear();
@@ -78,6 +81,7 @@ namespace Unity1Week_Ura.Core
             finishReason.Value = FinishReason.None;
             hasSuppliedInitialPost = false;
             currentGameState.Value = GameState.Pause;
+            Debug.Log("[U1W-DIAG][GM-020] LoadNewGame complete state=Pause");
         }
 
         public void Play()

@@ -7,6 +7,7 @@ using System.Threading;
 
 using Unity1Week_Ura.Core;
 using Unity1Week_Ura.Actor;
+using UnityEngine;
 
 
 namespace Unity1Week_Ura.Director
@@ -94,16 +95,34 @@ namespace Unity1Week_Ura.Director
         {
             var fromDirector = GetCurrentSceneDirector(from);
             var toDirector = GetCurrentSceneDirector(to);
+            Debug.Log($"[U1W-DIAG][TR-001] HandleSceneTransition start from={from} to={to}");
 
             try
             {
+                Debug.Log($"[U1W-DIAG][TR-010] ExitAsync start scene={from}");
                 await fromDirector.ExitAsync(cts.Token);
+                Debug.Log($"[U1W-DIAG][TR-011] ExitAsync complete scene={from}");
+
+                Debug.Log($"[U1W-DIAG][TR-020] EnterAsync start scene={to}");
                 await toDirector.EnterAsync(cts.Token);
+                Debug.Log($"[U1W-DIAG][TR-021] EnterAsync complete scene={to}");
                 currentScene = to;
+                Debug.Log($"[U1W-DIAG][TR-030] HandleSceneTransition complete currentScene={currentScene}");
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.LogWarning($"[U1W-DIAG][TR-900] HandleSceneTransition canceled from={from} to={to}");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError($"[U1W-DIAG][TR-999] HandleSceneTransition failed from={from} to={to}\n{exception}");
+                throw;
             }
             finally
             {
                 sceneModel.ReleaseLock();
+                Debug.Log($"[U1W-DIAG][TR-040] Scene lock released from={from} to={to}");
             }
         }
     }
