@@ -155,6 +155,14 @@ namespace Unity1Week_Ura.Core
                 return false;
             }
 
+            List<int> replyPostIndexes = canAppearPostIndexes
+                .Where(index => !string.IsNullOrEmpty(sourcePosts[index].Property.ParentPostId))
+                .ToList();
+            if (replyPostIndexes.Count > 0)
+            {
+                canAppearPostIndexes = replyPostIndexes;
+            }
+
             int appearedPostIndex = canAppearPostIndexes[Random.Range(0, canAppearPostIndexes.Count)];
             Post appearedPost = sourcePosts[appearedPostIndex];
             if (removeAfterSupply)
