@@ -327,16 +327,7 @@ namespace Unity1Week_Ura.Infrastructure
 
         List<PostCsvRow> ParsePostRows(string csvText)
         {
-            if (string.IsNullOrWhiteSpace(csvText))
-            {
-                throw new InvalidOperationException("Posts csv is empty.");
-            }
-
-            var lines = csvText.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-            if (lines.Length <= 1)
-            {
-                throw new InvalidOperationException("Posts csv does not contain data rows.");
-            }
+            var lines = GetEffectiveCsvLines(csvText, "Posts");
 
             int idColumn = -1;
             int authorAccountIdColumn = -1;
@@ -391,9 +382,9 @@ namespace Unity1Week_Ura.Infrastructure
                 throw new InvalidOperationException("Posts csv header is invalid.");
             }
 
-            var rows = new List<PostCsvRow>(lines.Length - 1);
+            var rows = new List<PostCsvRow>(lines.Count - 1);
 
-            for (int i = 1; i < lines.Length; i++)
+            for (int i = 1; i < lines.Count; i++)
             {
                 var columns = lines[i].Split(',');
                 int maxRequiredColumn = Math.Max(
@@ -441,6 +432,38 @@ namespace Unity1Week_Ura.Infrastructure
             }
 
             return rows;
+        }
+
+        List<string> GetEffectiveCsvLines(string csvText, string csvName)
+        {
+            if (string.IsNullOrWhiteSpace(csvText))
+            {
+                throw new InvalidOperationException($"{csvName} csv is empty.");
+            }
+
+            var rawLines = csvText.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            var lines = new List<string>(rawLines.Length);
+            foreach (var rawLine in rawLines)
+            {
+                if (string.IsNullOrWhiteSpace(rawLine))
+                {
+                    continue;
+                }
+
+                if (rawLine.TrimStart().StartsWith("#", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                lines.Add(rawLine);
+            }
+
+            if (lines.Count <= 1)
+            {
+                throw new InvalidOperationException($"{csvName} csv does not contain data rows.");
+            }
+
+            return lines;
         }
     }
 }

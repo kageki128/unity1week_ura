@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -126,6 +127,25 @@ namespace Unity1Week_Ura.Actor
 
                 if (!IsHashtagStart(source, i))
                 {
+                    if (IsUrlStart(source, i))
+                    {
+                        var urlEndIndex = i;
+                        while (urlEndIndex < source.Length && IsUrlCharacter(source[urlEndIndex]))
+                        {
+                            urlEndIndex++;
+                        }
+
+                        urlEndIndex = TrimUrlEndIndex(source, i, urlEndIndex);
+                        if (urlEndIndex > i)
+                        {
+                            builder.Append(openColorTag);
+                            builder.Append(source, i, urlEndIndex - i);
+                            builder.Append(closeColorTag);
+                            i = urlEndIndex - 1;
+                            continue;
+                        }
+                    }
+
                     builder.Append(current);
                     continue;
                 }
@@ -149,6 +169,67 @@ namespace Unity1Week_Ura.Actor
             }
 
             return builder.ToString();
+        }
+
+        bool IsUrlStart(string source, int index)
+        {
+            if (!IsUrlBoundary(source, index))
+            {
+                return false;
+            }
+
+            return StartsWithIgnoreCase(source, index, "https://")
+                || StartsWithIgnoreCase(source, index, "http://")
+                || StartsWithIgnoreCase(source, index, "www.");
+        }
+
+        bool IsUrlBoundary(string source, int index)
+        {
+            if (index <= 0)
+            {
+                return true;
+            }
+
+            return !IsUrlCharacter(source[index - 1]);
+        }
+
+        bool StartsWithIgnoreCase(string source, int index, string value)
+        {
+            if (index + value.Length > source.Length)
+            {
+                return false;
+            }
+
+            return string.Compare(source, index, value, 0, value.Length, StringComparison.OrdinalIgnoreCase) == 0;
+        }
+
+        int TrimUrlEndIndex(string source, int startIndex, int endIndex)
+        {
+            while (endIndex > startIndex && IsTrailingUrlCharacter(source[endIndex - 1]))
+            {
+                endIndex--;
+            }
+
+            return endIndex;
+        }
+
+        bool IsTrailingUrlCharacter(char value)
+        {
+            return value is '.' or ',' or '!' or '?' or ')' or ']' or '}' or '、' or '。' or '」' or '』' or '】';
+        }
+
+        bool IsUrlCharacter(char value)
+        {
+            if (char.IsLetterOrDigit(value))
+            {
+                return true;
+            }
+
+            return value is '-' or '.' or '_' or '~'
+                or ':' or '/' or '?' or '#'
+                or '[' or ']' or '@'
+                or '!' or '$' or '&' or '\'' or '(' or ')' or '*'
+                or '+' or ',' or ';' or '=' or '%';
         }
 
         bool IsHashtagStart(string source, int index)

@@ -1,2 +1,132 @@
 ID,AuthorAccountID,Text,AttachedImageFileName,ParentPostID,DefaultLikeCount,DefaultRepostCount
-
+# リプを飛ばさないアカウントたち↓
+# 広告
+ADS00000,diet_miracle,飲むだけでマイナス15kg！夏までに垢抜けたい子は今すぐチェック！,Diet,,286,91
+ADS00001,ceo_shota_mind,現役高校生で月収100万を達成。スマホ1台で始める自由な働き方を無料説明会で公開中。,Seminar,,173,54
+# 裏の部分bot
+URA00000,ura_bot,占いの"裏"の部分,,,7,1
+URA00001,ura_bot,羨みの"裏"の部分,,,5,0
+URA00002,ura_bot,恨み節の"裏"の部分,,,9,1
+URA00003,ura_bot,麗らかの"裏"の部分,,,4,0
+URA00004,ura_bot,浦島太郎の"裏"の部分,,,12,2
+URA00005,ura_bot,ウラヌスの"裏"の部分,,,6,1
+URA00006,ura_bot,ウラジオストクの"裏"の部分,,,8,1
+URA00007,ura_bot,ウラル山脈の"裏"の部分,,,10,2
+URA00008,ura_bot,ウランの"裏"の部分,,,6,0
+URA00009,ura_bot,三浦半島の"裏"の部分,,,11,2
+URA00010,ura_bot,浦安市の"裏"の部分,,,7,1
+URA00011,ura_bot,百花繚乱の"裏"の部分,,,5,0
+URA00012,ura_bot,狂瀾怒濤の"裏"の部分,,,4,0
+URA00013,ura_bot,動乱の"裏"の部分,,,13,3
+URA00014,ura_bot,裏切りの"裏"の部分,,,9,1
+URA00015,ura_bot,裏社会の"裏"の部分,,,8,1
+URA00016,ura_bot,裏垢の"裏"の部分,,,15,4
+URA00017,ura_bot,裏技の"裏"の部分,,,10,2
+URA00018,ura_bot,崩落の"裏"の部分,,,5,0
+URA00019,ura_bot,採用欄の"裏"の部分,,,6,0
+URA00020,ura_bot,概要欄の"裏"の部分,,,7,1
+# 爆笑スレ速報
+BAKU00001,matome_owata,【悲報】ワイ、深夜テンションでポチった物が朝届いて咽び泣くwww https://bakusoku.example/archives/2001,,,364,128
+BAKU00002,matome_owata,彼女「その服で行くの？」ワイ「えっ」→結果wwwww https://bakusoku.example/archives/2002,,,421,153
+BAKU00003,matome_owata,【画像】こういうのでいいんだよ定食、見つかる https://bakusoku.example/archives/2003,,,518,186
+BAKU00004,matome_owata,店員「袋いりますか？」ワイ「大丈夫です」→とんでもないことになるwww https://bakusoku.example/archives/2004,,,337,112
+BAKU00005,matome_owata,【悲報】有能ぶってショートカット覚えたワイ、無事終わる https://bakusoku.example/archives/2005,,,289,97
+BAKU00006,matome_owata,【画像】一人暮らし男の冷蔵庫、あまりにも終わってる https://bakusoku.example/archives/2006,,,476,171
+BAKU00007,matome_owata,【朗報】ワイ、人生で初めて“当たり”の店に入った結果www https://bakusoku.example/archives/2007,,,392,134
+BAKU00008,matome_owata,上司「それ昨日も言ったよね？」ワイ「……」→結果wwwww https://bakusoku.example/archives/2008,,,448,167
+BAKU00009,matome_owata,【画像】こういう部屋に住んでるやつ、だいたい同じ https://bakusoku.example/archives/2009,,,401,145
+BAKU00010,matome_owata,【悲報】ワイ、寝坊を誤魔化そうとして取り返しのつかない一言を放つ https://bakusoku.example/archives/2010,,,358,126
+BAKU00011,matome_owata,友達「一口ちょうだい」ワイ「ええで」→こうなる模様www https://bakusoku.example/archives/2011,,,315,103
+BAKU00012,matome_owata,【衝撃】“まあええか”で放置した結果、ガチでヤバいことになる https://bakusoku.example/archives/2012,,,502,191
+BAKU00013,matome_owata,【画像】謎の勢力が絶賛してる食べ物、だいたいこれ https://bakusoku.example/archives/2013,,,437,149
+BAKU00014,matome_owata,ワイ「節約するぞ！」→初日にやったことがこちらwwwww https://bakusoku.example/archives/2014,,,344,118
+BAKU00015,matome_owata,【悲報】初見で読めたら天才みたいな駅名、見つかる https://bakusoku.example/archives/2015,,,389,139
+BAKU00016,matome_owata,母親「ちょっとこれ見て」ワイ「うわっ……」→結果www https://bakusoku.example/archives/2016,,,331,109
+BAKU00017,matome_owata,【画像】センスあるやつのメモ、なんかもう違う https://bakusoku.example/archives/2017,,,458,163
+BAKU00018,matome_owata,【朗報】無能ワイでも続いた習慣、ついに見つかる https://bakusoku.example/archives/2018,,,273,88
+BAKU00019,matome_owata,店員「ポイントカードありますか？」ワイ「ないです」→毎回これwww https://bakusoku.example/archives/2019,,,307,101
+BAKU00020,matome_owata,【悲報】ワイ、“ギリいけるやろ”を信じ続けた末路www https://bakusoku.example/archives/2020,,,469,176
+# 星カレ公式
+HOSHI00001,hoshikare,【予告】 期間限定イベント「きらめき stage on ice」は明日 15:00より開催予定ですっ☆ イベント限定ストーリーでは、いつもと少し違う表情のアイドルたちが見られちゃうかも…？ 続報をお楽しみに♪ #星カレ,,,842,391
+HOSHI00002,hoshikare,【新登場予告】 明日 15:00より、期間限定スカウト「瞬きの先で、君を見つけた」を開催予定です！ SSRには天道 瀬良が登場っ☆ 特訓後イラストもどうぞお見逃しなく♪ #星カレ,,,1560,728
+HOSHI00003,hoshikare,【ログインボーナス】 本日より特別ログインボーナスを開催中です♪ 期間中ログインで、スターや育成アイテムをプレゼントっ☆ 毎日忘れずに受け取ってくださいね！ #星カレ,,,624,205
+HOSHI00004,hoshikare,【お知らせ】 明日 12:00ごろ、アプリの更新を予定しております。 最新バージョンへアップデートのうえ、お楽しみください♪ 更新内容の詳細はゲーム内お知らせをご確認ください。 #星カレ,,,411,188
+HOSHI00005,hoshikare,【キャンペーン開催】 フォロワーのみなさまへ感謝を込めて、リリース記念キャンペーンを開催中ですっ☆ 期間中にログインすると、スカウトチケット×10をプレゼント♪ これからも星カレをよろしくお願いします！ #星カレ,,,1328,544
+HOSHI00006,hoshikare,【バースデー】 本日は天道 瀬良のお誕生日ですっ☆ ゲーム内では、誕生日限定ボイスや特別演出を公開中♪ プロデューサーさん、ぜひ一緒にお祝いしてくださいね！ #天道瀬良生誕祭 #星カレ,,,2411,1105
+HOSHI00007,hoshikare,【お知らせ】 現在、一部のお客様においてアプリが正常に起動しづらい事象を確認しております。 原因を調査中のため、進展があり次第あらためてご案内いたします。 ご不便をおかけし申し訳ございません。 #星カレ,,,259,472
+HOSHI00008,hoshikare,【緊急メンテナンスのお知らせ】 不具合修正のため、ただいまより緊急メンテナンスを実施いたします。 終了時刻は未定となっております。 ご利用のみなさまにはご迷惑をおかけし、誠に申し訳ございません。 #星カレ,,,187,689
+HOSHI00009,hoshikare,【不具合修正完了】 一部楽曲においてノーツ表示が乱れる不具合を修正いたしました。 アプリを再起動のうえ、最新のデータを反映してご利用ください。 ご報告いただいたみなさま、ありがとうございました。 #星カレ,,,398,176
+HOSHI00010,hoshikare,【予告】 近日、新機能「アルバム」が追加予定ですっ☆ 獲得したカードイラストや思い出を、もっと見返しやすくなります♪ 続報は後日お知らせいたします。 #星カレ,,,719,264
+HOSHI00011,hoshikare,【ストーリー追加】 メインストーリー第6章を追加しました！ トップアイドルを目指す彼らの物語が、さらに大きく動き出します。 ぜひゲーム内でお楽しみくださいっ☆ #星カレ,,,933,347
+HOSHI00012,hoshikare,【動画公開】 イベント楽曲「Starlight Orbit」のLIVE映像を公開しましたっ☆ アイドルたちのパフォーマンスをぜひご覧ください♪ 動画はこちらからどうぞ！ #星カレ,,,1186,502
+HOSHI00013,hoshikare,【お礼】 いつも「星屑カレイドステージ」を応援いただきありがとうございます。 みなさまのおかげで、公式アカウントのフォロワー数が10万人を突破しましたっ☆ 感謝の気持ちを込めた記念企画も準備中です♪ #星カレ,,,1452,618
+# しらたまねこ
+SHIRA00001,kamatte_nyanya00,ねむれないし誰かほめて,Selfie1,,0,0
+SHIRA00002,kamatte_nyanya00,今日はちょっとだけ機嫌いいかも #自撮り界隈,Selfie2,,0,0
+SHIRA00003,kamatte_nyanya00,この角度だけはまあまあ好き,Selfie1,,0,0
+SHIRA00004,kamatte_nyanya00,かわいくなりたいってずっと言ってる,,,0,0
+SHIRA00005,kamatte_nyanya00,自己肯定感、ログインボーナス制にしてほしい,,,0,0
+SHIRA00006,kamatte_nyanya00,今日はちょっと甘やかされたい気分,Selfie2,,0,0
+SHIRA00007,kamatte_nyanya00,顔は見せないけど気分は見てほしい,Selfie1,,0,0
+SHIRA00008,kamatte_nyanya00,加工うまくいった日は世界がやさしい,Selfie2,,0,0
+SHIRA00009,kamatte_nyanya00,会いたい人いるけど言わない,,,0,0
+SHIRA00010,kamatte_nyanya00,ねれない だれかよしよしして,Selfie1,,0,0
+SHIRA00011,kamatte_nyanya00,返信早い人ってすきになっちゃう,,,0,0
+SHIRA00012,kamatte_nyanya00,たまにはお姫様扱いされたい,Selfie2,,0,0
+# 表垢コミュニティ↓
+# 
+# ツリー1：放課後のファミレス
+OMOTE00001,mika_n_0314,ファミレスなう！パフェ美味しい〜🍓,FamilyResutaurant,,35,5
+OMOTE00002,rururu0608,それ私が頼んだやつなんだけど！笑,,OMOTE00001,12,1
+OMOTE00003,kento_soccer,いいなー俺も行きたいわ,,OMOTE00001,10,1
+OMOTE00004,mika_n_0314,けんとは部活頑張りな！笑,,OMOTE00003,8,0
+# ツリー2：テスト勉強の危機
+OMOTE00005,rururu0608,テスト勉強終わんない…誰か助けて😭,,,29,3
+OMOTE00006,mika_n_0314,わかる、私も数学捨てた,,OMOTE00005,18,2
+OMOTE00007,rururu0608,いっしょに赤点回避しよ…,,OMOTE00006,11,1
+OMOTE00008,kento_soccer,俺はもう諦めて寝るわ,,OMOTE00005,15,1
+# ツリー3：サッカー部の試合前
+OMOTE00009,kento_soccer,明日の試合絶対勝つ！！🔥,,,41,6
+OMOTE00010,mika_n_0314,がんばれー！応援してる！,,OMOTE00009,19,2
+OMOTE00011,rururu0608,けんとなら点決められるよ！ファイト！,,OMOTE00009,17,2
+OMOTE00012,kento_soccer,サンキュー！見とけよー,,OMOTE00011,14,1
+# ツリー4：部活終わりのガッツリ飯
+OMOTE00013,kento_soccer,練習後のラーメン最高すぎる🍜,Ramen,,47,5
+OMOTE00014,kento_soccer,台湾まぜそば大盛りペロリでした,,OMOTE00013,21,2
+OMOTE00015,mika_n_0314,めっちゃ美味しそう！今度連れてって！,,OMOTE00013,23,2
+OMOTE00016,kento_soccer,おう！男気ジャンケンで奢りな！,,OMOTE00015,16,1
+# ツリー5：休日の家族でお出かけ
+OMOTE00017,rururu0608,家族で回転寿司〜！デザートのパフェ可愛い💕,ConveyorBeltSushi,,33,4
+OMOTE00018,mika_n_0314,いいなー！お寿司食べたくなってきた🍣,,OMOTE00017,18,2
+# ツリー6：綺麗な夜景
+OMOTE00019,mika_n_0314,夜の観覧車きれいすぎた✨,NightFerrisWheel,,38,5
+OMOTE00020,rururu0608,え、誰と行ったの！？もしかして…！？,,OMOTE00019,24,2
+OMOTE00021,mika_n_0314,家族だよ笑 るーちゃん期待しすぎ！,,OMOTE00020,20,1
+# ツリー7：月曜日の朝
+OMOTE00022,rururu0608,おはよー！今日からまた一週間がんばろー🌸,,,26,3
+OMOTE00023,mika_n_0314,おはよ！1限から体育はしんどい…,,OMOTE00022,17,1
+# ツリー8：授業中の出来事
+OMOTE00024,kento_soccer,5限の歴史マジで眠い💤,,,22,2
+OMOTE00025,mika_n_0314,寝てたのバレてたよ笑,,OMOTE00024,19,1
+OMOTE00026,kento_soccer,まじか！先生怒ってた？,,OMOTE00025,13,1
+OMOTE00027,mika_n_0314,呆れてた笑,,OMOTE00026,10,0
+# ツリー9：新しいコスメ
+OMOTE00028,rururu0608,気になってたリップ買えた！色めっちゃ可愛い💄,,,31,3
+OMOTE00029,mika_n_0314,それ私も気になってたやつ！明日見せて！,,OMOTE00028,20,2
+OMOTE00030,rururu0608,もちろん！明日持っていくねー！,,OMOTE00029,16,1
+# ツリー10：ピンチの救済
+OMOTE00031,kento_soccer,誰か今日の数学のノート見せてください土下座します,,,28,3
+OMOTE00032,mika_n_0314,しょうがないな〜明日ね,,OMOTE00031,18,1
+# 単独ポスト（日常のつぶやき）
+OMOTE00033,rururu0608,スタバの新作飲みたい〜誰か行こ！,,,24,2
+OMOTE00034,rururu0608,今日のランチは購買のメロンパン！安定の美味しさ🍈,,,19,1
+OMOTE00035,rururu0608,前髪切りすぎたかも…テンション下がる😢,,,17,1
+OMOTE00036,rururu0608,体育の持久走ほんとに無理、足が棒になった,,,15,1
+OMOTE00037,rururu0608,やっと週末だー！今週長かった…,,,21,2
+OMOTE00038,rururu0608,明日の準備終わった！おやすみなさい🌙,,,16,1
+OMOTE00039,mika_n_0314,今日の晩ご飯ハンバーグだ！最高！,,,23,2
+OMOTE00040,kento_soccer,家族で親父の奢りで居酒屋きた！焼き鳥美味すぎ🤤,Izakaya,,34,3
+OMOTE00041,kento_soccer,スパイク新しくした！これでモチベ上がるわ👟,,,20,2
+OMOTE00042,kento_soccer,週末の部活キツすぎた…全身筋肉痛,,,18,1
+OMOTE00043,kento_soccer,腹減りすぎて授業集中できない,,,14,1
+OMOTE00044,kento_soccer,やっと家着いたー！爆睡確定,,,22,2
