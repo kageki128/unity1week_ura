@@ -3362,7 +3362,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -4235,6 +4235,7 @@ MonoBehaviour:
   playerAccountCharacterSprites: {fileID: 11400000, guid: 07fcaee226deced4e9b15038ae547f30, type: 2}
   targetSpriteRenderer: {fileID: 1551545046}
   targetImage: {fileID: 0}
+  targetAnimator: {fileID: 0}
   scorePenaltySprite: {fileID: 21300000, guid: bf8cab760cab22f4eb0c10211ba2cb75, type: 3}
   failureSprite: {fileID: 21300000, guid: 7bfce9570b403fe4dbcc02eba537e579, type: 3}
   penaltyDisplaySeconds: 1
@@ -16520,7 +16521,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -18381,7 +18382,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2025344800
 RectTransform:
   m_ObjectHideFlags: 0

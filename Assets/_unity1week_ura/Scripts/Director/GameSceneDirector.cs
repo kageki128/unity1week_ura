@@ -100,6 +100,10 @@ namespace Unity1Week_Ura.Director
             gameSession.SelectedPlayerAccount.Subscribe(gameViewHub.SetSelectedPlayerAccount).AddTo(disposables);
             gameSession.Score.Subscribe(gameViewHub.SetScore).AddTo(disposables);
             gameSession.RemainingTimeSeconds.Subscribe(gameViewHub.SetRemainingTime).AddTo(disposables);
+            gameSession.CurrentGameState.Subscribe(state =>
+            {
+                gameViewHub.SetGamePaused(state == GameState.Pause);
+            }).AddTo(disposables);
             
             // ゲーム終了を購読
             gameSession.OnGameCanceled.Subscribe(_ =>

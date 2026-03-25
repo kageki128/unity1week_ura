@@ -136,6 +136,9 @@ namespace Unity1Week_Ura.Actor
             scoreView.SetScore(score);
             gameCharacterView?.SetScore(score);
         }
+
+        public void SetGamePaused(bool isPaused) => gameCharacterView?.SetPaused(isPaused);
+
         public void SetRemainingTime(float remainingTime) => remainingTimeView.SetRemainingTime(remainingTime);
         public void SetGameSubScreenTransitionEnabled(bool isEnabled) => smartPhoneView.SetGameSubScreenTransitionEnabled(isEnabled);
         public void PrepareForNewGame() => gameCharacterView?.PrepareForNewGame();

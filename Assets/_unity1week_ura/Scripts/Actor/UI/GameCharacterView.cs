@@ -15,6 +15,7 @@ namespace Unity1Week_Ura.Actor
         [SerializeField] PlayerAccountCharacterSpritesSO playerAccountCharacterSprites;
         [SerializeField] SpriteRenderer targetSpriteRenderer;
         [SerializeField] Image targetImage;
+        [SerializeField] Animator targetAnimator;
 
         [Header("State Sprites")]
         [SerializeField] Sprite scorePenaltySprite;
@@ -33,6 +34,9 @@ namespace Unity1Week_Ura.Actor
         bool hasScore;
         bool isPenaltyActive;
         bool isFailureActive;
+        bool isPaused;
+        float animatorDefaultSpeed = 1f;
+        bool hasAnimatorDefaultSpeed;
 
         CancellationTokenSource randomSwitchCancellationTokenSource;
         CancellationTokenSource penaltyCancellationTokenSource;
@@ -48,6 +52,10 @@ namespace Unity1Week_Ura.Actor
             {
                 targetImage = GetComponent<Image>();
             }
+            if (targetAnimator == null)
+            {
+                targetAnimator = GetComponent<Animator>();
+            }
 
             currentPlayerAccount = null;
             currentNormalSprite = null;
@@ -55,8 +63,12 @@ namespace Unity1Week_Ura.Actor
             hasScore = false;
             isPenaltyActive = false;
             isFailureActive = false;
+            isPaused = false;
+            hasAnimatorDefaultSpeed = targetAnimator != null;
+            animatorDefaultSpeed = targetAnimator != null ? targetAnimator.speed : 1f;
 
             CancelPenaltyTimer();
+            ApplyPauseState();
             UpdateDisplayedSprite(forceRefreshNormalSprite: true);
             RestartRandomSwitchLoopIfNeeded();
         }
@@ -69,8 +81,21 @@ namespace Unity1Week_Ura.Actor
             hasScore = false;
             currentScore = 0;
             currentNormalSprite = null;
+            isPaused = false;
             CancelPenaltyTimer();
+            ApplyPauseState();
             UpdateDisplayedSprite(forceRefreshNormalSprite: true);
+        }
+
+        public void SetPaused(bool paused)
+        {
+            if (isPaused == paused)
+            {
+                return;
+            }
+
+            isPaused = paused;
+            ApplyPauseState();
         }
 
         public void SetSelectedPlayerAccount(Account account)
@@ -121,6 +146,7 @@ namespace Unity1Week_Ura.Actor
         void OnEnable()
         {
             RestartRandomSwitchLoopIfNeeded();
+            ApplyPauseState();
             UpdateDisplayedSprite(forceRefreshNormalSprite: false);
         }
 
@@ -197,7 +223,7 @@ namespace Unity1Week_Ura.Actor
                     return;
                 }
 
-                if (ct.IsCancellationRequested || isFailureActive || isPenaltyActive)
+                if (ct.IsCancellationRequested || isFailureActive || isPenaltyActive || isPaused)
                 {
                     continue;
                 }
@@ -366,6 +392,17 @@ namespace Unity1Week_Ura.Actor
                 targetImage.sprite = sprite;
                 targetImage.enabled = sprite != null;
             }
+        }
+
+        void ApplyPauseState()
+        {
+            if (targetAnimator == null)
+            {
+                return;
+            }
+
+            var resumeSpeed = hasAnimatorDefaultSpeed ? animatorDefaultSpeed : 1f;
+            targetAnimator.speed = isPaused ? 0f : resumeSpeed;
         }
 
         void CancelRandomSwitchLoop()
